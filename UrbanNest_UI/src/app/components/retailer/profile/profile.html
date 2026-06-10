@@ -1,0 +1,59 @@
+<div class="profile-container">
+
+  <div class="profile-card">
+
+    <h2 class="title">Retailer Profile</h2>
+
+    <form [formGroup]="form">
+
+      <!-- SHOP INFO -->
+      <div class="section">
+        <h4>Shop Info</h4>
+
+        <input formControlName="ShopName" placeholder="Shop Name" class="input" />
+        <textarea formControlName="ShopDescription" placeholder="Shop Description" class="input"></textarea>
+      </div>
+
+      <!-- ADDRESS -->
+      <div class="section">
+        <h4>Address Details</h4>
+
+        <input formControlName="Address" placeholder="Address" class="input" />
+        <input formControlName="City" placeholder="City" class="input" />
+        <input formControlName="State" placeholder="State" class="input" />
+        <input formControlName="Pincode" placeholder="Pincode" class="input" />
+      </div>
+
+      <!-- CONTACT -->
+      <div class="section">
+        <h4>Contact Info</h4>
+
+        <input formControlName="ContactNumber" placeholder="Contact Number" class="input" />
+        <input formControlName="Email" placeholder="Email" class="input" />
+      </div>
+
+      <!-- BUSINESS -->
+      <div class="section">
+        <h4>Business Details</h4>
+
+        <input formControlName="GSTNumber" placeholder="GST Number" class="input" />
+        <input formControlName="PANNumber" placeholder="PAN Number" class="input" />
+      </div>
+
+      <!-- BANK -->
+      <div class="section">
+        <h4>Bank Details</h4>
+
+        <input formControlName="AccountHolderName" placeholder="Account Holder Name" class="input" />
+        <input formControlName="BankAccountNumber" placeholder="Account Number" class="input" />
+        <input formControlName="IFSCCode" placeholder="IFSC Code" class="input" />
+      </div>
+
+      <!-- BUTTON -->
+      <button class="btn-save" (click)="update()">Save Changes</button>
+
+    </form>
+
+  </div>
+
+</div>

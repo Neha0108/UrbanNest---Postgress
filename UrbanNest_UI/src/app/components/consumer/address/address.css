@@ -1,0 +1,305 @@
+/* =========================
+   Urban Nest Address Page
+   Dark Luxury Theme
+========================= */
+
+:host {
+  display: block;
+  min-height: 100vh;
+  padding: 40px 6%;
+  background:
+    radial-gradient(circle at top left, rgba(212, 175, 55, 0.12), transparent 35%),
+    linear-gradient(135deg, #050505 0%, #111111 45%, #1a1a1a 100%);
+  color: #f5f1e8;
+  font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+/* Heading */
+h2 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 28px;
+  color: #f8e7b0;
+  letter-spacing: 0.5px;
+  position: relative;
+}
+
+h2::after {
+  content: "";
+  display: block;
+  width: 72px;
+  height: 3px;
+  margin-top: 10px;
+  border-radius: 20px;
+  background: linear-gradient(90deg, #d4af37, #fff1a8);
+}
+
+/* Empty State */
+.empty-box {
+  max-width: 560px;
+  margin: 30px auto;
+  padding: 45px 30px;
+  text-align: center;
+  border: 1px dashed rgba(212, 175, 55, 0.45);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.045);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(14px);
+}
+
+.empty-box h3 {
+  font-size: 24px;
+  margin-bottom: 10px;
+  color: #f8e7b0;
+}
+
+.empty-box p {
+  color: #cfc6b3;
+  margin-bottom: 24px;
+}
+
+/* Address Container */
+.address-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 22px;
+  margin-bottom: 28px;
+}
+
+/* Address Card */
+.address-card {
+  position: relative;
+  padding: 24px;
+  min-height: 190px;
+  border-radius: 24px;
+  cursor: pointer;
+  overflow: hidden;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.025));
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.35);
+  transition: all 0.35s ease;
+}
+
+.address-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent, rgba(212, 175, 55, 0.13), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.address-card:hover::before {
+  transform: translateX(100%);
+}
+
+.address-card:hover {
+  transform: translateY(-7px);
+  border-color: rgba(212, 175, 55, 0.65);
+  box-shadow: 0 24px 70px rgba(212, 175, 55, 0.13);
+}
+
+.address-card.active {
+  border: 1.8px solid #d4af37;
+  background:
+    linear-gradient(145deg, rgba(212, 175, 55, 0.16), rgba(255, 255, 255, 0.04));
+  box-shadow:
+    0 0 0 2px rgba(212, 175, 55, 0.12),
+    0 24px 75px rgba(212, 175, 55, 0.18);
+}
+
+.address-card h4 {
+  font-size: 19px;
+  margin-bottom: 12px;
+  color: #fff4c7;
+  font-weight: 700;
+}
+
+.address-card p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #d8d0c1;
+  margin: 5px 0;
+}
+
+/* Default Badge */
+.badge {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #111;
+  background: linear-gradient(135deg, #d4af37, #fff0a6);
+  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.25);
+}
+
+/* Buttons */
+button {
+  border: none;
+  outline: none;
+  cursor: pointer;
+  border-radius: 999px;
+  padding: 11px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #111;
+  background: linear-gradient(135deg, #d4af37, #fff0a6);
+  box-shadow: 0 10px 28px rgba(212, 175, 55, 0.22);
+  transition: all 0.28s ease;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 35px rgba(212, 175, 55, 0.32);
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+/* Delete Button inside card */
+.address-card button {
+  margin-top: 18px;
+  padding: 8px 14px;
+  font-size: 12px;
+  color: #ffd8d8;
+  background: rgba(255, 70, 70, 0.12);
+  border: 1px solid rgba(255, 90, 90, 0.35);
+  box-shadow: none;
+}
+
+.address-card button:hover {
+  background: rgba(255, 70, 70, 0.2);
+  color: #fff;
+}
+
+/* Add Button Wrapper */
+div[ng-reflect-ng-if="true"] > button {
+  margin-bottom: 24px;
+}
+
+/* Form Box */
+.form-box {
+  max-width: 760px;
+  margin: 28px 0;
+  padding: 30px;
+  border-radius: 26px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.085), rgba(255, 255, 255, 0.025));
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(16px);
+}
+
+.form-box > button {
+  margin-bottom: 22px;
+}
+
+/* Form Layout */
+form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+}
+
+/* Inputs */
+input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  background: rgba(0, 0, 0, 0.35);
+  color: #f7f0df;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.25s ease;
+}
+
+input::placeholder {
+  color: #9f9687;
+}
+
+input:focus {
+  border-color: #d4af37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.12);
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* Checkbox Label */
+label {
+  grid-column: span 2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #d8d0c1;
+  font-size: 14px;
+}
+
+label input {
+  width: 17px;
+  height: 17px;
+  accent-color: #d4af37;
+}
+
+/* Form Buttons */
+form button {
+  width: fit-content;
+}
+
+form button:last-child {
+  color: #f2e7cf;
+  background: transparent;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  box-shadow: none;
+}
+
+form button:last-child:hover {
+  background: rgba(212, 175, 55, 0.1);
+}
+
+/* Place Order Button */
+body button:last-child,
+:host > button:last-child {
+  margin-top: 20px;
+  padding: 14px 34px;
+  font-size: 15px;
+  letter-spacing: 0.3px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  :host {
+    padding: 28px 18px;
+  }
+
+  h2 {
+    font-size: 26px;
+  }
+
+  .address-container {
+    grid-template-columns: 1fr;
+  }
+
+  .form-box {
+    padding: 22px;
+  }
+
+  form {
+    grid-template-columns: 1fr;
+  }
+
+  label {
+    grid-column: span 1;
+  }
+
+  form button {
+    width: 100%;
+  }
+
+  button {
+    width: 100%;
+  }
+}

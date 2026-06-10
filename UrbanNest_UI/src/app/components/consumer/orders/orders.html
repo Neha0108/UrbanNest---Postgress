@@ -1,0 +1,152 @@
+<div class="main-content">
+
+  <h3 class="mb-3">My Orders</h3>
+
+  <div *ngIf="orders.length === 0" class="text-muted">
+    You have not placed any orders yet 🛒
+  </div>
+
+  <!-- ✅ Orders List -->
+<div *ngFor="let order of orders"
+     class="card mb-3"
+     [ngClass]="{'cancelled-order': order.Status === 'Cancelled by User'}">
+    <div class="card-body">
+
+      <h6>Order ID: {{ order.OrderId }}</h6>
+
+      <small class="text-muted">
+        {{ order.OrderDate | date:'medium' }}
+      </small>
+
+      <br>
+
+      <!-- ✅ ACTION BUTTONS -->
+      <div class="order-actions">
+
+        <!-- ✅ SHOW CANCEL BUTTON ONLY IF NOT CANCELLED -->
+        <button
+          *ngIf="order.Status !== 'Cancelled by User'; else cancelledTpl"
+          class="btn cancel-btn"
+          [disabled]="
+            order.Status === 'Shipped' ||
+            order.Status === 'Out for Delivery' ||
+            order.Status === 'Delivered'
+          "
+          (click)="cancelOrder(order.OrderId)">
+          Cancel Order
+        </button>
+
+        <!-- ✅ TEMPLATE FOR CANCELLED -->
+        <ng-template #cancelledTpl>
+          <span class="cancelled-label">Cancelled Order </span>
+        </ng-template>
+
+        <!-- ✅ TRACK BUTTON -->
+        <button class="btn track-btn" (click)="trackOrder(order)">
+          Track Order
+        </button>
+
+      </div>
+
+      <!-- ✅ DELIVERY DATE -->
+      <small class="delivery-date" *ngIf="order.EstimatedDeliveryDate">
+        Expected Delivery:
+        {{ order.EstimatedDeliveryDate | date:'mediumDate' }}
+      </small>
+
+      <!-- ✅ ITEMS TABLE -->
+      <table class="table mt-2">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Qty</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let item of order.Items">
+            <td>{{ item.productName }}</td>
+            <td>{{ item.Quantity }}</td>
+            <td class="price">₹ {{ item.Price }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ✅ TOTAL -->
+      <div class="order-total text-end mt-2">
+        <span>Total Amount: </span>
+        <strong>₹ {{ getOrderTotal(order.Items) }}</strong>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- ✅ ✅ TRACK MODAL -->
+<div class="track-modal" *ngIf="selectedOrder">
+
+  <div class="track-box">
+
+    <!-- HEADER -->
+    <div class="track-header">
+      <h5>Order Tracking</h5>
+      <button (click)="closeTrack()">✕</button>
+    </div>
+
+    <!-- BODY -->
+    <div class="track-body">
+      <!-- ✅ STATUS -->
+      <p>
+        <strong>Status:</strong>
+
+        <span *ngIf="selectedOrder.Status === 'Cancelled by User'" class="cancelled-text">
+          Order Cancelled 
+        </span>
+
+        <span *ngIf="selectedOrder.Status !== 'Cancelled by User'">
+          {{ selectedOrder.Status }}
+        </span>
+      </p>
+
+      <!-- ✅ DELIVERY -->
+      <p *ngIf="selectedOrder.EstimatedDeliveryDate && selectedOrder.Status !== 'Cancelled by User'">
+        <strong>Expected Delivery:</strong>
+        {{ selectedOrder.EstimatedDeliveryDate | date:'dd MMM' }}
+      </p>
+
+      <!-- ✅ ITEMS -->
+      <div class="track-items">
+        <h6>Order Items</h6>
+
+        <div class="track-item" *ngFor="let item of selectedOrder.Items">
+          <div class="item-name">{{ item.productName }}</div>
+          <div class="item-meta">
+            Qty: {{ item.Quantity }} | ₹ {{ item.Price }}
+          </div>
+        </div>
+      </div>
+
+      <!-- ✅ TOTAL -->
+      <div class="track-total">
+        Total: ₹ {{ getOrderTotal(selectedOrder.Items) }}
+      </div>
+
+      <!-- ✅ STEPS -->
+      <div class="track-steps"
+           *ngIf="selectedOrder.Status !== 'Cancelled by User'">
+
+        <div class="step" [class.active]="isStepDone('Pending')">Placed</div>
+        <div class="step" [class.active]="isStepDone('Confirmed')">Confirmed</div>
+        <div class="step" [class.active]="isStepDone('Shipped')">Shipped</div>
+        <div class="step" [class.active]="isStepDone('Out for Delivery')">Out</div>
+        <div class="step" [class.active]="isStepDone('Delivered')">Delivered</div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

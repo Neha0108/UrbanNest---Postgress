@@ -1,0 +1,73 @@
+<h2>Select Address</h2>
+
+<!-- ✅ EMPTY STATE -->
+<div *ngIf="noAddress" class="empty-box">
+  <h3>No Address Found</h3>
+  <p>Please add a delivery address to continue</p>
+
+  <button (click)="showForm = true">
+    + Add Address
+  </button>
+</div>
+
+<!-- ✅ ADDRESS LIST -->
+<div *ngIf="!noAddress" class="address-container">
+
+  <div *ngFor="let a of addresses"
+       class="address-card"
+       [class.active]="a.addressId === selectedAddressId"
+       (click)="selectAddress(a.addressId)">
+
+    <h4>{{a.fullName}}</h4>
+    <p>{{a.addressLine}}</p>
+    <p>{{a.city}} - {{a.pincode}}</p>
+
+    <span *ngIf="a.isDefault" class="badge">Default</span>
+
+    <button (click)="deleteAddress(a.addressId); $event.stopPropagation()">
+      Delete
+    </button>
+
+  </div>
+
+</div>
+
+<!-- ✅ ADD BUTTON (ONLY WHEN ADDRESSES EXIST) -->
+<div *ngIf="!noAddress">
+  <button (click)="showForm = true">+ Add New Address</button>
+</div>
+
+<!-- ✅ ADD ADDRESS FORM -->
+<div *ngIf="showForm" class="form-box">
+
+  <button (click)="getCurrentLocation()">
+    Use Current Location
+  </button>
+
+  <form [formGroup]="addressForm">
+
+    <input formControlName="fullName" placeholder="Name">
+    <input formControlName="phone" placeholder="Phone">
+    <input formControlName="addressLine" placeholder="Address">
+    <input formControlName="city" placeholder="City">
+    <input formControlName="state" placeholder="State">
+    <input formControlName="pincode" placeholder="Pincode">
+
+    <label>
+      <input type="checkbox" formControlName="isDefault">
+      Set as default
+    </label>
+
+    <button type="button" (click)="saveAddress()">Save Address</button>
+
+    <!-- ✅ cancel button -->
+    <button type="button" (click)="showForm = false">
+      Cancel
+    </button>
+
+  </form>
+
+</div>
+
+<!-- ✅ PLACE ORDER -->
+<button (click)="placeOrder()">Place Order</button>

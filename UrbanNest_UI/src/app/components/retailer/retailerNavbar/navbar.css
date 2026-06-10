@@ -1,0 +1,190 @@
+/* ===============================
+   LAYOUT
+================================ */
+.retailer-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg-page);
+}
+
+/* ===============================
+   SIDEBAR
+================================ */
+.sidebar {
+  width: 260px;
+  background: #0f0f10;   /*  BLACK */
+  color: #ffffff;
+  padding: 1.8rem 1.3rem;
+
+  display: flex;
+  flex-direction: column;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+
+  border-right: 1px solid rgba(212,175,55,0.15);
+}
+
+/* LINKS */
+.sidebar a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 10px 15px;
+  margin-bottom: 10px;
+
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+/*  HOVER */
+.sidebar a:hover {
+  background: rgba(212,175,55,0.08);
+  color: #D4AF37;
+}
+
+/*  ACTIVE TAB (PREMIUM GOLD) */
+.sidebar a.active {
+  background: linear-gradient(
+    90deg,
+    rgba(212,175,55,0.12),
+  );
+
+  color: #D4AF37;
+  font-weight: 600;
+
+  border-left: 3px solid #D4AF37;
+}
+
+/* ===============================
+   BRAND
+================================ */
+.brand-logo {
+  width: 150px;
+  height: 100px;
+}
+
+.brand-text {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  letter-spacing: -0.03em;
+  padding-left: 8px;
+  color: #ffffff;
+}
+
+/* ===============================
+   SIDEBAR LINKS
+================================ */
+.sidebar a {
+  display: block;
+  padding: 0.8rem 1rem;
+  margin-bottom: 0.75rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+/*  ACTIVE (PILL STYLE - FINAL) */
+.sidebar a.active {
+  border: 1.5px solid #D4AF37;
+  color: #D4AF37;
+  background: rgba(212, 175, 55, 0.08);
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+}
+
+/*  HOVER */
+.sidebar a:hover {
+  border: 1.5px solid #E5C158;
+  color: #E5C158;
+  background: rgba(212, 175, 55, 0.08);
+}
+
+/* ===============================
+   PROFILE SECTION
+================================ */
+.profile-wrapper {
+  margin-top: auto;
+  position: relative;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 12px;
+
+  background: rgba(255,255,255,0.05);
+  border-radius: 14px;
+
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.profile-header:hover {
+  background: rgba(212,175,55,0.08);
+}
+
+.profile-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+
+  background: rgba(212,175,55,0.1);
+  display: grid;
+  place-items: center;
+}
+
+/* ===============================
+   DROPDOWN
+================================ */
+.profile-dropdown {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 0;
+  width: 100%;
+
+  background: #1a1a1a;
+  border: 1px solid rgba(212,175,55,0.2);
+  border-radius: 12px;
+
+  overflow: hidden;
+}
+
+.profile-dropdown a,
+.profile-dropdown button {
+  padding: 10px 12px;
+  color: #fff;
+  background: transparent;
+  border: none;
+  text-align: left;
+  width: 100%;
+}
+
+.profile-dropdown a:hover,
+.profile-dropdown button:hover {
+  background: rgba(212,175,55,0.1);
+  color: #D4AF37;
+}
+
+/* ===============================
+   MAIN CONTENT (FIXED GAP )
+================================ */
+.content {
+  padding-top: 0px;
+  margin-left: 140px;   /*  MUST match sidebar width */
+  flex: 1;
+  min-height: 100vh;
+  padding: 1rem;
+  background: var(--bg-page);
+}

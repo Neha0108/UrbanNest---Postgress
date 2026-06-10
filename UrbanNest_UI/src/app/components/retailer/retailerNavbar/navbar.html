@@ -1,0 +1,57 @@
+<div class="retailer-layout">
+
+  <!--  SIDEBAR -->
+  <aside class="sidebar">
+    <!-- LOGO -->
+    <a class="navbar-brand d-flex align-items-center">
+      <img src="assets/images/FinalBrand.png" class="brand-logo me-2" />
+    </a>
+    <h1 class="brand-text">Urban Nest Seller</h1>
+
+    <a routerLink="retailerdashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      📊 Dashboard
+    </a>
+
+    <a routerLink="products" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      📦 My Products
+    </a>
+
+    <a routerLink="add-product" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      ➕ Add Product
+    </a>
+
+    <!-- PROFILE DROPDOWN -->
+    <div class="profile-wrapper" (click)="toggleDropdown()">
+
+      <div class="profile-header">
+        <div class="profile-icon">👤</div>
+        <span class="username">{{ userName }}</span>
+        <span class="arrow">▼</span>
+      </div>
+
+      <!-- ✅ ONLY ONE DROPDOWN -->
+      <div class="profile-dropdown" *ngIf="showDropdown">
+
+        <a routerLink="/retailerNavbar/retailer-profile" (click)="$event.stopPropagation()">
+          View Profile
+        </a>
+
+        <a routerLink="/retailerNavbar/change-password" (click)="$event.stopPropagation()">
+          Change Password
+        </a>
+
+        <button (click)="logout(); $event.stopPropagation()">
+          ⏻ Logout
+        </button>
+
+      </div>
+
+    </div>
+  </aside>
+
+  <!--  MAIN CONTENT -->
+  <main class="content">
+    <router-outlet></router-outlet>
+  </main>
+
+</div>

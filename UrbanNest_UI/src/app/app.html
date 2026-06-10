@@ -1,0 +1,10 @@
+<ng-container [ngSwitch]="getUserRole()">
+  <app-consumer-navbar *ngSwitchCase="'Consumer'"></app-consumer-navbar>
+  <app-retailer-navbar *ngSwitchCase="'Retailer'"></app-retailer-navbar>
+  <app-admin *ngSwitchCase="'Admin'"></app-admin>
+  <app-navbar *ngSwitchDefault></app-navbar>
+</ng-container>
+
+<section>
+  <router-outlet></router-outlet>
+</section>

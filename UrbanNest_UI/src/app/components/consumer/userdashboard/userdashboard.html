@@ -1,0 +1,131 @@
+<div class="main-content">
+  <div class="container mt-4">
+
+    <!-- Category Navbar -->
+    <!-- Filter Button -->
+    <div class="filter-bar">
+      <button class="filter-toggle" (click)="toggleFilters()">Filter</button>
+    </div>
+
+    <!-- Overlay when filter panel open -->
+    <div class="filter-overlay" *ngIf="showFilters" (click)="toggleFilters()"></div>
+
+    <!-- Filter Panel (contains categories + price) -->
+    <aside class="filter-panel" [class.open]="showFilters">
+      <div class="filter-panel-header">
+        <h5>Filters</h5>
+        <button class="close-btn" (click)="toggleFilters()">✕</button>
+      </div>
+
+      <div class="filter-section">
+        <h6>Categories</h6>
+        <div class="category-navbar">
+          <button class="category-item" *ngFor="let cat of categories" (click)="filterByCategory(cat); toggleFilters()"
+            [class.active]="selectedCategory === cat">
+            {{ cat }}
+          </button>
+        </div>
+      </div>
+
+      <div class="filter-section price-filter">
+        <h6>Filter by Price</h6>
+
+        <div class="range-slider">
+
+          <input type="range" min="0" max="100000" [(ngModel)]="minPrice" (input)="applyPriceFilter()" />
+
+          <input type="range" min="0" max="100000" [(ngModel)]="maxPrice" (input)="applyPriceFilter()" />
+
+        </div>
+
+        <div class="price-values">
+          ₹ {{ minPrice }} - ₹ {{ maxPrice }}
+        </div>
+
+        <button class="reset-btn" (click)="resetPrice()">Reset</button>
+      </div>
+
+    </aside>
+
+
+    <div class="row">
+      <div class="col-md-4 mb-4" *ngFor="let item of filteredProducts; trackBy: trackById">
+
+        <div class="product-card">
+
+          <!--  HEART ICON (TOP RIGHT) -->
+          <div class="wishlist-icon" [class.active]="isInWishlist(item.productId)"
+            (click)="toggleWishlist(item.productId)">
+            ♥
+          </div>
+
+          <!-- Product Image -->
+          <div *ngIf="item.imagepath" class="img-wrapper">
+            <div id="carousel{{item.productId}}" class="carousel slide" data-bs-ride="carousel">
+              <div class="carousel-inner">
+                <div class="carousel-indicators">
+                  <button *ngFor="let img of item.imagepath; let i = index" type="button"
+                    [attr.data-bs-target]="'#carousel' + item.productId" [attr.data-bs-slide-to]="i"
+                    [class.active]="i === 0"></button>
+                </div>
+                <div *ngFor="let img of item.imagepath; let i = index" class="carousel-item" [class.active]="i === 0">
+                  <img [src]="'http://localhost:5146' + img" class="d-block w-100 product-img" />
+                </div>
+              </div>
+
+              <!-- controls -->
+              <button class="carousel-control-prev" type="button" [attr.data-bs-target]="'#carousel' + item.productId"
+                data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+              </button>
+
+              <button class="carousel-control-next" type="button" [attr.data-bs-target]="'#carousel' + item.productId"
+                data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+              </button>
+            </div>
+          </div>
+
+          <div class="product-info">
+
+            <span class="product-category">
+              {{ item.CategoryName }}
+            </span>
+
+            <h5 class="product-title">
+              {{ item.productName }}
+            </h5>
+
+            <div class="product-meta">
+              <span>₹ {{ item.productPrice }}</span>
+            </div>
+
+            <!--  ACTIONS -->
+            <div class="product-actions">
+
+              <!--  VIEW MORE -->
+              <button class="view-btn" (click)="viewDetails(item.productId)">
+                View More
+              </button>
+
+              <!--  ADD TO CART -->
+              <button class="cart-btn" [disabled]="isInCart(item.productId)" (click)="addToCart(item)">
+                {{ isInCart(item.productId) ? 'Added' : 'Add to Cart' }}
+              </button>
+
+            </div>
+            <div class="delivery">
+              Get it by <strong>
+                {{ item.expectedDelivery | date:'dd MMM' }}
+              </strong>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

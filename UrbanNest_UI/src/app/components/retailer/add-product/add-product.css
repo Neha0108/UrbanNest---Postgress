@@ -1,0 +1,289 @@
+/* ===============================
+   CONTAINER
+================================ */
+.form-container {
+  max-width: 900px;
+  margin: 0;
+}
+
+.form-card {
+  padding: 2.5rem;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08),
+              inset 0 0 0 1px rgba(212, 175, 55, 0.08);
+  animation: fadeSlideUp 0.5s ease;
+}
+
+/* ===============================
+   TITLE
+================================ */
+.form-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin-bottom: 1.8rem;
+  text-align: center;
+}
+
+/* ===============================
+   FORM GROUP
+================================ */
+.form-group {
+  margin-bottom: 1.2rem;
+}
+
+label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1A1A1A;
+  margin-bottom: 6px;
+  display: block;
+}
+
+/* ===============================
+   INPUT + SELECT + TEXTAREA
+================================ */
+.form-control {
+  width: 100%;
+  border-radius: 12px;
+  padding: 11px 14px;
+  border: 1px solid #E8E5DB;
+  background: #F9F7F1;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+textarea.form-control {
+  resize: none;
+}
+
+.form-control:focus {
+  outline: none;
+  background: #fff;
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+/* ===============================
+   IMAGE PREVIEW
+================================ */
+.preview-container img {
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+}
+
+.preview-container img:hover {
+  transform: scale(1.05);
+}
+
+/* REMOVE IMAGE BUTTON */
+.preview-container button {
+  background: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 13px;
+  line-height: 1;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.preview-container button:hover {
+  background: #D4AF37;
+  color: white;
+}
+
+/* ===============================
+   CURRENT IMAGES (EDIT MODE)
+================================ */
+img {
+  border-radius: 10px;
+  border: 1px solid #E8E5DB;
+  transition: transform 0.3s ease;
+}
+
+img:hover {
+  transform: scale(1.05);
+}
+
+/* ===============================
+   BUTTONS
+================================ */
+.submit-btn {
+  border-radius: 999px;
+  padding: 11px 18px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: none;
+  background: #D4AF37;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(212, 175, 55, 0.18);
+  transition: all 0.3s ease;
+}
+
+.submit-btn:hover {
+  background: #E5C158;
+  transform: translateY(-2px);
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* CANCEL BUTTON */
+.btn-secondary {
+  border-radius: 999px;
+  padding: 11px 18px;
+  background: #ECEAE3;
+  color: #1A1A1A;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: #E0DDD5;
+}
+
+/* ===============================
+   ERROR TEXT
+================================ */
+.text-danger {
+  font-size: 0.85rem;
+  margin-top: 4px;
+  color: #E74C3C;
+}
+/* ===============================
+   DRAG & DROP ZONE
+================================ */
+.drop-zone {
+  border: 2px dashed #D4AF37;
+  padding: 25px;
+  border-radius: 16px;
+  text-align: center;
+  cursor: pointer;
+  background: #FBF9F4;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.drop-zone:hover {
+  background: #FFFDF7;
+  border-color: #E5C158;
+}
+
+.drop-zone input {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  top: 0;
+  left: 0;
+  cursor: pointer;
+}
+
+/* ===============================
+   CHARACTER COUNTER
+================================ */
+.char-counter {
+  text-align: right;
+  font-size: 0.8rem;
+  color: #8A8A8A;
+  margin-top: 4px;
+}
+
+/* ===============================
+   IMAGE CAROUSEL PREVIEW
+================================ */
+.preview-scroll {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-top: 10px;
+}
+
+.preview-card {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.preview-card img {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid #E8E5DB;
+  transition: transform 0.3s ease;
+}
+
+.preview-card img:hover {
+  transform: scale(1.08);
+}
+
+/* REMOVE BUTTON */
+.preview-card button {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: white;
+  border: none;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  font-size: 12px;
+  cursor: pointer;
+  color: #d00;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.preview-card button:hover {
+  background: #D4AF37;
+  color: white;
+}
+
+/* ===============================
+   PREMIUM GLOW EFFECT
+================================ */
+.form-control:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15),
+              0 6px 18px rgba(212, 175, 55, 0.12);
+}
+
+/* ===============================
+   SCROLLBAR (PREMIUM)
+================================ */
+.preview-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.preview-scroll::-webkit-scrollbar-thumb {
+  background: #D4AF37;
+  border-radius: 10px;
+}
+
+/* ===============================
+   ANIMATION
+================================ */
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===============================
+   RESPONSIVE
+================================ */
+@media (max-width: 768px) {
+  .form-card {
+    padding: 1.5rem;
+  }
+}

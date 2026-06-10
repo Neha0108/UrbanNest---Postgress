@@ -1,0 +1,137 @@
+<!-- ===== TOP BAR ===== -->
+<div class="topbar">
+  <div class="logo">UrbanNest Admin</div>
+  <button (click)="logout()" class="logout">Logout</button>
+</div>
+
+<!-- ===== SUB NAVBAR ===== -->
+<div class="sub-navbar">
+  <button (click)="loadConsumers()" [class.active]="activeTab==='consumers'">
+    Consumers
+  </button>
+  <button (click)="loadRetailers()" [class.active]="activeTab==='retailers'">
+    Retailers
+  </button>
+  <button (click)="loadCategories()" [class.active]="activeTab==='category'">
+    Categories
+  </button>
+  <button (click)="loadRoles()" [class.active]="activeTab==='roles'">
+    Roles
+  </button>
+</div>
+
+<!-- ===== MAIN CONTENT ===== -->
+<div class="main-container" [ngSwitch]="activeTab">
+
+  <!-- ✅ CONSUMERS -->
+  <div *ngSwitchCase="'consumers'" class="section">
+    <h2>Consumers</h2>
+
+    <div class="filter-tabs">
+      <button (click)="filterUsers('all')">All</button>
+      <button (click)="filterUsers('active')">Active</button>
+      <button (click)="filterUsers('blocked')">Blocked</button>
+    </div>
+
+    <div *ngIf="filteredConsumers.length === 0" class="empty">
+      No consumers found
+    </div>
+
+    <div class="list-card" *ngFor="let u of filteredConsumers">
+      <div>
+        <p class="title">{{u.Name}}</p>
+        <p class="sub">{{u.Email}}</p>
+      </div>
+
+      <div class="right-side-horizontal">
+        <span class="status"
+              [ngClass]="u.status === 'Blocked' ? 'blocked' : 'active'">
+          {{u.status}}
+        </span>
+
+        <button *ngIf="u.status !== 'Blocked'"
+                (click)="blockUser(u.Id)">
+          Block
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ RETAILERS -->
+  <div *ngSwitchCase="'retailers'" class="section">
+    <h2>Retailers</h2>
+
+    <div *ngIf="retailers.length === 0" class="empty">
+      No retailers found
+    </div>
+
+    <div class="list-card" *ngFor="let u of retailers">
+      <div>
+        <p class="title">{{u.shopname}}</p>
+        <p class="sub">{{u.uName}}</p>
+        <p class="sub">{{u.uEmail}}</p>
+        <p class="sub">📞 {{u.userPhoneNumber}}</p>
+        <p class="sub">📍 {{u.userAddress}}</p>
+      </div>
+
+      <div class="right-side-horizontal">
+        <span class="status"
+              [ngClass]="u.status === 'Blocked' ? 'blocked' : 'active'">
+          {{u.status}}
+        </span>
+
+        <button *ngIf="u.status !== 'Blocked'"
+                (click)="blockUser(u.userId)">
+          Block
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ CATEGORIES -->
+  <div *ngSwitchCase="'category'" class="section">
+    <h2>Category Management</h2>
+
+    <div class="input-box">
+      <input [(ngModel)]="newCategory.categoryName"
+             placeholder="Enter category">
+      <button (click)="addCategory()">Add</button>
+    </div>
+
+    <div *ngIf="categories.length === 0" class="empty">
+      No categories found
+    </div>
+
+    <div class="list-card" *ngFor="let c of categories">
+      <span class="title">{{c.CategoryName}}</span>
+      <button class="delete"
+              (click)="deleteCategory(c.CategoryId)">
+        Delete
+      </button>
+    </div>
+  </div>
+
+  <!-- ✅ ROLES -->
+  <div *ngSwitchCase="'roles'" class="section">
+    <h2>Role Management</h2>
+
+    <div class="input-box">
+      <input [(ngModel)]="newRole.name"
+             placeholder="Enter role">
+      <button (click)="addRole()">Add</button>
+    </div>
+
+    <div *ngIf="roles.length === 0" class="empty">
+      No roles found
+    </div>
+
+    <div class="list-card" *ngFor="let r of roles">
+      <span class="title">{{r.name}}</span>
+      <button class="delete"
+              (click)="deleteRole(r.id)">
+        Delete
+      </button>
+    </div>
+  </div>
+
+</div>

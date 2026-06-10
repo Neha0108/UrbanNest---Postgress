@@ -1,0 +1,97 @@
+:host {
+  display: block;
+}
+
+/* =========================
+   WHY URBAN NEST – WRAPPER
+========================= */
+.why-urban-nest {
+  padding: 80px 20px;
+  background: #ffffff;
+  text-align: center;
+}
+
+/* =========================
+   INTRO / TITLE SECTION
+========================= */
+.why-section {
+  max-width: 900px;
+  margin: 0 auto 60px;
+}
+
+.why-section h2 {
+  font-size: 2.2rem;
+  font-weight: 600;
+  margin-bottom: 14px;
+  color: #111827;
+}
+
+.why-section p {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #6b7280;
+}
+
+/* =========================
+   GRID LAYOUT
+========================= */
+.why-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 28px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* =========================
+   CARD
+========================= */
+.why-card {
+  background: #ffffff;
+  padding: 34px 26px;
+  border-radius: 26px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.why-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.14);
+}
+
+/* =========================
+   ICON
+========================= */
+.why-icon {
+  font-size: 2rem;
+  margin-bottom: 14px;
+}
+
+/* =========================
+   CARD TEXT
+========================= */
+.why-card h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #111827;
+}
+
+.why-card p {
+  font-size: 0.9rem;
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 768px) {
+  .why-urban-nest {
+    padding: 60px 16px;
+  }
+
+  .why-section h2 {
+    font-size: 1.9rem;
+  }
+}

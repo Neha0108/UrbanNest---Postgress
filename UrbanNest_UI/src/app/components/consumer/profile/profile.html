@@ -1,0 +1,114 @@
+<div class="profile-container" *ngIf="profile">
+
+  <!-- PROFILE IMAGE -->
+  <div class="profile-image">
+    <img [src]="profile.profileimage 
+    ? 'http://localhost:5146' + profile.profileimage 
+    : 'assets/default-user.png'" alt="Profile Image" />
+  </div>
+
+  <!-- PROFILE DETAILS -->
+  <div class="profile-details">
+
+    <h2>{{ profile.FirstName }} {{ profile.LastName }}</h2>
+    <p class="text-muted">Consumer Profile</p>
+    <hr />
+
+    <!-- ================= VIEW MODE ================= -->
+    <div *ngIf="!isEditMode">
+
+      <div class="profile-row">
+        <span class="label">First Name</span>
+        <span class="value">{{ profile.FirstName }}</span>
+      </div>
+
+      <div class="profile-row">
+        <span class="label">Last Name</span>
+        <span class="value">{{ profile.LastName }}</span>
+      </div>
+
+      <div class="profile-row">
+        <span class="label">Phone</span>
+        <span class="value">{{ profile.Phone }}</span>
+      </div>
+
+      <div class="profile-row">
+        <span class="label">Gender</span>
+        <span class="value">{{ profile.Gender }}</span>
+      </div>
+
+      <div class="profile-row">
+        <span class="label">Date of Birth</span>
+        <span class="value">
+          {{ profile.Date_of_Birth | date:'dd MMM yyyy' }}
+        </span>
+      </div>
+
+      <button class="btn btn-outline-primary mt-3" (click)="enableEdit()">
+        Edit Profile
+      </button>
+      <button class="btn btn-outline-warning mt-3 ms-2" (click)="goToChangePassword()">
+        Change Password
+      </button>
+    </div>
+
+    <!-- ================= EDIT MODE ================= -->
+    <div *ngIf="isEditMode" class="edit-form">
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        {{ errorMessage }}
+      </div>
+
+      <div *ngIf="successMessage" class="alert alert-success">
+        {{ successMessage }}
+      </div>
+
+      <div class="form-group">
+        <label>First Name</label>
+        <input type="text" class="form-control" [(ngModel)]="profile.FirstName" />
+      </div>
+
+      <div class="form-group">
+        <label>Last Name</label>
+        <input type="text" class="form-control" [(ngModel)]="profile.LastName" />
+      </div>
+
+      <div class="form-group">
+        <label>Phone</label>
+        <input type="text" class="form-control" [(ngModel)]="profile.Phone" />
+      </div>
+
+      <div class="form-group">
+        <label>Gender</label>
+        <select class="form-control" [(ngModel)]="profile.Gender">
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Date of Birth</label>
+        <input type="date" class="form-control" [(ngModel)]="profile.Date_of_Birth" />
+      </div>
+
+      <div class="form-group">
+        <label>Profile Image</label>
+        <input type="file" class="form-control" (change)="onFileChange($event)" />
+      </div>
+
+      <button class="btn btn-success mt-3" (click)="saveProfile()">
+        Save
+      </button>
+
+      <button class="btn btn-secondary mt-3 ms-2" (click)="cancelEdit()">
+        Cancel
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- LOADER -->
+<div *ngIf="!profile" class="text-center mt-5">
+  Loading profile...
+</div>

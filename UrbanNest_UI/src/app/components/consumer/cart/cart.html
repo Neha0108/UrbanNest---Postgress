@@ -1,0 +1,101 @@
+<div class="main-content">
+  <div class="container mt-4">
+    <h3>My Cart</h3>
+
+    <div *ngIf="cartItems.length === 0">
+      Your cart is empty 🛒
+    </div>
+
+    <div *ngIf="cartItems.length > 0">
+      <!--  SELECT ALL / DESELECT ALL -->
+      <div class="select-controls mb-3">
+        <label class="select-label">
+          <input 
+            type="checkbox" 
+            class="form-check-input"
+            [checked]="selectedItems.size === cartItems.length && cartItems.length > 0"
+            (change)="selectedItems.size === cartItems.length ? deselectAll() : selectAll()"
+          />
+          <span>{{ selectedItems.size === cartItems.length && cartItems.length > 0 ? 'Deselect All' : 'Select All' }}</span>
+        </label>
+      </div>
+
+      <div *ngFor="let item of cartItems" class="cart-item mb-3 p-3 border-bottom">
+        <!-- LEFT: Image -->
+        <div *ngIf="item.imagePath" class="img-wrapper">
+          <div id="carousel{{item.productId}}" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+              <div class="carousel-indicators">
+                <button *ngFor="let img of item.imagePath; let i = index" type="button"
+                  [attr.data-bs-target]="'#carousel' + item.productId" [attr.data-bs-slide-to]="i"
+                  [class.active]="i === 0"></button>
+              </div>
+              <div *ngFor="let img of item.imagePath; let i = index" class="carousel-item" [class.active]="i === 0">
+                <img [src]="'http://localhost:5146' + img" class="d-block w-100 product-img" />
+              </div>
+            </div>
+
+            <!-- controls -->
+            <button class="carousel-control-prev" type="button" [attr.data-bs-target]="'#carousel' + item.productId"
+              data-bs-slide="prev">
+              <span class="carousel-control-prev-icon"></span>
+            </button>
+
+            <button class="carousel-control-next" type="button" [attr.data-bs-target]="'#carousel' + item.productId"
+              data-bs-slide="next">
+              <span class="carousel-control-next-icon"></span>
+            </button>
+          </div>
+        </div>
+
+        <!--  CHECKBOX -->
+        <div class="item-checkbox">
+          <input 
+            type="checkbox" 
+            class="form-check-input"
+            [checked]="isItemSelected(item.productId)"
+            (change)="toggleItemSelection(item.productId)"
+          />
+        </div>
+
+        <!-- RIGHT: Details -->
+        <div class="cart-details">
+          <h6>{{item.productId }}. {{item.productName}}</h6>
+          <p class="price">₹ {{ item.productPrice }}</p>
+
+          <!-- Quantity -->
+          <div class="qty-box">
+            <button (click)="decreaseQty(item)">−</button>
+            <span>{{ item.quantity }}</span>
+            <button (click)="increaseQty(item)">+</button>
+          </div>
+
+          <strong class="subtotal">
+            ₹ {{ item.productPrice * item.quantity }}
+          </strong>
+
+          <button class="remove-btn" (click)="removeItem(item.productId)">
+            ✖ Remove
+          </button>
+        </div>
+      </div>
+
+      <hr />
+      <div class="cart-summary">
+        <div class="summary-row">
+          <span>Cart Total: </span>
+          <strong>₹ {{ total || 0 }}</strong>
+        </div>
+        <div class="summary-row selected">
+          <span>Selected Total: </span>
+          <strong>₹ {{ getSelectedTotal() }}</strong>
+        </div>
+      </div>
+    </div>
+    <div class="d-flex justify-content-end mt-4">
+      <button class="btn btn-primary px-4 py-2" (click)="placeOrder()" [disabled]="selectedItems.size === 0">
+        🛒 Place Order ({{ selectedItems.size }} selected)
+      </button>
+    </div>
+  </div>
+</div>

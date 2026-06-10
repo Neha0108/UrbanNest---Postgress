@@ -1,0 +1,72 @@
+<h2 class="dashboard-title"> Dashboard</h2>
+<div class="chart-card">
+  <canvas id="revenueChart"></canvas>
+</div>
+
+<!--  METRIC CARDS -->
+<div class="metrics">
+  <div class="card">
+    <p>Total Revenue</p>
+    <h3>₹ {{ totalRevenue }}</h3>
+  </div>
+
+  <div class="card">
+    <p>Total Orders</p>
+    <h3>{{ totalOrders }}</h3>
+  </div>
+
+  <div class="card">
+    <p>Products Sold</p>
+    <h3>{{ totalQuantity }}</h3>
+  </div>
+
+  <div class="card">
+    <p>Hero Product</p>
+    <h3>{{ heroProduct }}</h3>
+  </div>
+</div>
+
+<!--  ORDERS TABLE -->
+<h3 class="mt-4">Recent Orders</h3>
+
+<div class="table-container" *ngIf="orders.length > 0">
+
+  <div *ngFor="let o of orders" class="order-card">
+
+    <div class="order-header">
+      <span>Order #{{ o.OrderId }}</span>
+      <span>{{ o.OrderDate | date:'short' }}</span>
+    </div>
+
+    <div class="order-items">
+      <div *ngFor="let item of o.Items" class="item">
+        <span>{{ item.ProductName }}</span>
+        <span>{{ item.Quantity }} × ₹{{ item.Price }}</span>
+      </div>
+    </div>
+    <div class="status-container">
+
+      <select [value]="o.Status" (change)="updateStatus(o.OrderId, $event)" class="status-dropdown"
+        [disabled]="o.Status === 'Cancelled by User' || o.Status === 'Delivered'">
+
+        <option>Pending</option>
+        <option>Confirmed</option>
+        <option>Shipped</option>
+        <option>Out for Delivery</option>
+        <option>Delivered</option>
+
+      </select>
+
+      <span *ngIf="o.Status === 'Cancelled by User'" class="cancelled-label">
+        Cancelled by User
+      </span>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div *ngIf="orders.length === 0" class="text-muted mt-3">
+  No orders yet 📦
+</div>

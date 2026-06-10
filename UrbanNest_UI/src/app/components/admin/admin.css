@@ -1,0 +1,239 @@
+/* ===== GLOBAL ===== */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(180deg, #fafafa, #eeeeee);
+  color: #222;
+}
+
+/* ===== TOP BAR ===== */
+.topbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 70px;
+  background: linear-gradient(120deg, #0b0b0b, #1a1a1a);
+  color: #E6C87A;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 45px;
+  z-index: 1000;
+  box-shadow: 0 6px 22px rgba(0,0,0,0.5);
+}
+
+.logo {
+  font-size: 24px;   /* increased */
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+/* LOGOUT */
+.logout {
+  border: 1px solid #E6C87A;
+  background: transparent;
+  color: #E6C87A;
+  padding: 8px 20px;
+  border-radius: 25px;
+  transition: all 0.3s;
+}
+.logout:hover {
+  background: #E6C87A;
+  color: black;
+  transform: scale(1.08);
+}
+
+/* ===== NAVBAR ===== */
+.sub-navbar {
+  position: fixed;
+  top: 70px;
+  width: 100%;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(12px);
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  padding: 12px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+.sub-navbar button {
+  padding: 8px 18px;
+  border-radius: 20px;
+  border: none;
+  background: transparent;
+  font-size: 15px;   /* increased */
+  color: #b8962e;
+  font-weight: 500;
+}
+
+/* ACTIVE TAB */
+.sub-navbar button.active,
+.sub-navbar button:hover {
+  background: linear-gradient(135deg, #E6C87A, #d4af37);
+  color: black;
+  transform: scale(1.05);
+}
+
+/* ===== MAIN ===== */
+.main-container {
+  margin-top: 160px;
+  padding: 35px 45px;
+}
+
+/* ===== SECTION ===== */
+.section {
+  animation: fadeIn 0.4s ease;
+}
+
+.section h2 {
+  font-size: 24px; /* bigger */
+  margin-bottom: 25px;
+  font-weight: 600;
+}
+
+/* ❌ REMOVED underline */
+.section h2::after {
+  display: none;
+}
+
+/* ===== FILTER ===== */
+.filter-tabs {
+  margin-bottom: 18px;
+}
+
+.filter-tabs button {
+  padding: 7px 15px;
+  border-radius: 20px;
+  border: none;
+  background: white;
+  color: #555;
+  font-weight: 500;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+}
+
+.filter-tabs button:hover {
+  background: #f5f5f5;
+}
+
+/* ===== CARD ===== */
+.list-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 20px;
+  margin-bottom: 16px;
+  border-radius: 16px;
+  border-left: 6px solid #E6C87A;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  transition: all 0.3s ease;
+}
+
+.list-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.15);
+}
+
+/* ===== TEXT ===== */
+.title {
+  font-size: 18px;   /* bigger */
+  font-weight: 600;
+  color: #000;       /* strong black */
+}
+
+.sub {
+  font-size: 15px;   /* bigger */
+  color: #000;       /*  BLACK DETAILS (as you wanted) */
+  margin-top: 3px;
+}
+
+/* optional subtle secondary tone */
+.sub:nth-child(n+3) {
+  color: #333;
+}
+
+/* ===== RIGHT SIDE ===== */
+.right-side-horizontal {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ===== STATUS ===== */
+.status {
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+/* ACTIVE */
+.status.active {
+  background: #e9fff1;
+  color: #0c9b4d;
+}
+
+/* BLOCKED */
+.status.blocked {
+  background: #ffe5e5;
+  color: #c20000;
+}
+
+/* ===== INPUT ===== */
+.input-box {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.input-box input {
+  flex: 1;
+  padding: 11px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+}
+
+.input-box input:focus {
+  border-color: #E6C87A;
+  box-shadow: 0 0 10px rgba(230,200,122,0.5);
+  outline: none;
+}
+
+/* ===== BUTTONS ===== */
+button {
+  padding: 7px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+button:not(.delete) {
+  background: #111;
+  color: #E6C87A;
+}
+
+button:not(.delete):hover {
+  background: linear-gradient(135deg, #E6C87A, #d4af37);
+  color: black;
+  transform: scale(1.05);
+}
+
+/* DELETE */
+.delete {
+  background: linear-gradient(135deg, #ff5c5c, #d10000);
+  color: white;
+}
+
+/* ===== ANIMATION ===== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

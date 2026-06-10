@@ -1,0 +1,103 @@
+<div class="product-page" *ngIf="product">
+
+  <!-- ===============================
+       LEFT: IMAGE SECTION
+  =============================== -->
+  <div class="image-section">
+
+    <!--  MAIN IMAGE -->
+    <img class="main-image" [src]="'http://localhost:5146' + selectedImage" alt="product image" />
+
+    <!--  THUMBNAILS -->
+    <div class="thumbnail-row" *ngIf="product.imagepath?.length">
+      <img *ngFor="let img of product.imagepath" [src]="'http://localhost:5146' + img" (click)="selectImage(img)"
+        [class.active]="selectedImage === img" alt="thumbnail" />
+    </div>
+
+  </div>
+
+
+  <!-- ===============================
+       RIGHT: PRODUCT DETAILS
+  =============================== -->
+  <div class="details-section">
+
+    <!-- PRODUCT NAME -->
+    <h2>{{ product.productName }}</h2>
+
+    <!-- CATEGORY -->
+    <div class="category">
+      {{ product.CategoryName }}
+    </div>
+
+    <!-- PRICE -->
+    <div class="price">
+      ₹ {{ product.productPrice }}
+    </div>
+
+    <!-- STOCK -->
+    <div class="stock" [class.out]="product.stock === 0">
+      {{ product.stock > 0 ? 'In Stock' : 'Out of Stock' }}
+    </div>
+
+    <!-- DESCRIPTION -->
+    <p class="desc">
+      {{ product.productDescription }}
+    </p>
+
+    <!-- ===============================
+         QUANTITY
+    =============================== -->
+    <div class="quantity-box">
+      <button (click)="decreaseQty()">−</button>
+      <span>{{ quantity }}</span>
+      <button (click)="increaseQty()">+</button>
+    </div>
+
+    <!-- ===============================
+         ACTION BUTTONS
+    =============================== -->
+    <div class="button-group">
+      <!-- ADD TO CART BUTTON -->
+      <button class="cart-btn" [disabled]="product.stock === 0 || isInCart()" (click)="addToCart()">
+        {{ isInCart() ? '✓ Already in Cart' : 'Add to Cart' }}
+      </button>
+
+      <!-- BUY NOW BUTTON -->
+      <button class="buy-now-btn" [disabled]="product.stock === 0" (click)="buyNow()">
+        Buy Now
+      </button>
+    </div>
+  </div>
+ <div class="delivery"
+     *ngIf="product.expectedDelivery && product.expectedDelivery !== '0001-01-01T00:00:00'">
+
+  Get it by
+  <strong>
+    {{ product.expectedDelivery | date:'dd MMM' }}
+  </strong>
+
+</div>
+</div>
+
+
+<!-- ===============================
+     REVIEWS SECTION
+================================ -->
+<div class="reviews-section" *ngIf="product">
+
+  <h3>Customer Reviews</h3>
+
+  <div class="review-card" *ngFor="let r of reviews">
+
+    <div class="review-header">
+      ⭐ {{ r.rating }} / 5
+    </div>
+
+    <p class="review-text">
+      {{ r.comment }}
+    </p>
+
+  </div>
+
+</div>

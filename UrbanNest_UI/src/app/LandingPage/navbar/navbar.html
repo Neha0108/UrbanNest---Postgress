@@ -1,0 +1,189 @@
+﻿<!-- =========================
+     PRIMARY NAVBAR
+========================= -->
+
+
+<nav class="top-bar" aria-label="Main navigation">
+
+  <div class="brand-logo" routerLink="/">
+    Urban Nest
+</div>
+  <!--  LEFT NAV TABS -->
+  <div class="top-bar-tabs">
+
+    <!-- HOME -->
+    <a class="top-bar-item" [class.active]="activePanel === 'home'" routerLink="/" (click)="setHome()">
+      Home
+    </a>
+
+    <!-- COLLECTION (HOVER PREVIEW) -->
+    <button class="top-bar-item" [class.active]="activePanel === 'collection'" type="button"
+      (mouseenter)="showTabPreview('collection')" (mouseleave)="scheduleHidePreview()"
+      [attr.aria-expanded]="isCollectionOpen">
+      Collection
+    </button>
+
+    <!-- CATEGORY (HOVER PREVIEW + ROUTE) -->
+    <a class="top-bar-item" [class.active]="activePanel === 'category'" routerLink="/products"
+      (mouseenter)="showTabPreview('category')" (mouseleave)="scheduleHidePreview()">
+      Category
+    </a>
+
+    
+  <a class="top-bar-item"
+   routerLink="/about">
+   About
+</a>
+  </div>
+
+
+  <!--  RIGHT ACTION BUTTONS -->
+  <div class="top-bar-actions">
+
+    <a class="signin-btn"
+       routerLink="/login">
+       Sign In
+    </a>
+
+    <a class="register-btn"
+       routerLink="/register">
+       Register
+    </a>
+
+</div>
+
+  <!-- =========================
+       COLLECTION PREVIEW PANEL
+  ========================== -->
+  <div class="collection-panel" #collectionPanel (mouseenter)="cancelHidePreview()"
+    (mouseleave)="scheduleHidePreview()">
+
+    <div class="collection-panel-inner">
+
+      <!--  HEADER -->
+      <div class="collection-panel-header">
+
+        <div>
+          <span class="section-label">
+            {{ activePanel === 'collection' ? 'Featured Collection' : 'Browse Categories' }}
+          </span>
+
+          <h2>
+            {{ activePanel === 'collection'
+            ? 'Urban Nest Curated Picks'
+            : 'Explore Top Categories' }}
+          </h2>
+        </div>
+
+        <!--  RIGHT SIDE -->
+        <div class="collection-panel-meta">
+
+          <!--  VIEW ALL BUTTON -->
+          <button *ngIf="!isLoadingCollection && activePanel === 'collection'" class="view-all-btn"
+            (click)="viewAllProducts()">
+            View All →
+          </button>
+
+          <!-- CATEGORY COUNT -->
+          <span *ngIf="!isLoadingCollection && activePanel === 'category'">
+            {{ categories.length }} categories available
+          </span>
+
+          <!-- LOADING -->
+          <span *ngIf="isLoadingCollection">
+            Loading preview...
+          </span>
+
+        </div>
+      </div>
+
+      <!--  LOADING STATE -->
+      <div *ngIf="isLoadingCollection" class="product-loading">
+        Gathering premium pieces for you...
+      </div>
+
+      <!-- =========================
+           PRODUCT SLIDER
+      ========================== -->
+      <div *ngIf="!isLoadingCollection
+                  && activePanel === 'collection'
+                  && visibleProducts.length" class="slider-container">
+
+        <!-- ARROWS -->
+        <button class="slider-arrow prev" type="button" (click)="slidePrev()">
+          ‹
+        </button>
+
+        <button class="slider-arrow next" type="button" (click)="slideNext()">
+          ›
+        </button>
+
+        <!-- TRACK -->
+        <div class="slider-track">
+
+          <article *ngFor="let product of visibleProducts" class="product-card slide">
+
+            <div class="product-image" *ngIf="product.imagepath && product.imagepath.length">
+              <img [src]="'http://localhost:5146' + product.imagepath[0]" alt="product" />
+            </div>
+
+            <div class="product-card-content">
+              <span class="product-card-badge">
+                {{ product.CategoryName }}
+              </span>
+
+              <h3>{{ product.productName }}</h3>
+
+              <p class="product-description">
+                {{ product.productDescription }}
+              </p>
+            </div>
+
+            <div class="product-price">
+              {{ product.productPrice | currency:'INR' }}
+            </div>
+
+          </article>
+
+        </div>
+      </div>
+
+      <!-- =========================
+           CATEGORY GRID
+      ========================== -->
+      <div *ngIf="!isLoadingCollection
+                  && activePanel === 'category'
+                  && categories.length" class="category-grid">
+
+        <article *ngFor="let category of categories" class="category-card">
+
+          <div class="category-card-content">
+            <h3>{{ category.CategoryName }}</h3>
+          </div>
+
+        </article>
+
+      </div>
+
+    </div>
+
+    <!--  EXPLORE MORE BUTTON -->
+    <button *ngIf="activePanel === 'collection'
+                  && !showMore
+                  && products.length > visibleProducts.length" class="explore-more" type="button"
+      (click)="showMoreProducts()">
+      Explore More
+    </button>
+
+  </div>
+</nav>
+
+<!-- =========================
+     PARTICLES BACKGROUND
+========================= -->
+<canvas id="particleCanvas"></canvas>
+<div id="main-content" class="main-content">
+  <router-outlet></router-outlet>
+
+  <app-footer></app-footer>
+</div>

@@ -1,0 +1,180 @@
+/* ===============================
+   REGISTER PAGE BACKGROUND
+================================ */
+.auth-hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #FAF8F5 0%, #FFFFFF 100%);
+  padding: 2rem;
+}
+
+/* ===============================
+   REGISTER CARD
+================================ */
+.register-card {
+  width: 100%;
+  max-width: 460px;
+  padding: 2.4rem;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #1A1A1A;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08),
+              inset 0 0 0 1px rgba(212, 175, 55, 0.1);
+  animation: fadeSlideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===============================
+   HEADER / TEXT
+================================ */
+.section-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-size: 0.7rem;
+  margin-bottom: 0.6rem;
+  color: #C9A36B;
+  font-weight: 600;
+}
+
+.section-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+  color: #1A1A1A;
+}
+
+.body-copy {
+  font-size: 0.95rem;
+  color: #6B6B6B;
+}
+
+/* ===============================
+   FORM LABELS
+================================ */
+.form-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1A1A1A;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* ===============================
+   INPUTS & SELECT
+================================ */
+.form-control,
+.form-select {
+  width: 100%;
+  border-radius: 12px;
+  padding: 11px 14px;
+  background: #F9F7F1;
+  border: 1px solid #E8E5DB;
+  color: #1A1A1A;
+  font-size: 0.95rem;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+}
+
+.form-control::placeholder {
+  color: #ADADAD;
+}
+
+.form-control:focus,
+.form-select:focus {
+  outline: none;
+  background: #FFFFFF;
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+  transform: translateY(-1px);
+}
+
+/* ===============================
+   REGISTER BUTTON
+================================ */
+.register-btn {
+  width: 100%;
+  margin-top: 0.8rem;
+  border-radius: 999px;
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  background: #D4AF37;
+  color: #FFFFFF;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 24px rgba(212, 175, 55, 0.18);
+}
+
+.register-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 36px rgba(212, 175, 55, 0.24);
+  background: #E5C158;
+}
+
+.register-btn:active {
+  transform: translateY(0);
+}
+
+/* ===============================
+   FOOTER TEXT
+================================ */
+.small-note {
+  margin-top: 1.6rem;
+  font-size: 0.85rem;
+  text-align: center;
+  color: #6B6B6B;
+}
+
+/* ===============================
+   LINKS
+================================ */
+a {
+  color: #C9A36B;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: #D4AF37;
+}
+.otp-container {
+  gap: 8px;
+}
+
+.otp-box {
+  width: 45px;
+  height: 50px;
+  text-align: center;
+  font-size: 20px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: #fff;
+  transition: 0.3s;
+}
+
+.otp-box:focus {
+  outline: none;
+  border-color: #d4af37; /* gold theme */
+  box-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
+}

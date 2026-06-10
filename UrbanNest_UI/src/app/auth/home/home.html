@@ -1,0 +1,132 @@
+<div class="hero-panel">
+
+  <!--  LEFT: CONTENT -->
+  <div class="hero-copy">
+
+    <p class="eyebrow">Urban Nest</p>
+
+    <h1 class="hero-title">
+      Modern essentials designed for calm city living
+    </h1>
+
+    <p class="hero-subtitle">
+      Urban Nest is your all-in-one lifestyle platform where you can explore curated
+      fashion, home, and lifestyle products designed for modern urban living.
+    </p>
+    <div class="hero-stats">
+
+      <div class="stat">
+        <h2>10K+</h2>
+        <span>Products</span>
+      </div>
+
+      <div class="stat">
+        <h2>500+</h2>
+        <span>Retailers</span>
+      </div>
+
+      <div class="stat">
+        <h2>50K+</h2>
+        <span>Customers</span>
+      </div>
+
+    </div>
+
+    <!--  EXTRA CONTENT -->
+    <div class="hero-features">
+      <div class="feature">
+        <span>✔</span> Discover premium curated collections
+      </div>
+      <div class="feature">
+        <span>✔</span> Shop with ease and elegance
+      </div>
+      <div class="feature">
+        <span>✔</span> Sell your products as a retailer
+      </div>
+    </div>
+
+  </div>
+
+
+  <!--  RIGHT: LOGO + BANNERS -->
+  <div class="hero-visual">
+
+    <!-- Brand Image -->
+    <img src="assets/images/FinalBrand.png" class="hero-visual-img" alt="Urban Nest Visual" />
+
+
+    <!--  CONSUMER CARD -->
+    <div class="consumer-banner">
+
+      <div class="consumer-text">
+        <h3>Explore as a Consumer</h3>
+        <p>Browse premium products curated for your lifestyle.</p>
+      </div>
+
+      <button class="consumer-btn" (click)="goToProducts()">
+        Start Shopping→
+      </button>
+
+    </div>
+
+
+    <!--  RETAILER CARD -->
+    <div class="retailer-banner">
+
+      <div class="retailer-text">
+        <h3>Sell with Urban Nest</h3>
+        <p>Join as a retailer and grow your business.</p>
+      </div>
+
+      <button class="retailer-btn" (click)="goToRetailer()">
+        Continue →
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<section class="ad-slider">
+
+  <div class="slider-card" [attr.data-slide]="currentSlide">
+
+    <div class="slider-content">
+
+      <span class="slider-badge">
+        Urban Nest Exclusive
+      </span>
+
+      <h2>
+        {{ slides[currentSlide].title }}
+      </h2>
+
+      <p>
+        {{ slides[currentSlide].subtitle }}
+      </p>
+
+      <button class="slider-btn"
+              (click)="goToProducts(slides[currentSlide].category)">
+        {{ slides[currentSlide].buttonText }}
+      </button>
+
+    </div> <!-- ✅ close slider-content -->
+
+    <!-- ✅ IMAGE OUTSIDE CONTENT -->
+    <div class="slider-image">
+      <img [src]="slides[currentSlide].image" alt="banner">
+    </div>
+
+  </div> <!-- ✅ close slider-card -->
+
+  <!-- ✅ DOTS OUTSIDE CARD -->
+  <div class="slider-dots">
+    <span *ngFor="let slide of slides; let i=index"
+          [class.active]="i === currentSlide">
+    </span>
+  </div>
+
+</section>
+
+<app-category></app-category>
