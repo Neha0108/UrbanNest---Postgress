@@ -36,24 +36,19 @@ export class SuggestedProducts {
 
       this.products = res;
 
-      // ✅ Recommended
       if (this.lastCategory) {
         this.recommended = this.products.filter(
-          p => p.CategoryName === this.lastCategory
+          p => p.CategoryName?.toLowerCase() === this.lastCategory?.toLowerCase()
         );
-        this.chng.detectChanges();
+      } else {
+        this.recommended = this.products.slice(0, 6);
       }
 
-      // ✅ Recently viewed products
       this.recentlyViewed = this.products.filter(
         p => viewedIds.includes(p.productId)
       );
 
-      this.chng.detectChanges();
-
-      // ✅ Trending
       this.trending = this.products.slice(0, 10);
-      this.chng.detectChanges();
     });
   }
 

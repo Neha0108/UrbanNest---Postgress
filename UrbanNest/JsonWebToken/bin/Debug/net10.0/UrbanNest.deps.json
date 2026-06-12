@@ -16,6 +16,7 @@
           "Microsoft.EntityFrameworkCore.SqlServer": "10.0.8",
           "Microsoft.SqlServer.Server": "1.0.0",
           "MimeKit": "4.17.0",
+          "Npgsql": "10.0.3",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "10.0.2",
           "QuestPDF": "2026.5.0",
           "Razorpay": "3.3.2",

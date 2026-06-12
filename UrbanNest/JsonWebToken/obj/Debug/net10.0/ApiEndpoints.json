@@ -105,6 +105,22 @@
   },
   {
     "ContainingType": "UrbanNest.Controllers.AuthController",
+    "Method": "GetProductsByPrice",
+    "RelativePath": "api/Auth/GetProductsByPrice",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "maxPrice",
+        "Type": "System.Double",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "UrbanNest.Controllers.AuthController",
     "Method": "GetUserName",
     "RelativePath": "api/Auth/GetUserName",
     "HttpMethod": "GET",

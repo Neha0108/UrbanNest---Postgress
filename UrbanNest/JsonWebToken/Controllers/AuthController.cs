@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using iText.Commons.Actions.Contexts;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using UrbanNest.DataAccess;
@@ -129,6 +130,18 @@ namespace UrbanNest.Controllers
 
             return Ok(new { message = "OTP resent successfully" });
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetProductsByPrice(double maxPrice)
+        {
+            var products = await database.Products
+                .Where(p => p.productPrice <= maxPrice)
+                .ToListAsync();
+
+            return Ok(products);
+        }
+
+
 
     }
 }

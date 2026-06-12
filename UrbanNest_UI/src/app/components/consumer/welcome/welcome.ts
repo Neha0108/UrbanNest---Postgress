@@ -4,6 +4,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Category } from "../../../LandingPage/category/category";
 import { SuggestedProducts } from "../suggested-products/suggested-products";
+import { ShopByPrice } from "../../../LandingPage/shop-by-price/shop-by-price";
 
 gsap.registerPlugin(ScrollTrigger);
 ScrollTrigger.config({
@@ -12,7 +13,7 @@ ScrollTrigger.config({
 
 @Component({
   selector: 'app-welcome',
-  imports: [RouterLink, Category, SuggestedProducts],
+  imports: [RouterLink, Category, SuggestedProducts, ShopByPrice],
   templateUrl: './welcome.html',
   styleUrl: './welcome.css',
 })

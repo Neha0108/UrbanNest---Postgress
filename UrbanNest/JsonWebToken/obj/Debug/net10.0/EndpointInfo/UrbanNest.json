@@ -328,6 +328,28 @@
         }
       }
     },
+    "/api/Auth/GetProductsByPrice": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "parameters": [
+          {
+            "name": "maxPrice",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Consumer/getProfile": {
       "get": {
         "tags": [

@@ -23,6 +23,7 @@ import { Profile as retailerProfile } from './components/retailer/profile/profil
 import { Category } from './LandingPage/category/category';
 import { SuggestedProducts } from './components/consumer/suggested-products/suggested-products';
 import { Address } from './components/consumer/address/address';
+import { ShopByPrice } from './LandingPage/shop-by-price/shop-by-price';
 
 export const routes: Routes = [
   {path: '', component: Home},
@@ -31,6 +32,7 @@ export const routes: Routes = [
   { path: 'register', component: Register },
   {path: 'products', component: Products },
   {path: 'category',component: Category},
+  {path: 'shop-by-price', component: ShopByPrice},
   {
     path: 'consumerNavbar',
     component: ConsumerNavbar,

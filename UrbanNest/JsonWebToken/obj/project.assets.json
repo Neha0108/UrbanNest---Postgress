@@ -4024,6 +4024,7 @@
       "Microsoft.EntityFrameworkCore.Tools >= 10.0.8",
       "Microsoft.SqlServer.Server >= 1.0.0",
       "MimeKit >= 4.17.0",
+      "Npgsql >= 10.0.3",
       "Npgsql.EntityFrameworkCore.PostgreSQL >= 10.0.2",
       "QuestPDF >= 2026.5.0",
       "Razorpay >= 3.3.2",
@@ -4033,23 +4034,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\DELL\\.nuget\\packages\\": {},
+    "C:\\Users\\Neha.Lamba\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Desktop\\Urban_Nest\\UrbanNest\\JsonWebToken\\UrbanNest.csproj",
+      "projectUniqueName": "C:\\Users\\Neha.Lamba\\Desktop\\MyProject\\UrbanNest---Postgress\\UrbanNest\\JsonWebToken\\UrbanNest.csproj",
       "projectName": "UrbanNest",
-      "projectPath": "C:\\Desktop\\Urban_Nest\\UrbanNest\\JsonWebToken\\UrbanNest.csproj",
-      "packagesPath": "C:\\Users\\DELL\\.nuget\\packages\\",
-      "outputPath": "C:\\Desktop\\Urban_Nest\\UrbanNest\\JsonWebToken\\obj\\",
+      "projectPath": "C:\\Users\\Neha.Lamba\\Desktop\\MyProject\\UrbanNest---Postgress\\UrbanNest\\JsonWebToken\\UrbanNest.csproj",
+      "packagesPath": "C:\\Users\\Neha.Lamba\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Neha.Lamba\\Desktop\\MyProject\\UrbanNest---Postgress\\UrbanNest\\JsonWebToken\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\DELL\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Neha.Lamba\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -4062,7 +4063,6 @@
       },
       "frameworks": {
         "net10.0": {
-          "framework": "net10.0",
           "targetAlias": "net10.0",
           "projectReferences": {}
         }
@@ -4081,7 +4081,6 @@
     },
     "frameworks": {
       "net10.0": {
-        "framework": "net10.0",
         "targetAlias": "net10.0",
         "dependencies": {
           "BCrypt.Net-Next": {
@@ -4123,6 +4122,10 @@
           "MimeKit": {
             "target": "Package",
             "version": "[4.17.0, )"
+          },
+          "Npgsql": {
+            "target": "Package",
+            "version": "[10.0.3, )"
           },
           "Npgsql.EntityFrameworkCore.PostgreSQL": {
             "target": "Package",
@@ -4168,7 +4171,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.202/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.201/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.AspNetCore": "(,10.0.32767]",
           "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",
@@ -4585,5 +4588,13 @@
         }
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1900",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json."
+    }
+  ]
 }
