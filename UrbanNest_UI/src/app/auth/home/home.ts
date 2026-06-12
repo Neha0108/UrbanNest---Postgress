@@ -2,11 +2,12 @@ import { ChangeDetectorRef, Component, inject, OnDestroy, OnInit } from '@angula
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Category } from '../../LandingPage/category/category';
+import { ShopByPrice } from "../../LandingPage/shop-by-price/shop-by-price";
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterModule, CommonModule, Category],
+  imports: [RouterModule, CommonModule, Category, ShopByPrice],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })

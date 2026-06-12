@@ -68,4 +68,8 @@ export class UserService {
     });
     return formData;
   }
+
+  getProductsByMaxPrice(price: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/Products/ByMaxPrice/${price}`);
+  }
 }

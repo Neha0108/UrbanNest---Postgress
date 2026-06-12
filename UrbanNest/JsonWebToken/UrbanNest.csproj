@@ -29,6 +29,7 @@
 		</PackageReference>
 		<PackageReference Include="Microsoft.SqlServer.Server" Version="1.0.0" />
 		<PackageReference Include="MimeKit" Version="4.17.0" />
+		<PackageReference Include="Npgsql" Version="10.0.3" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" />
 		<PackageReference Include="QuestPDF" Version="2026.5.0" />
 		<PackageReference Include="Razorpay" Version="3.3.2" />

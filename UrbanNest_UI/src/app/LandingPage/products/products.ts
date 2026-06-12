@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { UserService } from '../../service/user-service';
 
 @Component({
   selector: 'app-products',
@@ -31,8 +32,9 @@ export class Products {
     private consumerService: Consumer,
     private route: ActivatedRoute,
     private snackBar: MatSnackBar,
-    private router: Router
-  ) {}
+    private router: Router,
+    private user: UserService
+  ) { }
 
   ngOnInit(): void {
     this.loadAll();
@@ -45,7 +47,24 @@ export class Products {
 
       this.applyFilter();
     });
+
+    this.route.queryParams.subscribe(params => {
+      const maxPrice = params['maxPrice'];
+
+      if (maxPrice) {
+        this.getProductsByPrice(maxPrice);
+      } else {
+        this.loadAll();
+      }
+    });
   }
+
+  getProductsByPrice(price: number) {
+  this.user.getProductsByMaxPrice(price)
+    .subscribe(res => {
+      this.products = res;
+    });
+}
 
   trackById(index: number, item: Product) {
     return item.productId;
