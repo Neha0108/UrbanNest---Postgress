@@ -19,7 +19,7 @@
 
         <!-- Product Image -->
         <img
-  [src]="'http://localhost:5146' + (item.ImagePath?.[0] || item.ImagePath)"
+  [src]="'http://localhost:5146' + (item.ImagePath || item.ImagePath)"
   class="wishlist-img"
 />
 

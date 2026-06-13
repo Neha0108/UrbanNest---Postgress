@@ -83,7 +83,6 @@ animateCards(): void {
 
 }
   goToProducts(category: cat): void {
-
     this.router.navigate(['/products'], {
       queryParams: {
         category: encodeURIComponent(category.CategoryName)

@@ -7,6 +7,7 @@ import { Product } from '../../../interface/product';
 import { WishlistItem } from '../../../interface/WishlistItem';
 import { Consumer } from '../../../service/consumer';
 import { FormsModule } from '@angular/forms';
+import { UserService } from '../../../service/user-service';
 
 @Component({
   selector: 'app-userdashboard',
@@ -15,7 +16,6 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './userdashboard.css',
 })
 export class Userdashboard implements OnInit {
-
   products: Product[] = [];
   filteredProducts: Product[] = [];
 
@@ -29,19 +29,29 @@ export class Userdashboard implements OnInit {
   minPrice: number | null = null;
   maxPrice: number | null = null;
   maxPriceAvailable: number = 0;
+  isUserLoggedIn = false;
 
   private chng = inject(ChangeDetectorRef);
 
   constructor(
     private consumerService: Consumer,
     private route: ActivatedRoute,
-    private router: Router
-  ) { }
+    private router: Router,
+    private user: UserService,
+  ) {}
 
   ngOnInit(): void {
-    //  listen for category from URL
-    this.route.queryParams.subscribe(params => {
-      this.selectedCategory = params['category'] || 'All';
+    this.isUserLoggedIn = this.user.isLoggedIn();
+
+    this.route.queryParams.subscribe((params) => {
+      this.selectedCategory = params['category'] ? decodeURIComponent(params['category']) : 'All';
+
+      this.chng.detectChanges();
+
+      if (params['maxPrice']) {
+        this.maxPrice = +params['maxPrice'];
+      }
+
       this.loadAll();
     });
   }
@@ -55,50 +65,92 @@ export class Userdashboard implements OnInit {
   }
 
   loadAll() {
+    // Guest User
+    if (!this.isUserLoggedIn) {
+      this.consumerService.allProducts().subscribe({
+        next: (res) => {
+          this.products = res;
+          this.chng.detectChanges();
+
+          // Categories
+          const uniqueCats = new Set(res.map((p) => p.CategoryName));
+
+          this.categories = ['All', ...Array.from(uniqueCats)];
+
+          // Max Price
+          this.maxPriceAvailable = Math.max(...res.map((p) => p.productPrice));
+
+          // Default Price Values
+          if (this.minPrice === null) {
+            this.minPrice = 0;
+          }
+
+          if (this.maxPrice === null) {
+            this.maxPrice = this.maxPriceAvailable;
+          }
+
+          this.applyFilter();
+
+          this.chng.detectChanges();
+        },
+        error: (err) => {
+          console.error('Products Load Error:', err);
+        },
+      });
+
+      return;
+    }
+
+    // Logged In User
     forkJoin({
       products: this.consumerService.allProducts(),
       wishlist: this.consumerService.getWishlist(),
-      cart: this.consumerService.getCartItems()
+      cart: this.consumerService.getCartItems(),
     }).subscribe({
       next: (res) => {
         this.products = res.products;
-        console.log(this.products);
         this.wishlist = res.wishlist;
+        this.chng.detectChanges();
 
         this.cart = res.cart.map((item: any) => ({
           productId: item.ProductId,
-          quantity: item.Quantity
+          quantity: item.Quantity,
         }));
 
-        // ✅ category list
-        const uniqueCats = new Set(res.products.map(p => p.CategoryName));
+        // Categories
+        const uniqueCats = new Set(res.products.map((p) => p.CategoryName));
+
         this.categories = ['All', ...Array.from(uniqueCats)];
 
-        // ✅ max price
-        this.maxPriceAvailable = Math.max(...res.products.map(p => p.productPrice));
+        // Max Price
+        this.maxPriceAvailable = Math.max(...res.products.map((p) => p.productPrice));
 
-        // ✅ IMPORTANT: default values for price
-        if (this.minPrice === null) this.minPrice = 0;
-        if (this.maxPrice === null) this.maxPrice = this.maxPriceAvailable;
+        // Default Price Values
+        if (this.minPrice === null) {
+          this.minPrice = 0;
+        }
 
-        // ✅ FINAL FILTER
+        if (this.maxPrice === null) {
+          this.maxPrice = this.maxPriceAvailable;
+        }
+
         this.applyFilter();
 
         this.chng.detectChanges();
-      }
+      },
+      error: (err) => {
+        console.error('Dashboard Load Error:', err);
+      },
     });
   }
 
   /*  CORE FILTER LOGIC */
   applyFilter() {
-
     let filtered = this.products;
 
     // ✅ Category filter
     if (this.selectedCategory && this.selectedCategory !== 'All') {
-      filtered = filtered.filter(
-        p => p.CategoryName === this.selectedCategory
-      );
+      filtered = filtered.filter((p) => p.CategoryName === this.selectedCategory);
     }
 
     // ✅ Fix invalid range (IMPORTANT)
@@ -110,9 +162,7 @@ export class Userdashboard implements OnInit {
     }
 
     // ✅ Apply price filter
-    filtered = filtered.filter(
-      p => p.productPrice >= min && p.productPrice <= max
-    );
+    filtered = filtered.filter((p) => p.productPrice >= min && p.productPrice <= max);
 
     this.filteredProducts = filtered;
   }
@@ -125,12 +175,12 @@ export class Userdashboard implements OnInit {
 
   /*  Wishlist */
   isInWishlist(productId: number): boolean {
-    return this.wishlist.some(w => w.ProductId === productId);
+    return this.wishlist.some((w) => w.ProductId === productId);
   }
 
   toggleWishlist(productId: number) {
     if (this.isInWishlist(productId)) {
-      this.wishlist = this.wishlist.filter(w => w.ProductId !== productId);
+      this.wishlist = this.wishlist.filter((w) => w.ProductId !== productId);
       this.consumerService.removeFromWishlist(productId).subscribe();
     } else {
       this.wishlist.push({ ProductId: productId } as WishlistItem);
@@ -140,7 +190,7 @@ export class Userdashboard implements OnInit {
 
   /*  Cart */
   isInCart(productId: number): boolean {
-    return this.cart.some(c => c.productId === productId);
+    return this.cart.some((c) => c.productId === productId);
   }
 
   addToCart(product: Product) {
@@ -161,5 +211,10 @@ export class Userdashboard implements OnInit {
     this.minPrice = null;
     this.maxPrice = null;
     this.applyFilter();
+  }
+
+  showAuthMessage() {
+    alert('Please login first');
+    this.router.navigate(['/login']);
   }
 }

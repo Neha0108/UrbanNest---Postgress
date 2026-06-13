@@ -1,0 +1,220 @@
+# 🗄️ UrbanNest Database Setup
+
+This project uses **PostgreSQL** hosted on **Supabase** as the primary database.
+
+---
+
+## Database Provider
+
+- PostgreSQL
+- Supabase Cloud Database
+- Entity Framework Core
+- Npgsql Provider
+
+---
+
+## Create Supabase Database
+
+### 1. Create a Supabase Account
+
+Visit:
+
+https://supabase.com
+
+Create a new project.
+
+---
+
+### 2. Configure Database
+
+Create a project with:
+
+```text
+Project Name: UrbanNest
+Database: PostgreSQL
+```
+
+Save the database password securely.
+
+---
+
+### 3. Get Connection String
+
+Navigate to:
+
+```text
+Project Dashboard
+→ Connect
+→ Session Pooler
+```
+
+Copy the PostgreSQL connection string.
+
+Example:
+
+```text
+Host=aws-xxxx.pooler.supabase.com;
+Port=5432;
+Database=postgres;
+Username=postgres.xxxxxxxxx;
+Password=YOUR_PASSWORD;
+SSL Mode=Require;
+Trust Server Certificate=true
+```
+
+---
+
+## Configure ASP.NET Core
+
+Update `appsettings.json`:
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=aws-xxxx.pooler.supabase.com;Port=5432;Database=postgres;Username=postgres.xxxxxxxxx;Password=YOUR_PASSWORD;SSL Mode=Require;Trust Server Certificate=true"
+  }
+}
+```
+
+---
+
+## Entity Framework Migrations
+
+### Create Migration
+
+```bash
+dotnet ef migrations add InitialCreate
+```
+
+### Apply Migration
+
+```bash
+dotnet ef database update
+```
+
+This will create all tables in the Supabase PostgreSQL database.
+
+---
+
+## Database Schema
+
+### Core Tables
+
+| Table | Purpose |
+|---------|---------|
+| Users | User authentication and profile data |
+| Role | Application roles |
+| Consumers | Consumer-specific information |
+| Retailers | Retailer-specific information |
+| Category | Product categories |
+| SubCategory | Product subcategories |
+| Products | Product information |
+| ProductImages | Multiple images per product |
+| Cart | Consumer shopping cart |
+| CartItems | Products added to cart |
+| Orders | Order information |
+| OrderItems | Ordered products |
+| EmailOTP | OTP verification records |
+
+---
+
+## Relationships
+
+### User → Role
+
+```text
+Role (1) ------> (Many) Users
+```
+
+### User → Consumer
+
+```text
+Users (1) ------> (1) Consumer
+```
+
+### User → Retailer
+
+```text
+Users (1) ------> (1) Retailer
+```
+
+### Category → SubCategory
+
+```text
+Category (1) ------> (Many) SubCategory
+```
+
+### Category → Products
+
+```text
+Category (1) ------> (Many) Products
+```
+
+### SubCategory → Products
+
+```text
+SubCategory (1) ------> (Many) Products
+```
+
+### Retailer → Products
+
+```text
+Retailer (1) ------> (Many) Products
+```
+
+### Product → ProductImages
+
+```text
+Product (1) ------> (Many) ProductImages
+```
+
+### Consumer → Orders
+
+```text
+Consumer (1) ------> (Many) Orders
+```
+
+### Order → OrderItems
+
+```text
+Order (1) ------> (Many) OrderItems
+```
+
+---
+
+## Seed Data
+
+### Roles
+
+```sql
+INSERT INTO "Role" ("Name")
+VALUES
+('Admin'),
+('Retailer'),
+('Consumer');
+```
+
+---
+
+## Security
+
+- Passwords are hashed using BCrypt.
+- OTP verification is handled on the server side.
+- JWT authentication is used for authorization.
+- PostgreSQL is hosted securely on Supabase Cloud.
+
+---
+
+## Cloud Deployment
+
+Database is deployed on:
+
+- Supabase PostgreSQL
+
+Benefits:
+
+- Managed PostgreSQL
+- Automatic backups
+- Secure SSL connections
+- Cloud-hosted infrastructure
+- Easy integration with ASP.NET Core

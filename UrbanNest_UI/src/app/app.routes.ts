@@ -15,7 +15,6 @@ import { Ordersucccess } from './components/consumer/ordersucccess/ordersucccess
 import { Orders } from './components/consumer/orders/orders';
 import { Profile as profile } from './components/consumer/profile/profile';
 import { About } from './LandingPage/about/about';
-import { Products } from './LandingPage/products/products';
 import { Home } from './auth/home/home';
 import { ProductDetails } from './components/consumer/product-details/product-details';
 import { AdminComponent }  from './components/admin/admin';
@@ -30,7 +29,7 @@ export const routes: Routes = [
   { path: 'login', component: Login },
   {path: 'about',component:About},
   { path: 'register', component: Register },
-  {path: 'products', component: Products },
+  {path: 'products', component: Userdashboard},
   {path: 'category',component: Category},
   {path: 'shop-by-price', component: ShopByPrice},
   {

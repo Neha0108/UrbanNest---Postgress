@@ -3,6 +3,7 @@ import { User } from '../interface/user';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../env/environment';
+import { Product } from '../interface/product';
 
 @Injectable({
   providedIn: 'root',
@@ -69,7 +70,18 @@ export class UserService {
     return formData;
   }
 
-  getProductsByMaxPrice(price: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/Products/ByMaxPrice/${price}`);
+  getProductsByPrice(maxPrice: number, categoryId?: number) {
+  let params: any = {
+    maxPrice: maxPrice
+  };
+
+  if (categoryId) {
+    params.categoryId = categoryId;
   }
+
+  return this.http.get<Product[]>(
+    `${this.apiUrl}/GetProductsByPrice`,
+    { params }
+  );
+}
 }

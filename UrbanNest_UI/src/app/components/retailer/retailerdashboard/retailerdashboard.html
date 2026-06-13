@@ -1,72 +1,270 @@
-<h2 class="dashboard-title"> Dashboard</h2>
-<div class="chart-card">
-  <canvas id="revenueChart"></canvas>
+<!-- ================= WELCOME BANNER ================= -->
+
+<div class="welcome-banner">
+
+  <div>
+    <h2>Welcome Back 👋</h2>
+    <p>Track your sales, orders and business growth from one place.</p>
+  </div>
+
+  <div class="banner-actions">
+
+    <input
+      type="text"
+      class="search-box"
+      placeholder="🔍 Search orders, products..." />
+
+    <select
+      [(ngModel)]="selectedCategory"
+      (change)="onCategoryChange()"
+      class="filter-dropdown">
+
+      <option value="All">All Categories</option>
+
+      <option
+        *ngFor="let cat of categories"
+        [value]="cat">
+
+        {{ cat }}
+
+      </option>
+
+    </select>
+
+  </div>
+
 </div>
 
-<!--  METRIC CARDS -->
-<div class="metrics">
-  <div class="card">
-    <p>Total Revenue</p>
-    <h3>₹ {{ totalRevenue }}</h3>
-  </div>
-
-  <div class="card">
-    <p>Total Orders</p>
-    <h3>{{ totalOrders }}</h3>
-  </div>
-
-  <div class="card">
-    <p>Products Sold</p>
-    <h3>{{ totalQuantity }}</h3>
-  </div>
-
-  <div class="card">
-    <p>Hero Product</p>
-    <h3>{{ heroProduct }}</h3>
+<!-- ================= KPI CARDS ================= -->
+<div class="seller-profile-card">
+  <div class="avatar">🏪</div>
+  <div>
+      <h3>Your Store</h3>
+      <p>Manage products & orders</p>
   </div>
 </div>
 
-<!--  ORDERS TABLE -->
-<h3 class="mt-4">Recent Orders</h3>
+<div class="kpi-grid">
 
-<div class="table-container" *ngIf="orders.length > 0">
+  <div class="kpi-card">
 
-  <div *ngFor="let o of orders" class="order-card">
+    <div class="icon">💰</div>
 
-    <div class="order-header">
-      <span>Order #{{ o.OrderId }}</span>
-      <span>{{ o.OrderDate | date:'short' }}</span>
+    <span>Total Revenue</span>
+
+    <h2>₹ {{ totalRevenue }}</h2>
+
+  </div>
+
+  <div class="kpi-card">
+
+    <div class="icon">📦</div>
+
+    <span>Total Orders</span>
+
+    <h2>{{ totalOrders }}</h2>
+
+  </div>
+
+  <div class="kpi-card">
+
+    <div class="icon">🛒</div>
+
+    <span>Products Sold</span>
+
+    <h2>{{ totalQuantity }}</h2>
+
+  </div>
+
+  <div class="kpi-card">
+
+    <div class="icon">🏆</div>
+
+    <span>Best Seller</span>
+
+    <h2>{{ heroProduct }}</h2>
+
+  </div>
+
+</div>
+
+<!-- ================= ANALYTICS ================= -->
+
+<div class="analytics-grid">
+
+  <div class="panel revenue-panel">
+
+    <div class="panel-header">
+
+      <h4>Revenue Analytics</h4>
+
+      <span>This Month</span>
+
     </div>
 
-    <div class="order-items">
-      <div *ngFor="let item of o.Items" class="item">
-        <span>{{ item.ProductName }}</span>
-        <span>{{ item.Quantity }} × ₹{{ item.Price }}</span>
-      </div>
+    <canvas id="revenueChart"></canvas>
+
+  </div>
+
+  <div class="panel">
+
+    <div class="panel-header">
+
+      <h4>Sales By Category</h4>
+
     </div>
-    <div class="status-container">
 
-      <select [value]="o.Status" (change)="updateStatus(o.OrderId, $event)" class="status-dropdown"
-        [disabled]="o.Status === 'Cancelled by User' || o.Status === 'Delivered'">
+    <canvas id="categoryChart"></canvas>
 
-        <option>Pending</option>
-        <option>Confirmed</option>
-        <option>Shipped</option>
-        <option>Out for Delivery</option>
-        <option>Delivered</option>
+  </div>
 
-      </select>
+</div>
 
-      <span *ngIf="o.Status === 'Cancelled by User'" class="cancelled-label">
-        Cancelled by User
+<!-- ================= BOTTOM SECTION ================= -->
+
+<div class="bottom-grid">
+
+  <!-- RECENT ORDERS -->
+
+  <div class="panel">
+
+    <div class="panel-header">
+
+      <h4>Recent Orders</h4>
+
+    </div>
+
+    <div *ngIf="orders.length > 0">
+
+      <div
+        *ngFor="let o of orders"
+        class="order-row">
+
+        <div class="order-info">
+
+  <div class="order-top">
+
+    <strong>{{ o.OrderId }}</strong>
+
+    <span class="order-status-chip">
+      {{ o.Status }}
+    </span>
+
+  </div>
+
+  <div
+    *ngFor="let item of o.Items"
+    class="product-details">
+
+    <div class="product-name">
+       {{ item.ProductName }}
+    </div>
+
+    <div class="product-meta">
+
+      <span>{{ item.CategoryName }}</span>
+
+      <span>
+        Qty: {{ item.Quantity }}
+      </span>
+
+      <span>
+        ₹{{ item.Price }}
       </span>
 
     </div>
 
   </div>
 
+  <div class="date">
+    {{ o.OrderDate | date:'medium' }}
+  </div>
+
 </div>
 
-<div *ngIf="orders.length === 0" class="text-muted mt-3">
-  No orders yet 📦
+        <div>
+
+          <select
+            [value]="o.Status"
+            (change)="updateStatus(o.OrderId,$event)"
+            class="status-dropdown"
+            [disabled]="
+              o.Status === 'Cancelled by User' ||
+              o.Status === 'Delivered'
+            ">
+
+            <option>Pending</option>
+            <option>Confirmed</option>
+            <option>Shipped</option>
+            <option>Out for Delivery</option>
+            <option>Delivered</option>
+
+          </select>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div
+      *ngIf="orders.length===0"
+      class="empty-state">
+
+      <div class="empty-icon">📦</div>
+
+      <h4>No Orders Yet</h4>
+
+      <p>
+        Orders will appear here once customers start purchasing.
+      </p>
+
+    </div>
+
+  </div>
+
+  <!-- TOP PRODUCTS -->
+
+  <div class="panel">
+
+    <div class="panel-header">
+
+      <h4>Business Highlights</h4>
+
+    </div>
+
+    <div class="highlight-item">
+
+      <span>Total Revenue</span>
+
+      <strong>₹ {{ totalRevenue }}</strong>
+
+    </div>
+
+    <div class="highlight-item">
+
+      <span>Total Orders</span>
+
+      <strong>{{ totalOrders }}</strong>
+
+    </div>
+
+    <div class="highlight-item">
+
+      <span>Products Sold</span>
+
+      <strong>{{ totalQuantity }}</strong>
+
+    </div>
+
+    <div class="highlight-item">
+
+      <span>Best Seller</span>
+
+      <strong>{{ heroProduct }}</strong>
+
+    </div>
+
+  </div>
+
 </div>

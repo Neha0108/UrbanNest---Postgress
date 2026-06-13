@@ -442,6 +442,32 @@
   color: #111;
   font-weight: 600;
 }
+.wishlist-icon.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cart-btn:disabled {
+  opacity: 0.7;
+}
+.no-products {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.empty-icon {
+  font-size: 60px;
+  margin-bottom: 10px;
+}
+
+.no-products h3 {
+  color: #d4af37;
+  margin-bottom: 10px;
+}
+
+.no-products p {
+  color: #888;
+}
 
 
 /* ===== Mobile ===== */

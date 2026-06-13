@@ -132,16 +132,20 @@ namespace UrbanNest.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetProductsByPrice(double maxPrice)
+        public async Task<IActionResult> GetProductsByPrice(double maxPrice,int? categoryId = null)
         {
-            var products = await database.Products
-                .Where(p => p.productPrice <= maxPrice)
-                .ToListAsync();
+            var query = database.Products
+                .Where(p => p.productPrice <= maxPrice);
+
+            if (categoryId.HasValue)
+            {
+                query = query.Where(p => p.CategoryId == categoryId.Value);
+            }
+
+            var products = await query.ToListAsync();
 
             return Ok(products);
         }
-
-
 
     }
 }
