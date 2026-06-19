@@ -4,7 +4,7 @@
 .retailer-layout {
   display: flex;
   min-height: 100vh;
-  background: var(--bg-page);
+  background:#0f0f10 ;
 }
 
 /* ===============================

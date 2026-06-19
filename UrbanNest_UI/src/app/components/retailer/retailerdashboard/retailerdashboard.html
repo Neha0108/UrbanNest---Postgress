@@ -1,72 +1,288 @@
-<h2 class="dashboard-title"> Dashboard</h2>
-<div class="chart-card">
-  <canvas id="revenueChart"></canvas>
-</div>
+<!-- ==================== ROW 1: PREMIUM WELCOME + QUICK ACTIONS + DATE FILTER ==================== -->
+<div class="welcome-section">
 
-<!--  METRIC CARDS -->
-<div class="metrics">
-  <div class="card">
-    <p>Total Revenue</p>
-    <h3>₹ {{ totalRevenue }}</h3>
-  </div>
-
-  <div class="card">
-    <p>Total Orders</p>
-    <h3>{{ totalOrders }}</h3>
-  </div>
-
-  <div class="card">
-    <p>Products Sold</p>
-    <h3>{{ totalQuantity }}</h3>
-  </div>
-
-  <div class="card">
-    <p>Hero Product</p>
-    <h3>{{ heroProduct }}</h3>
-  </div>
-</div>
-
-<!--  ORDERS TABLE -->
-<h3 class="mt-4">Recent Orders</h3>
-
-<div class="table-container" *ngIf="orders.length > 0">
-
-  <div *ngFor="let o of orders" class="order-card">
-
-    <div class="order-header">
-      <span>Order #{{ o.OrderId }}</span>
-      <span>{{ o.OrderDate | date:'short' }}</span>
+  <div class="welcome-card">
+    <div class="welcome-content">
+      <div class="welcome-text">
+        <h1>Welcome Back, {{ retailerName }}</h1>
+        <p>Your luxury storefront is performing exceptionally</p>
+      </div>
+      <div class="welcome-icon">✨</div>
     </div>
 
-    <div class="order-items">
-      <div *ngFor="let item of o.Items" class="item">
-        <span>{{ item.ProductName }}</span>
-        <span>{{ item.Quantity }} × ₹{{ item.Price }}</span>
+    <div class="welcome-actions">
+      <button class="btn-primary" (click)="gotoAddProduct()">
+        <span>➕</span> New Product
+      </button>
+      <button class="btn-secondary">
+        <span>📦</span> Manage Stock
+      </button>
+      <button class="btn-secondary">
+        <span>👥</span> Customers
+      </button>
+      <div class="date-filter">
+        <input type="date" [(ngModel)]="selectedDate" (change)="onDateChange()" class="date-input">
       </div>
     </div>
-    <div class="status-container">
-
-      <select [value]="o.Status" (change)="updateStatus(o.OrderId, $event)" class="status-dropdown"
-        [disabled]="o.Status === 'Cancelled by User' || o.Status === 'Delivered'">
-
-        <option>Pending</option>
-        <option>Confirmed</option>
-        <option>Shipped</option>
-        <option>Out for Delivery</option>
-        <option>Delivered</option>
-
-      </select>
-
-      <span *ngIf="o.Status === 'Cancelled by User'" class="cancelled-label">
-        Cancelled by User
-      </span>
-
-    </div>
-
   </div>
 
 </div>
 
-<div *ngIf="orders.length === 0" class="text-muted mt-3">
-  No orders yet 📦
+<!-- ==================== ROW 2: 4 KPI CARDS ==================== -->
+<div class="kpi-grid">
+
+  <!-- REVENUE CARD -->
+  <div class="kpi-card revenue-card" (mouseenter)="cardHovered = 'revenue'" (mouseleave)="cardHovered = null">
+    <div class="card-glow"></div>
+    <div class="card-header">
+      <div class="card-icon revenue-icon">💰</div>
+      <div class="card-label">Total Revenue</div>
+    </div>
+    <div class="card-value">₹{{ totalRevenue | number }}</div>
+    <div class="card-growth" [ngClass]="revenueGrowth >= 0 ? 'positive' : 'negative'">
+      <span class="growth-arrow">{{ revenueGrowth >= 0 ? '↑' : '↓' }}</span>
+      {{ revenueGrowth | number:'1.1-1' }}% this month
+    </div>
+    <svg class="sparkline" [attr.data-values]="'sparkline-revenue'"></svg>
+  </div>
+
+  <!-- ORDERS CARD -->
+  <div class="kpi-card orders-card" (mouseenter)="cardHovered = 'orders'" (mouseleave)="cardHovered = null">
+    <div class="card-glow"></div>
+    <div class="card-header">
+      <div class="card-icon orders-icon">📊</div>
+      <div class="card-label">Total Orders</div>
+    </div>
+    <div class="card-value">{{ totalOrders }}</div>
+    <div class="card-growth" [ngClass]="ordersGrowth >= 0 ? 'positive' : 'negative'">
+      <span class="growth-arrow">{{ ordersGrowth >= 0 ? '↑' : '↓' }}</span>
+      {{ ordersGrowth | number:'1.1-1' }}% this month
+    </div>
+    <svg class="sparkline" [attr.data-values]="'sparkline-orders'"></svg>
+  </div>
+
+  <!-- CUSTOMERS CARD -->
+  <div class="kpi-card customers-card" (mouseenter)="cardHovered = 'customers'" (mouseleave)="cardHovered = null">
+    <div class="card-glow"></div>
+    <div class="card-header">
+      <div class="card-icon customers-icon">👥</div>
+      <div class="card-label">Total Customers</div>
+    </div>
+    <div class="card-value">{{ totalCustomers }}</div>
+    <div class="card-growth" [ngClass]="customersGrowth >= 0 ? 'positive' : 'negative'">
+      <span class="growth-arrow">{{ customersGrowth >= 0 ? '↑' : '↓' }}</span>
+      {{ customersGrowth | number:'1.1-1' }}% this month
+    </div>
+    <svg class="sparkline" [attr.data-values]="'sparkline-customers'"></svg>
+  </div>
+
+  <!-- CONVERSION CARD -->
+  <div class="kpi-card conversion-card" (mouseenter)="cardHovered = 'conversion'" (mouseleave)="cardHovered = null">
+    <div class="card-glow"></div>
+    <div class="card-header">
+      <div class="card-icon conversion-icon">🎯</div>
+      <div class="card-label">Conversion Rate</div>
+    </div>
+    <div class="card-value">{{ conversionRate | number:'1.2-2' }}%</div>
+    <div class="card-growth" [ngClass]="conversionGrowth >= 0 ? 'positive' : 'negative'">
+      <span class="growth-arrow">{{ conversionGrowth >= 0 ? '↑' : '↓' }}</span>
+      {{ conversionGrowth | number:'1.1-1' }}% this month
+    </div>
+    <svg class="sparkline" [attr.data-values]="'sparkline-conversion'"></svg>
+  </div>
+
+</div>
+
+<!-- ==================== ROW 3: CHARTS (70% + 30%) ==================== -->
+<div class="charts-section">
+
+  <!-- REVENUE ANALYTICS (70%) -->
+  <div class="analytics-card revenue-chart-card">
+    <div class="chart-header">
+      <div>
+        <h3>Revenue Analytics</h3>
+        <span>Last 30 days performance</span>
+      </div>
+      <div class="chart-controls">
+        <button class="filter-btn">📅 30 Days</button>
+        <button class="filter-btn">⚙️ Export</button>
+      </div>
+    </div>
+    <canvas id="revenueChart"></canvas>
+  </div>
+
+  <!-- SALES DISTRIBUTION (30%) -->
+  <div class="analytics-card distribution-chart-card">
+    <div class="chart-header">
+      <h3>Sales by Category</h3>
+    </div>
+    <canvas id="categoryChart"></canvas>
+  </div>
+
+</div>
+
+<!-- ==================== ROW 4: PRODUCTS + ORDERS (2 COLUMNS) ==================== -->
+<div class="content-grid">
+
+  <!-- TOP SELLING PRODUCTS -->
+  <div class="content-card">
+    <div class="card-header-premium">
+      <h3>Top Selling Products</h3>
+      <a href="#" class="view-all">View All →</a>
+    </div>
+    <div class="products-list">
+      <div *ngFor="let product of topProducts" class="product-row">
+        <div class="product-info">
+          <div class="product-rank">{{ product.rank }}</div>
+          <div class="product-details">
+            <div class="product-name">{{ product.name }}</div>
+            <div class="product-sales">{{ product.sales }} units sold</div>
+          </div>
+        </div>
+        <div class="product-revenue">
+          <div class="revenue-amount">₹{{ product.revenue | number }}</div>
+          <div class="revenue-percent">+{{ product.percent }}%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECENT ORDERS -->
+  <div class="content-card">
+    <div class="card-header-premium">
+      <h3>Recent Orders</h3>
+      <a href="#" class="view-all">View All →</a>
+    </div>
+    <div class="orders-list">
+      <div *ngIf="orders.length > 0">
+        <div *ngFor="let order of orders | slice:0:5" class="order-item">
+          <div class="order-left">
+            <div class="order-number">#{{ order.OrderId }}</div>
+            <div class="order-customer">
+              <span *ngIf="order.Items?.[0]">{{ order.Items[0]['ProductName'] }}</span>
+            </div>
+            <div class="order-date">{{ order.OrderDate | date:'short' }}</div>
+          </div>
+          <div class="order-right">
+            <div class="order-status" [ngClass]="'status-' + order.Status.toLowerCase().replace(' ', '-')">
+              {{ order.Status }}
+            </div>
+            <select [value]="order.Status" (change)="updateStatus(order.OrderId, $event)" class="status-select">
+              <option>Pending</option>
+              <option>Confirmed</option>
+              <option>Shipped</option>
+              <option>Out for Delivery</option>
+              <option>Delivered</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="orders.length === 0" class="empty-orders">
+        <div>📦 No orders yet</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ==================== ROW 5: ACTIVITY TIMELINE + INSIGHTS ==================== -->
+<div class="content-grid">
+
+  <!-- ACTIVITY TIMELINE -->
+  <div class="content-card">
+    <div class="card-header-premium">
+      <h3>Recent Activity</h3>
+      <span class="live-indicator">🔴 Live</span>
+    </div>
+    <div class="activity-timeline">
+      <div *ngFor="let activity of recentActivities" class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <div class="activity-action">{{ activity.action }}</div>
+          <div class="activity-meta">{{ activity.time }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BUSINESS INSIGHTS -->
+  <div class="content-card">
+    <div class="card-header-premium">
+      <h3>Business Insights</h3>
+      <span class="insights-badge">AI Generated</span>
+    </div>
+    <div class="insights-panel">
+      <div class="insight-item">
+        <div class="insight-icon">🎯</div>
+        <div class="insight-text">
+          <div class="insight-title">Best Performer</div>
+          <div class="insight-value">{{ heroProduct }}</div>
+        </div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-icon">💵</div>
+        <div class="insight-text">
+          <div class="insight-title">Avg Order Value</div>
+          <div class="insight-value">₹{{ (totalOrders ? (totalRevenue / totalOrders) : 0) | number:'1.0-0' }}</div>
+        </div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-icon">📈</div>
+        <div class="insight-text">
+          <div class="insight-title">Growth This Month</div>
+          <div class="insight-value positive">+{{ monthlyGrowth }}%</div>
+        </div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-icon">⭐</div>
+        <div class="insight-text">
+          <div class="insight-title">Top Category</div>
+          <div class="insight-value">{{ topCategory }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ==================== ROW 6: INVENTORY ALERTS + LOW STOCK ==================== -->
+<div class="content-grid">
+
+  <!-- INVENTORY ALERTS -->
+  <div class="content-card alert-card">
+    <div class="card-header-premium">
+      <h3>Inventory Alerts</h3>
+      <span class="alert-badge">{{ inventoryAlerts.length }}</span>
+    </div>
+    <div class="alerts-list">
+      <div *ngFor="let alert of inventoryAlerts" class="alert-item" [ngClass]="'alert-' + alert.type">
+        <div class="alert-icon">{{ alert.icon }}</div>
+        <div class="alert-content">
+          <div class="alert-title">{{ alert.title }}</div>
+          <div class="alert-message">{{ alert.message }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOW STOCK PRODUCTS -->
+  <div class="content-card low-stock-card">
+    <div class="card-header-premium">
+      <h3>Low Stock Items</h3>
+      <span class="stock-badge">{{ lowStockProducts.length }}</span>
+    </div>
+    <div class="low-stock-list">
+      <div *ngFor="let product of lowStockProducts" class="stock-item">
+        <div class="stock-name">{{ product.name }}</div>
+        <div class="stock-bar">
+          <div class="stock-progress" [style.width.%]="product.percentage"></div>
+        </div>
+        <div class="stock-info">
+          <span>{{ product.current }} / {{ product.total }}</span>
+          <span class="reorder-btn" (click)="goToEditProduct(product.id)"> Update Stock</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
