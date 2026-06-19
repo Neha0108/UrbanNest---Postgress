@@ -132,12 +132,13 @@ namespace UrbanNest.Controllers
 
 
         [HttpGet]
+        [HttpGet]
         public async Task<IActionResult> GetRetailerOrders()
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
             var retailer = await database.retailers
-                    .FirstOrDefaultAsync(r => r.UserId == userId);
+                .FirstOrDefaultAsync(r => r.UserId == userId);
 
             if (retailer == null)
                 return BadRequest("Retailer not found");
@@ -154,11 +155,17 @@ namespace UrbanNest.Controllers
                     OrderId = group.Key.OrderId,
                     OrderDate = group.Key.OrderDate,
                     Status = group.Key.Status,
+
                     Items = group.Select(o => new
                     {
+                        ProductId = o.ProductId,
                         ProductName = o.Product.productName,
                         Quantity = o.Quantity,
-                        Price = o.Price
+                        Price = o.Price,
+                        Stock = o.Product.stock,
+
+                        // ✅ CATEGORY FIX
+                        CategoryName = o.Product.Category.CategoryName
                     })
                 })
                 .OrderByDescending(o => o.OrderDate)

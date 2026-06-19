@@ -2,9 +2,20 @@
 
   <div class="profile-card">
 
-    <h2 class="title">Retailer Profile</h2>
+    <div class="profile-hero">
 
-    <form [formGroup]="form">
+      <div class="profile-avatar">
+        {{ form.get('ShopName')?.value?.charAt(0) || 'S' }}
+      </div>
+
+      <div class="profile-meta">
+        <h3>{{ form.get('ShopName')?.value || 'Your Store' }}</h3>
+        <p>{{ form.get('Email')?.value }}</p>
+      </div>
+
+    </div>
+
+    <form [formGroup]="form" class="profile-form">
 
       <!-- SHOP INFO -->
       <div class="section">

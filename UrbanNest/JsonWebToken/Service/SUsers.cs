@@ -30,7 +30,6 @@ namespace UrbanNest.Service
 
             string passwordhashed = BCrypt.Net.BCrypt.HashPassword(registerRequest.UserPassword);
 
-            // ✅ get SINGLE role
             var role = await database.Role
                 .FirstOrDefaultAsync(r => r.Name == registerRequest.Roles);
 
@@ -42,8 +41,6 @@ namespace UrbanNest.Service
                 userName = registerRequest.UserName,
                 userEmail = registerRequest.UserEmail,
                 userPassword = passwordhashed,
-
-                // ✅ ONE ROLE ONLY
                 RoleId = role.RoleId
             };
 
@@ -61,7 +58,7 @@ namespace UrbanNest.Service
                 await database.consumers.AddAsync(consumer);
                 await database.SaveChangesAsync();
             }
-            // ✅ Retailer logic
+
             if (role.Name == "Retailer")
             {
                 if (string.IsNullOrEmpty(registerRequest.shopName) ||
@@ -97,7 +94,7 @@ namespace UrbanNest.Service
         public async Task<string?> login(Login log)
         {
             var user = await database.Users
-                .Include(u => u.Role) // ✅ single role
+                .Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.userEmail == log.UserEmail);
 
             if (user == null) return null;
@@ -111,9 +108,8 @@ namespace UrbanNest.Service
 
         private string IssueToken(Users user)
         {
-            var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(configuration["Jwt:Key"])
-            );
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
+
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new List<Claim>
@@ -123,7 +119,8 @@ namespace UrbanNest.Service
                 new Claim(ClaimTypes.Email, user.userEmail),
                 new Claim(JwtRegisteredClaimNames.Sub, user.UserId.ToString()),
                 new Claim(ClaimTypes.Role, user.Role.Name)
-            };
+            }
+            ;
 
             var token = new JwtSecurityToken(
                 issuer: configuration["Jwt:Issuer"],
@@ -138,8 +135,7 @@ namespace UrbanNest.Service
 
         public async Task<string> updateUser(int userId, Register dto)
         {
-            var user = await database.Users
-                .FirstOrDefaultAsync(u => u.UserId == userId);
+            var user = await database.Users.FirstOrDefaultAsync(u => u.UserId == userId);
 
             if (user == null)
                 return "User not found";
@@ -149,8 +145,7 @@ namespace UrbanNest.Service
 
             if (!string.IsNullOrWhiteSpace(dto.UserPassword))
             {
-                user.userPassword =
-                    BCrypt.Net.BCrypt.HashPassword(dto.UserPassword);
+                user.userPassword = BCrypt.Net.BCrypt.HashPassword(dto.UserPassword);
             }
 
             await database.SaveChangesAsync();
