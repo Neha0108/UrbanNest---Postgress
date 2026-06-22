@@ -57,6 +57,9 @@ export class Retailer {
     );
   }
   getSubCategories(categoryId: number) {
-  return this.http.get<any[]>(`${this.apiUrl}/GetSubCategory/${categoryId}`);
-}
+    return this.http.get<any[]>(`${this.apiUrl}/GetSubCategory/${categoryId}`);
+  }
+  getRetailerCustomers() {
+    return this.http.get<any[]>(`${this.apiUrl}/GetRetailerCustomers`);
+  }
 }

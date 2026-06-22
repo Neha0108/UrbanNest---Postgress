@@ -157,5 +157,55 @@ namespace UrbanNest.Controllers
 
             return Ok(new { message = "Profile updated successfully" });
         }
+
+        [HttpGet("GetRetailerCustomers")]
+        public async Task<IActionResult> GetRetailerCustomers()
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var retailer = await database.retailers
+                .FirstOrDefaultAsync(r => r.UserId == userId);
+
+            if (retailer == null)
+                return BadRequest("Retailer not found");
+
+            int retailerId = retailer.RetailerId;
+
+            var customers = await database.orderItems
+                .Include(oi => oi.Order)
+                    .ThenInclude(o => o.User)
+                .Where(oi => oi.RetailerId == retailerId)
+                .GroupBy(oi => new
+                {
+                    oi.Order.User.UserId,
+                    oi.Order.User.userName,
+                    oi.Order.User.userEmail,
+                })
+                .Select(group => new RetailerCustomerDto
+                {
+                    CustomerId = group.Key.UserId,
+                    CustomerName = group.Key.userName,
+                    Email = group.Key.userEmail, 
+
+                    TotalOrders = group
+                        .Select(x => x.OrderId)
+                        .Distinct()
+                        .Count(),
+
+                    TotalSpent = group.Sum(x => x.Price * x.Quantity),
+
+                    LastOrderDate = group
+                        .Max(x => x.Order.OrderDate),
+
+                    CustomerType = group
+                        .Select(x => x.OrderId)
+                        .Distinct()
+                        .Count() > 1 ? "Repeat" : "New"
+                })
+                .OrderByDescending(c => c.LastOrderDate)
+                .ToListAsync();
+
+            return Ok(customers);
+        }
     }
 }

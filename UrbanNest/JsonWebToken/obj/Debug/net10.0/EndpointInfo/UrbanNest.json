@@ -1180,6 +1180,18 @@
         }
       }
     },
+    "/api/Retailer/GetRetailerCustomers/GetRetailerCustomers": {
+      "get": {
+        "tags": [
+          "Retailer"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Role/addRole": {
       "post": {
         "tags": [

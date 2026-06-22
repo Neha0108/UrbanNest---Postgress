@@ -1,0 +1,74 @@
+<div class="content-card">
+
+  <div class="card-header-premium">
+    <h3>Orders</h3>
+  </div>
+
+  <div class="orders-list">
+
+    <div *ngIf="loading" class="empty-orders">
+      Loading orders...
+    </div>
+
+    <div *ngIf="!loading && errorMessage" class="empty-orders">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="!loading && orders.length > 0">
+
+      <div *ngFor="let order of orders | slice:0:5" class="order-item">
+
+        <div class="order-left">
+
+          <div class="order-number">
+            #{{ order.orderId }}
+          </div>
+
+          <div class="order-customer">
+            <span *ngIf="order.items?.[0]">
+              {{ order.items[0].productName }}
+            </span>
+          </div>
+
+          <div class="order-date">
+            {{ order.orderDate | date:'short' }}
+          </div>
+
+          <div class="order-category" *ngIf="order.uniqueCategories?.length">
+            {{ order.uniqueCategories.join(', ') }}
+          </div>
+
+        </div>
+
+        <div class="order-right">
+
+          <div class="order-status" [ngClass]="getStatusClass(order.status)">
+            {{ order.status }}
+          </div>
+
+          <select
+            [value]="order.status"
+            (change)="updateStatus(order.orderId, $event)"
+            class="status-select">
+
+            <option>Pending</option>
+            <option>Confirmed</option>
+            <option>Shipped</option>
+            <option>Out for Delivery</option>
+            <option>Delivered</option>
+
+          </select>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div *ngIf="!loading && orders.length === 0 && !errorMessage" class="empty-orders">
+      <div>📦 No orders yet</div>
+    </div>
+
+  </div>
+
+</div>

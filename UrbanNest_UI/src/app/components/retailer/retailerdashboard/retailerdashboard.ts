@@ -4,7 +4,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { Chart } from 'chart.js/auto';
 import gsap from 'gsap';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 interface TopProduct {
   rank: number;
@@ -36,7 +36,7 @@ interface LowStockProduct {
 
 @Component({
   selector: 'app-retailerdashboard',
-  imports: [CommonModule, DatePipe, FormsModule],
+  imports: [CommonModule, DatePipe, FormsModule, RouterLink],
   templateUrl: './retailerdashboard.html',
   styleUrl: './retailerdashboard.css',
 })

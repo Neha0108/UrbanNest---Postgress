@@ -128,7 +128,7 @@
   <div class="content-card">
     <div class="card-header-premium">
       <h3>Top Selling Products</h3>
-      <a href="#" class="view-all">View All →</a>
+      <a routerLink="/retailerNavbar/products" class="view-all">View All →</a>
     </div>
     <div class="products-list">
       <div *ngFor="let product of topProducts" class="product-row">
@@ -151,7 +151,7 @@
   <div class="content-card">
     <div class="card-header-premium">
       <h3>Recent Orders</h3>
-      <a href="#" class="view-all">View All →</a>
+      <a routerLink="/retailerNavbar/retailerOrders" class="view-all">View All →</a>
     </div>
     <div class="orders-list">
       <div *ngIf="orders.length > 0">
