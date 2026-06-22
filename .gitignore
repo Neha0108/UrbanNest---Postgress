@@ -11,12 +11,13 @@ dist/
 *.env
 
 # .NET
-bin/
-obj/
-appsettings.json
+UrbanNest/JsonWebToken/bin/
+UrbanNest/JsonWebToken/obj/
+UrbanNest/JsonWebToken/secure.json
+UrbanNest/JsonWebToken/UrbanNest.csproj.user
 *.user
 *.suo
-*.vs/
+**/.vs/
 
 
 
