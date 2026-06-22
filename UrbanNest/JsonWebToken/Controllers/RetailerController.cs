@@ -158,7 +158,7 @@ namespace UrbanNest.Controllers
             return Ok(new { message = "Profile updated successfully" });
         }
 
-        [HttpGet("GetRetailerCustomers")]
+        [HttpGet]
         public async Task<IActionResult> GetRetailerCustomers()
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
