@@ -668,6 +668,16 @@
   },
   {
     "ContainingType": "UrbanNest.Controllers.RetailerController",
+    "Method": "GetRetailerCustomers",
+    "RelativePath": "api/Retailer/GetRetailerCustomers/GetRetailerCustomers",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "UrbanNest.Controllers.RetailerController",
     "Method": "GetSubCategory",
     "RelativePath": "api/Retailer/GetSubCategory/{categoryId}",
     "HttpMethod": "GET",

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("UrbanNest")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f8738bf6515f129b9194f6046c9b1c8df5987f5e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8fe71a177dca6fc4eb131195a7e1ada0e783a30c")]
 [assembly: System.Reflection.AssemblyProductAttribute("UrbanNest")]
 [assembly: System.Reflection.AssemblyTitleAttribute("UrbanNest")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

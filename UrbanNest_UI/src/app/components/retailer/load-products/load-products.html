@@ -52,6 +52,7 @@
         <!-- Price & Stock -->
         <p class="card-text mt-auto">
           <strong>Price:</strong> ₹ {{ item.productPrice }} <br />
+          <span *ngIf="item.stock < 50" class="low-stock">Low Stock</span> <br/>
           <strong>Stock:</strong> {{ item.stock }}
         </p>
 

@@ -39,7 +39,7 @@ namespace UrbanNest.Controllers
 
 
             if (address == null)
-                return BadRequest(new {message = "Please select an address" });
+                return BadRequest(new { message = "Please select an address" });
 
             if (!cartItems.Any())
                 return BadRequest("No items selected");
@@ -132,7 +132,6 @@ namespace UrbanNest.Controllers
 
 
         [HttpGet]
-        [HttpGet]
         public async Task<IActionResult> GetRetailerOrders()
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
@@ -155,6 +154,8 @@ namespace UrbanNest.Controllers
                     OrderId = group.Key.OrderId,
                     OrderDate = group.Key.OrderDate,
                     Status = group.Key.Status,
+                    CustomerName = group.Key.User.userName,
+                    CustomerEmail = group.Key.User.userEmail,
 
                     Items = group.Select(o => new
                     {
@@ -163,7 +164,6 @@ namespace UrbanNest.Controllers
                         Quantity = o.Quantity,
                         Price = o.Price,
                         Stock = o.Product.stock,
-
                         // ✅ CATEGORY FIX
                         CategoryName = o.Product.Category.CategoryName
                     })
