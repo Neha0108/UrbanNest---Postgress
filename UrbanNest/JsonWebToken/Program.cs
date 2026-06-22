@@ -11,6 +11,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddControllers();
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false)
+    .AddJsonFile("secure.json", optional: true, reloadOnChange: true);
+
 builder.Services.AddOpenApi();
 builder.Services.AddDbContext<DataBase>(options =>
 {
