@@ -86,7 +86,7 @@ animateCards(): void {
 
     this.router.navigate(['/products'], {
       queryParams: {
-        category: encodeURIComponent(category.CategoryName)
+        category: encodeURIComponent(category.categoryName)
       }
     });
 

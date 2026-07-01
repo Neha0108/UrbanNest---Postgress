@@ -24,6 +24,8 @@ namespace UrbanNest.DataAccess
         public DbSet<EmailOTP> emailOTPs { get; set; }
         public DbSet<UserAddress> UserAddress { get; set; }
 
+        public DbSet<Notification> Notifications { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

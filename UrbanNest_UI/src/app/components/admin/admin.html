@@ -103,9 +103,9 @@
     </div>
 
     <div class="list-card" *ngFor="let c of categories">
-      <span class="title">{{c.CategoryName}}</span>
+      <span class="title">{{c.categoryName}}</span>
       <button class="delete"
-              (click)="deleteCategory(c.CategoryId)">
+              (click)="deleteCategory(c.categoryId)">
         Delete
       </button>
     </div>

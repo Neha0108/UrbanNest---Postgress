@@ -6,7 +6,6 @@ import { Retailer as RetailerService } from '../../../service/retailer';
 
 @Component({
   selector: 'app-retailer-profile',
-  standalone: true,
   imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
@@ -22,6 +21,12 @@ export class Profile implements OnInit {
   loading = false;
   errorMessage = '';
   successMessage = '';
+  activeSection:
+  'shop'
+  | 'address'
+  | 'contact'
+  | 'business'
+  | 'bank' = 'shop';
 
   ngOnInit() {
     this.form = this.fb.group({
@@ -97,4 +102,33 @@ export class Profile implements OnInit {
       },
     });
   }
+  get profileCompletion(): number {
+
+  if (!this.form) return 0;
+
+  const controls = Object.values(this.form.controls);
+
+  const filled = controls.filter(control => {
+    const value = control.value;
+    return value !== null &&
+           value !== undefined &&
+           value.toString().trim() !== '';
+  });
+
+  return Math.round((filled.length / controls.length) * 100);
+}
+
+get shopInitial(): string {
+
+  return this.form.get('ShopName')?.value
+    ? this.form.get('ShopName')?.value.charAt(0).toUpperCase()
+    : 'S';
+
+}
+scrollTo(id: string) {
+  document.getElementById(id)?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'start'
+  });
+}
 }

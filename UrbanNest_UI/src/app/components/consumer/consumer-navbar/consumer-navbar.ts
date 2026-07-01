@@ -1,12 +1,12 @@
-import { Token } from '@angular/compiler';
 import { ChangeDetectorRef, Component, ElementRef, HostListener, inject, OnInit, ViewChild } from '@angular/core';
 import { Router, RouterLink, RouterOutlet, RouterLinkActive, RouterModule } from '@angular/router';
 import { UserService } from '../../../service/user-service';
 import { CommonModule } from '@angular/common';
+import { NotificationPanel } from "../../../notification-panel/notification-panel";
 
 @Component({
   selector: 'app-consumer-navbar',
-  imports: [RouterLink, RouterOutlet, RouterLinkActive,CommonModule,RouterModule],
+  imports: [RouterLink, RouterOutlet, RouterLinkActive, CommonModule, RouterModule, NotificationPanel],
   templateUrl: './consumer-navbar.html',
   styleUrl: './consumer-navbar.css',
 })
@@ -15,6 +15,7 @@ export class ConsumerNavbar {
   private router = inject(Router);
   userName = '';
   service = inject(UserService);
+  consumerId: number = 0;
 
   private chng = inject(ChangeDetectorRef);
 
@@ -22,6 +23,7 @@ export class ConsumerNavbar {
     this.service.getUserInfo().subscribe({
       next: res => {
         this.userName = res.userName;
+        this.consumerId = res.UserId;
         this.chng.detectChanges();
       },
       error: () => {

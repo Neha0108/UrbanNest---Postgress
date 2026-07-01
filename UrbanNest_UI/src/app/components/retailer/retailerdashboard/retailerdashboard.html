@@ -1,6 +1,5 @@
 <!-- ==================== ROW 1: PREMIUM WELCOME + QUICK ACTIONS + DATE FILTER ==================== -->
 <div class="welcome-section">
-
   <div class="welcome-card">
     <div class="welcome-content">
       <div class="welcome-text">
@@ -9,29 +8,20 @@
       </div>
       <div class="welcome-icon">✨</div>
     </div>
-
     <div class="welcome-actions">
-      <button class="btn-primary" (click)="gotoAddProduct()">
-        <span>➕</span> New Product
-      </button>
-      <button class="btn-secondary">
-        <span>📦</span> Manage Stock
-      </button>
-      <button class="btn-secondary">
-        <span>👥</span> Customers
-      </button>
+      <button class="btn-primary" (click)="gotoAddProduct()"><span>➕</span> New Product</button>
+      <button class="btn-secondary" routerLink="/retailerNavbar/products"><span>📦</span> Manage Stock</button>
+      <button class="btn-secondary" routerLink="/retailerNavbar/customers"><span>👥</span> Customers</button>
       <div class="date-filter">
         <input type="date" [(ngModel)]="selectedDate" (change)="onDateChange()" class="date-input">
       </div>
     </div>
   </div>
-
 </div>
 
 <!-- ==================== ROW 2: 4 KPI CARDS ==================== -->
 <div class="kpi-grid">
 
-  <!-- REVENUE CARD -->
   <div class="kpi-card revenue-card" (mouseenter)="cardHovered = 'revenue'" (mouseleave)="cardHovered = null">
     <div class="card-glow"></div>
     <div class="card-header">
@@ -43,10 +33,8 @@
       <span class="growth-arrow">{{ revenueGrowth >= 0 ? '↑' : '↓' }}</span>
       {{ revenueGrowth | number:'1.1-1' }}% this month
     </div>
-    <svg class="sparkline" [attr.data-values]="'sparkline-revenue'"></svg>
   </div>
 
-  <!-- ORDERS CARD -->
   <div class="kpi-card orders-card" (mouseenter)="cardHovered = 'orders'" (mouseleave)="cardHovered = null">
     <div class="card-glow"></div>
     <div class="card-header">
@@ -58,10 +46,8 @@
       <span class="growth-arrow">{{ ordersGrowth >= 0 ? '↑' : '↓' }}</span>
       {{ ordersGrowth | number:'1.1-1' }}% this month
     </div>
-    <svg class="sparkline" [attr.data-values]="'sparkline-orders'"></svg>
   </div>
 
-  <!-- CUSTOMERS CARD -->
   <div class="kpi-card customers-card" (mouseenter)="cardHovered = 'customers'" (mouseleave)="cardHovered = null">
     <div class="card-glow"></div>
     <div class="card-header">
@@ -73,10 +59,8 @@
       <span class="growth-arrow">{{ customersGrowth >= 0 ? '↑' : '↓' }}</span>
       {{ customersGrowth | number:'1.1-1' }}% this month
     </div>
-    <svg class="sparkline" [attr.data-values]="'sparkline-customers'"></svg>
   </div>
 
-  <!-- CONVERSION CARD -->
   <div class="kpi-card conversion-card" (mouseenter)="cardHovered = 'conversion'" (mouseleave)="cardHovered = null">
     <div class="card-glow"></div>
     <div class="card-header">
@@ -88,15 +72,12 @@
       <span class="growth-arrow">{{ conversionGrowth >= 0 ? '↑' : '↓' }}</span>
       {{ conversionGrowth | number:'1.1-1' }}% this month
     </div>
-    <svg class="sparkline" [attr.data-values]="'sparkline-conversion'"></svg>
   </div>
 
 </div>
 
-<!-- ==================== ROW 3: CHARTS (70% + 30%) ==================== -->
+<!-- ==================== ROW 3: CHARTS ==================== -->
 <div class="charts-section">
-
-  <!-- REVENUE ANALYTICS (70%) -->
   <div class="analytics-card revenue-chart-card">
     <div class="chart-header">
       <div>
@@ -110,18 +91,13 @@
     </div>
     <canvas id="revenueChart"></canvas>
   </div>
-
-  <!-- SALES DISTRIBUTION (30%) -->
   <div class="analytics-card distribution-chart-card">
-    <div class="chart-header">
-      <h3>Sales by Category</h3>
-    </div>
+    <div class="chart-header"><h3>Sales by Category</h3></div>
     <canvas id="categoryChart"></canvas>
   </div>
-
 </div>
 
-<!-- ==================== ROW 4: PRODUCTS + ORDERS (2 COLUMNS) ==================== -->
+<!-- ==================== ROW 4: PRODUCTS + ORDERS ==================== -->
 <div class="content-grid">
 
   <!-- TOP SELLING PRODUCTS -->
@@ -157,17 +133,20 @@
       <div *ngIf="orders.length > 0">
         <div *ngFor="let order of orders | slice:0:5" class="order-item">
           <div class="order-left">
-            <div class="order-number">#{{ order.OrderId }}</div>
+            <div class="order-number">#{{ order.OrderId ?? order.orderId }}</div>
             <div class="order-customer">
-              <span *ngIf="order.Items?.[0]">{{ order.Items[0]['ProductName'] }}</span>
+              <!-- FIX: safe access with ?. and fallback for both casings -->
+              <span>{{ (order.items ?? order.Items)?.[0]?.productName ?? (order.items ?? order.Items)?.[0]?.ProductName ?? '' }}</span>
             </div>
-            <div class="order-date">{{ order.OrderDate | date:'short' }}</div>
+            <div class="order-date">{{ (order.OrderDate ?? order.orderDate) | date:'short' }}</div>
           </div>
           <div class="order-right">
-            <div class="order-status" [ngClass]="'status-' + order.Status.toLowerCase().replace(' ', '-')">
-              {{ order.Status }}
+            <!-- FIX: use optional chaining so Status undefined doesn't crash toLowerCase() -->
+            <div class="order-status"
+              [ngClass]="'status-' + (order.Status ?? order.status ?? '')?.toLowerCase()?.replace(' ', '-')">
+              {{ order.Status ?? order.status }}
             </div>
-            <select [value]="order.Status" (change)="updateStatus(order.OrderId, $event)" class="status-select">
+            <select [value]="order.Status ?? order.status" (change)="updateStatus(order.OrderId ?? order.orderId, $event)" class="status-select">
               <option>Pending</option>
               <option>Confirmed</option>
               <option>Shipped</option>
@@ -185,10 +164,9 @@
 
 </div>
 
-<!-- ==================== ROW 5: ACTIVITY TIMELINE + INSIGHTS ==================== -->
+<!-- ==================== ROW 5: ACTIVITY + INSIGHTS ==================== -->
 <div class="content-grid">
 
-  <!-- ACTIVITY TIMELINE -->
   <div class="content-card">
     <div class="card-header-premium">
       <h3>Recent Activity</h3>
@@ -205,7 +183,6 @@
     </div>
   </div>
 
-  <!-- BUSINESS INSIGHTS -->
   <div class="content-card">
     <div class="card-header-premium">
       <h3>Business Insights</h3>
@@ -248,7 +225,6 @@
 <!-- ==================== ROW 6: INVENTORY ALERTS + LOW STOCK ==================== -->
 <div class="content-grid">
 
-  <!-- INVENTORY ALERTS -->
   <div class="content-card alert-card">
     <div class="card-header-premium">
       <h3>Inventory Alerts</h3>
@@ -265,7 +241,6 @@
     </div>
   </div>
 
-  <!-- LOW STOCK PRODUCTS -->
   <div class="content-card low-stock-card">
     <div class="card-header-premium">
       <h3>Low Stock Items</h3>
@@ -279,7 +254,7 @@
         </div>
         <div class="stock-info">
           <span>{{ product.current }} / {{ product.total }}</span>
-          <span class="reorder-btn" (click)="goToEditProduct(product.id)"> Update Stock</span>
+          <span class="reorder-btn" (click)="goToEditProduct(product.id)">Update Stock</span>
         </div>
       </div>
     </div>
