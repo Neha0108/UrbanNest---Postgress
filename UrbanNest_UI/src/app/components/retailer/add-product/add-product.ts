@@ -84,7 +84,7 @@ loadCategories() {
   console.log('Selected Category:', selectedCategoryName);
 
   const selectedCategory = this.categories.find(
-    c => c.CategoryName === selectedCategoryName
+    c => c.categoryName === selectedCategoryName
   );
 
   console.log('Found Category:', selectedCategory);
@@ -95,7 +95,7 @@ loadCategories() {
   }
 
   this.retailerService
-    .getSubCategories(selectedCategory.CategoryId)
+    .getSubCategories(selectedCategory.categoryId)
     .subscribe({
       next: (data) => {
         console.log('API Response:', data);
@@ -121,20 +121,21 @@ loadProduct(id: number) {
       productName: res.productName,
       productDescription: res.productDescription,
       CategoryName: res.CategoryName,
+      SubCategoryName: res.SubCategoryName,
       productPrice: res.productPrice,
       stock: res.stock
     });
 
     // Find selected category
     const selectedCategory = this.categories.find(
-      c => c.CategoryName === res.CategoryName
+      c => c.categoryName === res.CategoryName
     );
 
     if (selectedCategory) {
 
       // Load subcategories of selected category
       this.retailerService
-        .getSubCategories(selectedCategory.CategoryId)
+        .getSubCategories(selectedCategory.categoryId)
         .subscribe({
           next: (data) => {
 

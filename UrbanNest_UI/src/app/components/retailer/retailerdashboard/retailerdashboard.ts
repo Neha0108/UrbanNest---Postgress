@@ -83,17 +83,23 @@ export class Retailerdashboard implements OnInit {
     this.loadOrders();
   }
 
+  // ── Helper: safely get items array regardless of casing ───────────────
+  private getItems(order: any): any[] {
+    return order?.items ?? order?.Items ?? [];
+  }
+
   loadOrders() {
     this.retailerService.getRetailerOrders().subscribe({
       next: (res) => {
-        this.orders = res;
+        this.orders = res ?? [];
 
         this.retailerName = this.orders[0]?.RetailerName || 'Seller';
 
         const uniqueCategories = new Set<string>();
         this.orders.forEach(order => {
-          order.Items.forEach((item: any) => {
-            if (item.CategoryName) uniqueCategories.add(item.CategoryName);
+          this.getItems(order).forEach((item: any) => {
+            if (item?.categoryName ?? item?.CategoryName)
+              uniqueCategories.add(item.categoryName ?? item.CategoryName);
           });
         });
         this.categories = Array.from(uniqueCategories);
@@ -108,20 +114,8 @@ export class Retailerdashboard implements OnInit {
           this.createRevenueChart();
           this.createCategoryChart();
 
-          gsap.from('.kpi-card', {
-            opacity: 0,
-            y: 30,
-            duration: 0.6,
-            stagger: 0.1,
-          });
-
-          gsap.from('.content-card', {
-            opacity: 0,
-            y: 30,
-            duration: 0.6,
-            stagger: 0.08,
-            delay: 0.2,
-          });
+          gsap.from('.kpi-card', { opacity: 0, y: 30, duration: 0.6, stagger: 0.1 });
+          gsap.from('.content-card', { opacity: 0, y: 30, duration: 0.6, stagger: 0.08, delay: 0.2 });
 
           this.chng.detectChanges();
         }, 100);
@@ -138,132 +132,113 @@ export class Retailerdashboard implements OnInit {
     const customerSet = new Set();
 
     this.orders.forEach(order => {
-      customerSet.add(order.CustomerId || order.OrderId);
+      customerSet.add(order.CustomerId ?? order.OrderId);
 
-      order.Items.forEach((item: any) => {
-        revenue += item.Price * item.Quantity;
-        qty += item.Quantity;
+      this.getItems(order).forEach((item: any) => {
+        const price    = item.price    ?? item.Price    ?? 0;
+        const quantity = item.quantity ?? item.Quantity ?? 0;
+        const name     = item.productName ?? item.ProductName ?? '';
+        const cat      = item.categoryName ?? item.CategoryName ?? '';
 
-        productMap[item.ProductName] =
-          (productMap[item.ProductName] || 0) + item.Quantity;
+        revenue += price * quantity;
+        qty     += quantity;
 
-        categoryMap[item.CategoryName] =
-          (categoryMap[item.CategoryName] || 0) + item.Quantity;
+        if (name) productMap[name]  = (productMap[name]  || 0) + quantity;
+        if (cat)  categoryMap[cat]  = (categoryMap[cat]  || 0) + quantity;
       });
     });
 
-    this.totalRevenue = revenue;
-    this.totalOrders = this.orders.length;
-    this.totalQuantity = qty;
+    this.totalRevenue   = revenue;
+    this.totalOrders    = this.orders.length;
+    this.totalQuantity  = qty;
     this.totalCustomers = customerSet.size;
 
-    this.conversionRate =
-      this.totalCustomers > 0
-        ? (this.totalOrders / this.totalCustomers) * 100
-        : 0;
+    this.conversionRate = this.totalCustomers > 0
+      ? (this.totalOrders / this.totalCustomers) * 100
+      : 0;
 
-    // Hero product
     const products = Object.keys(productMap);
-    this.heroProduct =
-      products.length > 0
-        ? products.reduce((a, b) =>
-          productMap[a] > productMap[b] ? a : b
-        )
-        : 'No Sales Yet';
+    this.heroProduct = products.length > 0
+      ? products.reduce((a, b) => productMap[a] > productMap[b] ? a : b)
+      : 'No Sales Yet';
 
-    // Top category
     const categoryKeys = Object.keys(categoryMap);
-    this.topCategory =
-      categoryKeys.length > 0
-        ? categoryKeys.reduce((a, b) =>
-          categoryMap[a] > categoryMap[b] ? a : b
-        )
-        : 'N/A';
+    this.topCategory = categoryKeys.length > 0
+      ? categoryKeys.reduce((a, b) => categoryMap[a] > categoryMap[b] ? a : b)
+      : 'N/A';
 
-    // Growth logic
-    const now = new Date();
+    // Growth
+    const now          = new Date();
     const currentMonth = now.getMonth();
-    const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+    const lastMonth    = currentMonth === 0 ? 11 : currentMonth - 1;
 
-    let currentRevenue = 0;
-    let lastRevenue = 0;
-    let currentOrders = 0;
-    let lastOrders = 0;
+    let currentRevenue = 0, lastRevenue = 0;
+    let currentOrders  = 0, lastOrders  = 0;
 
     this.orders.forEach(order => {
-      const orderDate = new Date(order.OrderDate);
-      const month = orderDate.getMonth();
-
+      const month = new Date(order.OrderDate ?? order.orderDate).getMonth();
       let total = 0;
-      order.Items.forEach((item: any) => {
-        total += item.Price * item.Quantity;
+      this.getItems(order).forEach((item: any) => {
+        total += (item.price ?? item.Price ?? 0) * (item.quantity ?? item.Quantity ?? 0);
       });
 
-      if (month === currentMonth) {
-        currentRevenue += total;
-        currentOrders++;
-      } else if (month === lastMonth) {
-        lastRevenue += total;
-        lastOrders++;
-      }
+      if (month === currentMonth) { currentRevenue += total; currentOrders++; }
+      else if (month === lastMonth) { lastRevenue += total; lastOrders++; }
     });
 
-    this.revenueGrowth = lastRevenue
-      ? ((currentRevenue - lastRevenue) / lastRevenue) * 100
-      : 0;
-
-    this.ordersGrowth = lastOrders
-      ? ((currentOrders - lastOrders) / lastOrders) * 100
-      : 0;
-
-    this.customersGrowth = this.ordersGrowth;
+    this.revenueGrowth    = lastRevenue ? ((currentRevenue - lastRevenue) / lastRevenue) * 100 : 0;
+    this.ordersGrowth     = lastOrders  ? ((currentOrders  - lastOrders)  / lastOrders)  * 100 : 0;
+    this.customersGrowth  = this.ordersGrowth;
     this.conversionGrowth = this.ordersGrowth / 2;
-    this.monthlyGrowth = this.revenueGrowth;
+    this.monthlyGrowth    = this.revenueGrowth;
   }
 
   initializeDynamicData() {
     const productMap: any = {};
 
     this.orders.forEach(order => {
-      order.Items.forEach((item: any) => {
-        if (!productMap[item.ProductName]) {
-          productMap[item.ProductName] = {
-            sales: 0,
-            revenue: 0,
-          };
-        }
-        productMap[item.ProductName].sales += item.Quantity;
-        productMap[item.ProductName].revenue += item.Price * item.Quantity;
+      this.getItems(order).forEach((item: any) => {
+        const name     = item.productName ?? item.ProductName ?? 'Unknown';
+        const price    = item.price    ?? item.Price    ?? 0;
+        const quantity = item.quantity ?? item.Quantity ?? 0;
+
+        if (!productMap[name]) productMap[name] = { name, sales: 0, revenue: 0 };
+        productMap[name].sales   += quantity;
+        productMap[name].revenue += price * quantity;
       });
     });
 
+    // FIX: was using p.name from object values but name wasn't set — now it is
     this.topProducts = Object.values(productMap)
       .sort((a: any, b: any) => b.revenue - a.revenue)
       .slice(0, 4)
       .map((p: any, i: number) => ({
-        rank: i + 1,
-        name: p.name,
-        sales: p.sales,
+        rank:    i + 1,
+        name:    p.name,
+        sales:   p.sales,
         revenue: p.revenue,
-        percent: +(p.revenue / this.totalRevenue * 100).toFixed(1),
+        percent: this.totalRevenue > 0
+          ? +(p.revenue / this.totalRevenue * 100).toFixed(1)
+          : 0,
       }));
 
-    // Recent activity
-    this.recentActivities = this.orders.slice(0, 5).map(order => ({
-      action: `Order #${order.OrderId} - ${order.Items[0]?.ProductName}`,
-      time: this.getTimeAgo(new Date(order.OrderDate)),
-    }));
+    this.recentActivities = this.orders.slice(0, 5).map(order => {
+      const firstItem = this.getItems(order)[0];
+      return {
+        action: `Order #${order.OrderId ?? order.orderId} - ${firstItem?.productName ?? firstItem?.ProductName ?? ''}`,
+        time:   this.getTimeAgo(new Date(order.OrderDate ?? order.orderDate)),
+      };
+    });
 
-    // Inventory
     const stockMap: any = {};
-
     this.orders.forEach(order => {
-      order.Items.forEach((item: any) => {
-        if (!stockMap[item.ProductName]) {
-          stockMap[item.ProductName] = {
-            id: item.ProductId,
-            name: item.ProductName,
-            stock: item.Stock ?? item.Quantity ?? 0,
+      this.getItems(order).forEach((item: any) => {
+        const name = item.productName ?? item.ProductName ?? 'Unknown';
+        if (!stockMap[name]) {
+          stockMap[name] = {
+            id:    item.productId ?? item.ProductId ?? 0,
+            name,
+            stock: item.stock ?? item.Stock ?? item.quantity ?? item.Quantity ?? 0,
           };
         }
       });
@@ -272,25 +247,22 @@ export class Retailerdashboard implements OnInit {
     this.inventoryAlerts = Object.values(stockMap)
       .filter((item: any) => item.stock < 50)
       .map((item: any) => ({
-        type: item.stock < 20 ? 'danger' : 'warning',
-        icon: item.stock < 20 ? '⚠️' : '📦',
-        title: item.stock < 20 ? 'Critical Stock' : 'Low Stock',
+        type:    item.stock < 20 ? 'danger' : 'warning',
+        icon:    item.stock < 20 ? '⚠️' : '📦',
+        title:   item.stock < 20 ? 'Critical Stock' : 'Low Stock',
         message: `${item.name} - ${item.stock} units left`,
       }));
-
 
     this.lowStockProducts = Object.values(stockMap)
       .filter((item: any) => item.stock < 100)
       .slice(0, 4)
       .map((item: any) => ({
-        id: item.id,
-        name: item.name,
-        current: item.stock,
-        total: 200,
+        id:         item.id,
+        name:       item.name,
+        current:    item.stock,
+        total:      200,
         percentage: (item.stock / 200) * 100,
       }));
-
-
   }
 
   createRevenueChart() {
@@ -299,27 +271,21 @@ export class Retailerdashboard implements OnInit {
 
     const ctx = canvas.getContext('2d')!;
     const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-
     gradient.addColorStop(0, 'rgba(212, 175, 55, 0.4)');
     gradient.addColorStop(1, 'rgba(212, 175, 55, 0.05)');
 
     const monthlyMap: any = {};
-
     this.orders.forEach(order => {
-      const month = new Date(order.OrderDate).toLocaleString('default', {
-        month: 'short',
-      });
+      const month = new Date(order.OrderDate ?? order.orderDate)
+        .toLocaleString('default', { month: 'short' });
 
       let total = 0;
-      order.Items.forEach((item: any) => {
-        if (
-          this.selectedCategory === 'All' ||
-          item.CategoryName === this.selectedCategory
-        ) {
-          total += item.Price * item.Quantity;
+      this.getItems(order).forEach((item: any) => {
+        const cat = item.categoryName ?? item.CategoryName ?? '';
+        if (this.selectedCategory === 'All' || cat === this.selectedCategory) {
+          total += (item.price ?? item.Price ?? 0) * (item.quantity ?? item.Quantity ?? 0);
         }
       });
-
       monthlyMap[month] = (monthlyMap[month] || 0) + total;
     });
 
@@ -327,20 +293,9 @@ export class Retailerdashboard implements OnInit {
       type: 'line',
       data: {
         labels: Object.keys(monthlyMap),
-        datasets: [
-          {
-            data: Object.values(monthlyMap),
-            borderColor: '#D4AF37',
-            backgroundColor: gradient,
-            fill: true,
-            tension: 0.45,
-          },
-        ],
+        datasets: [{ data: Object.values(monthlyMap), borderColor: '#D4AF37', backgroundColor: gradient, fill: true, tension: 0.45 }],
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-      },
+      options: { responsive: true, maintainAspectRatio: false },
     });
   }
 
@@ -349,11 +304,10 @@ export class Retailerdashboard implements OnInit {
     if (!canvas) return;
 
     const categoryMap: any = {};
-
     this.orders.forEach(order => {
-      order.Items.forEach((item: any) => {
-        categoryMap[item.CategoryName] =
-          (categoryMap[item.CategoryName] || 0) + item.Quantity;
+      this.getItems(order).forEach((item: any) => {
+        const cat = item.categoryName ?? item.CategoryName ?? 'Other';
+        categoryMap[cat] = (categoryMap[cat] || 0) + (item.quantity ?? item.Quantity ?? 0);
       });
     });
 
@@ -361,12 +315,7 @@ export class Retailerdashboard implements OnInit {
       type: 'doughnut',
       data: {
         labels: Object.keys(categoryMap),
-        datasets: [
-          {
-            data: Object.values(categoryMap),
-            backgroundColor: ['#D4AF37', '#3498db', '#2ecc71', '#9b59b6'],
-          },
-        ],
+        datasets: [{ data: Object.values(categoryMap), backgroundColor: ['#D4AF37', '#3498db', '#2ecc71', '#9b59b6'] }],
       },
     });
   }
@@ -374,7 +323,6 @@ export class Retailerdashboard implements OnInit {
   onCategoryChange() {
     this.revenueChart?.destroy();
     this.categoryChart?.destroy();
-
     this.createRevenueChart();
     this.createCategoryChart();
   }
@@ -385,20 +333,18 @@ export class Retailerdashboard implements OnInit {
 
   getTimeAgo(date: Date): string {
     const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
-    if (seconds < 60) return 'now';
-    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+    if (seconds < 60)    return 'now';
+    if (seconds < 3600)  return `${Math.floor(seconds / 60)}m ago`;
     if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
     return `${Math.floor(seconds / 86400)}d ago`;
   }
 
   updateStatus(orderId: number, event: any) {
     const status = event.target.value;
-
     this.retailerService.updateOrderStatus(orderId, status).subscribe({
       next: (res: any) => {
-        const order = this.orders.find((o) => o.OrderId === orderId);
+        const order = this.orders.find(o => (o.OrderId ?? o.orderId) === orderId);
         if (order) order.Status = status;
-        console.log(res.message);
       },
       error: (err) => {
         console.error(err);
@@ -408,12 +354,6 @@ export class Retailerdashboard implements OnInit {
     });
   }
 
-  gotoAddProduct() {
-    this.router.navigate(['/retailerNavbar/add-product']);
-  }
-
-  goToEditProduct(id: number) {
-    console.log('Navigating to ID:', id);
-    this.router.navigate(['/retailerNavbar/edit-product', id]);
-  }
+  gotoAddProduct()         { this.router.navigate(['/retailerNavbar/add-product']); }
+  goToEditProduct(id: number) { this.router.navigate(['/retailerNavbar/edit-product', id]); }
 }

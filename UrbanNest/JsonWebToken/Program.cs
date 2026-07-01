@@ -3,25 +3,28 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using QuestPDF.Infrastructure;
 using System.Text;
+using System.Text.Json;
 using UrbanNest.DataAccess;
 using UrbanNest.Repository;
 using UrbanNest.Service;
 
 var builder = WebApplication.CreateBuilder(args);
-
-
-builder.Services.AddControllers();
 builder.Configuration
-    .AddJsonFile("appsettings.json", optional: false)
-    .AddJsonFile("secure.json", optional: true, reloadOnChange: true);
+.AddJsonFile("secure.json", optional: true, reloadOnChange: true);
 
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+});
 builder.Services.AddOpenApi();
+builder.Services.AddSwaggerGen();
+
 builder.Services.AddDbContext<DataBase>(options =>
 {
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection"));
 });
-builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IUser, SUsers>();
 builder.Services.AddScoped<IRole, SRole>();
@@ -33,15 +36,10 @@ builder.Services.AddScoped<IEmail, SEmail>();
 builder.Services.AddScoped<IOrder, SOrder>();
 builder.Services.AddScoped<IAdmin, SAdmin>();
 builder.Services.AddScoped<IAddress, SAddress>();
+builder.Services.AddScoped<INotification, SNotification>();
 
 
 QuestPDF.Settings.License = LicenseType.Community;
-
-builder.Services.AddControllers().AddJsonOptions(options =>
-{
-    options.JsonSerializerOptions.PropertyNamingPolicy = null;
-    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
-});
 
 builder.Services.AddAuthorization();
 

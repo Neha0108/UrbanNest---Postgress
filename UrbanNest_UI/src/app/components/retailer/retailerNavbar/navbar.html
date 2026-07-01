@@ -6,7 +6,10 @@
     <a class="navbar-brand d-flex align-items-center">
       <img src="assets/images/FinalBrand.png" class="brand-logo me-2" />
     </a>
-    <h1 class="brand-text">Urban Nest Seller</h1>
+    <h1 class="brand-text">Urban Nest Seller
+      <app-notification-panel >
+      </app-notification-panel>
+    </h1>
 
     <a routerLink="retailerdashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
       📊 Dashboard
@@ -56,7 +59,7 @@
 
     </div>
   </aside>
-    <!--  MAIN CONTENT -->
+  <!--  MAIN CONTENT -->
   <main class="content">
     <router-outlet></router-outlet>
   </main>

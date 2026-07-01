@@ -2,10 +2,11 @@ import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { Router, RouterLink, RouterOutlet, RouterLinkActive} from '@angular/router';
 import { UserService } from '../../../service/user-service';
 import { CommonModule } from '@angular/common';
+import { NotificationPanel } from "../../../notification-panel/notification-panel";
 
 @Component({
   selector: 'app-retailer-navbar',
-  imports: [RouterOutlet, RouterLink, CommonModule, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, CommonModule, RouterLinkActive, NotificationPanel],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })
@@ -17,6 +18,7 @@ export class RetailerNavbar implements OnInit {
 
   userName: string = '';
   showDropdown = false;
+  retailerId: number = 0;
 
 
   toggleDropdown() {
@@ -27,6 +29,7 @@ export class RetailerNavbar implements OnInit {
     this.service.getUserInfo().subscribe({
       next: res => {
         this.userName = res.userName;
+        this.retailerId = res.UserId;
         this.chng.detectChanges();
       },
       error: () => {
