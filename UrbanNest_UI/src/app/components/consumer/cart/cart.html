@@ -22,26 +22,26 @@
 
       <div *ngFor="let item of cartItems" class="cart-item mb-3 p-3 border-bottom">
         <!-- LEFT: Image -->
-        <div *ngIf="item.imagePath" class="img-wrapper">
-          <div id="carousel{{item.productId}}" class="carousel slide" data-bs-ride="carousel">
+        <div *ngIf="item.ImagePath" class="img-wrapper">
+          <div id="carousel{{item.ProductId}}" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-inner">
               <div class="carousel-indicators">
-                <button *ngFor="let img of item.imagePath; let i = index" type="button"
-                  [attr.data-bs-target]="'#carousel' + item.productId" [attr.data-bs-slide-to]="i"
+                <button *ngFor="let img of item.ImagePath; let i = index" type="button"
+                  [attr.data-bs-target]="'#carousel' + item.ProductId" [attr.data-bs-slide-to]="i"
                   [class.active]="i === 0"></button>
               </div>
-              <div *ngFor="let img of item.imagePath; let i = index" class="carousel-item" [class.active]="i === 0">
+              <div *ngFor="let img of item.ImagePath; let i = index" class="carousel-item" [class.active]="i === 0">
                 <img [src]="'http://localhost:5146' + img" class="d-block w-100 product-img" />
               </div>
             </div>
 
             <!-- controls -->
-            <button class="carousel-control-prev" type="button" [attr.data-bs-target]="'#carousel' + item.productId"
+            <button class="carousel-control-prev" type="button" [attr.data-bs-target]="'#carousel' + item.ProductId"
               data-bs-slide="prev">
               <span class="carousel-control-prev-icon"></span>
             </button>
 
-            <button class="carousel-control-next" type="button" [attr.data-bs-target]="'#carousel' + item.productId"
+            <button class="carousel-control-next" type="button" [attr.data-bs-target]="'#carousel' + item.ProductId"
               data-bs-slide="next">
               <span class="carousel-control-next-icon"></span>
             </button>
@@ -53,28 +53,28 @@
           <input 
             type="checkbox" 
             class="form-check-input"
-            [checked]="isItemSelected(item.productId)"
-            (change)="toggleItemSelection(item.productId)"
+            [checked]="isItemSelected(item.ProductId)"
+            (change)="toggleItemSelection(item.ProductId)"
           />
         </div>
 
         <!-- RIGHT: Details -->
         <div class="cart-details">
-          <h6>{{item.productId }}. {{item.productName}}</h6>
-          <p class="price">₹ {{ item.productPrice }}</p>
+          <h6>{{item.ProductId }}. {{item.ProductName}}</h6>
+          <p class="price">₹ {{ item.ProductPrice }}</p>
 
           <!-- Quantity -->
           <div class="qty-box">
             <button (click)="decreaseQty(item)">−</button>
-            <span>{{ item.quantity }}</span>
+            <span>{{ item.Quantity }}</span>
             <button (click)="increaseQty(item)">+</button>
           </div>
 
           <strong class="subtotal">
-            ₹ {{ item.productPrice * item.quantity }}
+            ₹ {{ item.ProductPrice * item.Quantity }}
           </strong>
 
-          <button class="remove-btn" (click)="removeItem(item.productId)">
+          <button class="remove-btn" (click)="removeItem(item.ProductId)">
             ✖ Remove
           </button>
         </div>

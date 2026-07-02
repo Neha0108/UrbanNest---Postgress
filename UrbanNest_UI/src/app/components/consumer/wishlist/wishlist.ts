@@ -19,7 +19,7 @@ export class Wishlist implements OnInit {
 
   ngOnInit(): void {
     this.consumerService.getWishlist().subscribe({
-      next: data => {
+      next: (data: WishlistItem[]) => {
         this.wishlist = data;
         this.chg.detectChanges();
         console.log('Wishlist data:', this.wishlist);
@@ -33,7 +33,7 @@ export class Wishlist implements OnInit {
   removeFromWishlist(productId: number) {
     this.consumerService.removeFromWishlist(productId).subscribe({
       next: () => {
-        this.wishlist = this.wishlist.filter(item => item.ProductId !== productId);
+        this.wishlist = this.wishlist.filter(item => item.productId !== productId);
         this.chg.detectChanges();
       },
       error: (error) => {

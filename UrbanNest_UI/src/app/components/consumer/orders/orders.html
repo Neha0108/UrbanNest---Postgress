@@ -65,10 +65,10 @@
         </thead>
 
         <tbody>
-          <tr *ngFor="let item of order.Items">
+          <tr *ngFor="let item of order.items">
             <td>{{ item.productName }}</td>
-            <td>{{ item.Quantity }}</td>
-            <td class="price">₹ {{ item.Price }}</td>
+            <td>{{ item.quantity }}</td>
+            <td class="price">₹ {{ item.price }}</td>
           </tr>
         </tbody>
       </table>
@@ -76,7 +76,7 @@
       <!-- ✅ TOTAL -->
       <div class="order-total text-end mt-2">
         <span>Total Amount: </span>
-        <strong>₹ {{ getOrderTotal(order.Items) }}</strong>
+        <strong>₹ {{ getOrderTotal(order.items) }}</strong>
       </div>
 
     </div>
@@ -120,17 +120,17 @@
       <div class="track-items">
         <h6>Order Items</h6>
 
-        <div class="track-item" *ngFor="let item of selectedOrder.Items">
+        <div class="track-item" *ngFor="let item of selectedOrder.items">
           <div class="item-name">{{ item.productName }}</div>
           <div class="item-meta">
-            Qty: {{ item.Quantity }} | ₹ {{ item.Price }}
+            Qty: {{ item.quantity }} | ₹ {{ item.price }}
           </div>
         </div>
       </div>
 
       <!-- ✅ TOTAL -->
       <div class="track-total">
-        Total: ₹ {{ getOrderTotal(selectedOrder.Items) }}
+        Total: ₹ {{ getOrderTotal(selectedOrder.items) }}
       </div>
 
       <!-- ✅ STEPS -->

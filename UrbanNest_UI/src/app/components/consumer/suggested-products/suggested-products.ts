@@ -29,7 +29,6 @@ export class SuggestedProducts {
 
     this.lastCategory = localStorage.getItem('lastCategory');
 
-    // ✅ Recently viewed (IDs stored)
     const viewedIds = JSON.parse(localStorage.getItem('recentProducts') || '[]');
 
     this.consumerService.allProducts().subscribe(res => {
@@ -63,15 +62,12 @@ export class SuggestedProducts {
     }
 
     localStorage.setItem('recentProducts', JSON.stringify(viewed.slice(0, 10)));
-    this.chng.detectChanges();
 
     // ✅ Store last category
     localStorage.setItem('lastCategory', product.CategoryName);
-    this.chng.detectChanges();
 
     // ✅ Redirect to product details page
     this.router.navigate(['/consumerNavbar/product-details', product.productId]);
-    this.chng.detectChanges();
   }
 
 }

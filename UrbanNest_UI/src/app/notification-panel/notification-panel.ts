@@ -1,14 +1,4 @@
-// src/app/notification-panel/notification-panel.ts
-
-import {
-  Component,
-  Input,
-  OnInit,
-  OnDestroy,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  signal,
-} from '@angular/core';
+import { Component,Input,OnInit,OnDestroy,ChangeDetectionStrategy,ChangeDetectorRef,signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { NotificationService } from '../service/notification-service';
@@ -90,6 +80,7 @@ export class NotificationPanel implements OnInit, OnDestroy {
         this.notifications.set(data);
         this.isLoading.set(false);
         this.cdr.markForCheck();
+        console.log('Notifications loaded:', data);
       },
       error: () => {
         this.isLoading.set(false);

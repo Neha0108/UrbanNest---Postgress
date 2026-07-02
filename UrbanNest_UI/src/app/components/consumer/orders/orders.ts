@@ -37,10 +37,12 @@ export class Orders implements OnInit {
   }
 
   getOrderTotal(items: any[]): number {
-    return items.reduce((sum, item) => {
-      return sum + (item.Price * item.Quantity);
-    }, 0);
-  }
+  if (!items) return 0;
+
+  return items.reduce((sum, item) => {
+    return sum + (item.price * item.quantity);
+  }, 0);
+}
 
   getStatusClass(status: string) {
     switch (status) {
@@ -62,7 +64,7 @@ export class Orders implements OnInit {
       next: () => {
 
         // ✅ update UI instantly
-        const order = this.orders.find(o => o.OrderId === orderId);
+        const order = this.orders.find(o => o.orderId === orderId);
         if (order) order.Status = "Cancelled";
 
         alert("Order cancelled");

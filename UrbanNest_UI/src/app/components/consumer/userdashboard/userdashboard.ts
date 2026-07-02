@@ -125,15 +125,15 @@ export class Userdashboard implements OnInit {
 
   /*  Wishlist */
   isInWishlist(productId: number): boolean {
-    return this.wishlist.some(w => w.ProductId === productId);
+    return this.wishlist.some(w => w.productId === productId);
   }
 
   toggleWishlist(productId: number) {
     if (this.isInWishlist(productId)) {
-      this.wishlist = this.wishlist.filter(w => w.ProductId !== productId);
+      this.wishlist = this.wishlist.filter(w => w.productId !== productId);
       this.consumerService.removeFromWishlist(productId).subscribe();
     } else {
-      this.wishlist.push({ ProductId: productId } as WishlistItem);
+      this.wishlist.push({ productId: productId } as WishlistItem);
       this.consumerService.addToWishlist(productId).subscribe();
     }
   }

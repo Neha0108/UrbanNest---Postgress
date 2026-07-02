@@ -1,52 +1,43 @@
 <div class="main-content">
-<div class="container mt-4">
+  <div class="container mt-4">
 
-  <h2 class="mb-4">Your Wishlist ❤️</h2>
+    <h2 class="mb-4">Your Wishlist ❤️</h2>
 
-  <!-- Empty state -->
-  <div *ngIf="wishlist.length === 0" class="text-muted text-center mt-5">
-    Your wishlist is empty.
-  </div>
-
-  <!-- Wishlist items -->
-  <div class="row" *ngIf="wishlist.length > 0">
-
-    <div
-      class="col-md-4 mb-3"
-      *ngFor="let item of wishlist"
-    >
-      <div class="card h-100 shadow-sm">
-
-        <!-- Product Image -->
-        <img
-  [src]="'http://localhost:5146' + (item.ImagePath?.[0] || item.ImagePath)"
-  class="wishlist-img"
-/>
-
-        <div class="card-body">
-
-          <!-- Product Name -->
-          <h5 class="card-title">
-            {{ item.ProductId }}. {{ item.ProductName }}
-          </h5>
-
-          <!-- Product Price -->
-          <p class="card-text">
-            ₹ {{ item.ProductPrice }}
-          </p>
-
-          <!-- Remove Button -->
-          <button
-            class="btn btn-sm btn-outline-danger w-100"
-            (click)="removeFromWishlist(item.ProductId)"
-          >
-            ❌ Remove
-          </button>
-
-        </div>
-      </div>
+    <!-- Empty state -->
+    <div *ngIf="wishlist.length === 0" class="text-muted text-center mt-5">
+      Your wishlist is empty.
     </div>
 
+    <!-- Wishlist items -->
+    <div class="row" *ngIf="wishlist.length > 0">
+
+      <div class="col-md-4 mb-3" *ngFor="let item of wishlist">
+        <div class="card h-100 shadow-sm">
+
+          <!-- Product Image -->
+          <img [src]="'http://localhost:5146' + (item.imagePath?.[0] || item.imagePath)" class="wishlist-img" />
+
+          <div class="card-body">
+
+            <!-- Product Name -->
+            <h5 class="card-title">
+              {{ item.productId }}. {{ item.productName }}
+            </h5>
+
+            <!-- Product Price -->
+            <p class="card-text">
+              ₹ {{ item.productPrice }}
+            </p>
+
+            <!-- Remove Button -->
+            <button class="btn btn-sm btn-outline-danger w-100" (click)="removeFromWishlist(item.productId)">
+              ❌ Remove
+            </button>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
-</div>
 </div>

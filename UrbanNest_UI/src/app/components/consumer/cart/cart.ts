@@ -28,13 +28,13 @@ export class Cart implements OnInit {
     this.consumerService.getCartItems().subscribe({
       next: (res: any[]) => {
         this.cartItems = res.map(item => ({
-          productId: item.ProductId,
-          productName: item.ProductName,
-          productPrice: item.ProductPrice,
-          imagePath: item.ImagePath,
-          quantity: item.Quantity
+          ProductId: item.productId,
+          ProductName: item.productName,
+          ProductPrice: item.productPrice,
+          ImagePath: item.imagePath,
+          Quantity: item.quantity
         }));
-        console.log(this.cartItems);
+        console.log("cart items", this.cartItems);
         this.calculateTotal();
         this.chg.detectChanges();
       },
@@ -44,27 +44,27 @@ export class Cart implements OnInit {
 
   calculateTotal(): void {
     this.total = this.cartItems.reduce(
-      (sum, item) => sum + (item.productPrice ?? 0) * (item.quantity ?? 0),
+      (sum, item) => sum + (item.ProductPrice ?? 0) * (item.Quantity ?? 0),
       0
     );
     this.chg.detectChanges();
   }
 
   increaseQty(item: CartItem) {
-    item.quantity++;
+    item.Quantity++;
 
     this.consumerService
-      .updateQuantity(item.productId, item.quantity)
+      .updateQuantity(item.ProductId, item.Quantity)
       .subscribe(() => this.calculateTotal());
   }
 
   decreaseQty(item: CartItem) {
-    if (item.quantity === 1) return;
+    if (item.Quantity === 1) return;
 
-    item.quantity--;
+    item.Quantity--;
 
     this.consumerService
-      .updateQuantity(item.productId, item.quantity)
+      .updateQuantity(item.ProductId, item.Quantity)
       .subscribe(() => this.calculateTotal());
   }
 
@@ -72,7 +72,7 @@ export class Cart implements OnInit {
   removeItem(productId: number) {
     this.consumerService.removeFromCart(productId).subscribe(() => {
       this.cartItems = this.cartItems.filter(
-        i => i.productId !== productId
+        i => i.ProductId !== productId
       );
       this.selectedItems.delete(productId); //  Remove from selection
       this.calculateTotal();
@@ -96,13 +96,13 @@ export class Cart implements OnInit {
   //  Calculate total for selected items
   getSelectedTotal(): number {
     return this.cartItems
-      .filter(item => this.selectedItems.has(item.productId))
-      .reduce((sum, item) => sum + (item.productPrice ?? 0) * (item.quantity ?? 0), 0);
+      .filter(item => this.selectedItems.has(item.ProductId))
+      .reduce((sum, item) => sum + (item.ProductPrice ?? 0) * (item.Quantity ?? 0), 0);
   }
 
   //  Select all items
   selectAll(): void {
-    this.cartItems.forEach(item => this.selectedItems.add(item.productId));
+    this.cartItems.forEach(item => this.selectedItems.add(item.ProductId));
   }
 
   //  Deselect all items

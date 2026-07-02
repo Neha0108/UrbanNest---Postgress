@@ -42,7 +42,8 @@ namespace UrbanNest.Service
                 cart.CartItems.Add(new CartItem
                 {
                     ProductId = dto.ProductId,
-                    Quantity = dto.Quantity
+                    Quantity = dto.Quantity,
+                    Cart = cart
                 });
             }
 
