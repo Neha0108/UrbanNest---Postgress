@@ -26,6 +26,7 @@ import { Address } from './components/consumer/address/address';
 import { ShopByPrice } from './LandingPage/shop-by-price/shop-by-price';
 import { Orders as retailerOrders } from './components/retailer/orders/orders';
 import { Customers } from './components/retailer/customers/customers';
+import { Checkout } from './components/consumer/checkout/checkout';
 
 export const routes: Routes = [
   {path: '', component: Home},
@@ -39,8 +40,8 @@ export const routes: Routes = [
     path: 'consumerNavbar',
     component: ConsumerNavbar,
     children: [
-      { path: '', redirectTo: 'welcome', pathMatch: 'full' },
-      { path: 'welcome', component: Welcome },
+      { path: '', redirectTo: 'home', pathMatch: 'full' },
+      { path: 'home', component: Home },
       { path: 'userdashboard', component: Userdashboard },
       { path: 'wishlist', component: Wishlist },
       { path: 'cart', component: Cart },
@@ -50,7 +51,8 @@ export const routes: Routes = [
       { path: 'change-password', component: ChangePassword },
       { path: 'product-details/:id', component: ProductDetails },
       { path: 'suggested-products', component: SuggestedProducts },
-      { path: 'address', component: Address }
+      { path: 'address', component: Address },
+      { path: 'checkout', component: Checkout }
     ]
   },
 

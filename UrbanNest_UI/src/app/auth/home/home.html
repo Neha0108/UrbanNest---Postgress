@@ -1,133 +1,154 @@
-<div class="hero-panel">
+<main class="home-page">
 
-  <!--  LEFT: CONTENT -->
-  <div class="hero-copy">
-
-    <p class="eyebrow">Urban Nest</p>
-
-    <h1 class="hero-title">
-      Modern essentials designed for calm city living
-    </h1>
-
-    <p class="hero-subtitle">
-      Urban Nest is your all-in-one lifestyle platform where you can explore curated
-      fashion, home, and lifestyle products designed for modern urban living.
-    </p>
-    <div class="hero-stats">
-
-      <div class="stat">
-        <h2>10K+</h2>
-        <span>Products</span>
+  <!-- ================= HERO ================= -->
+  <section class="hero">
+    <div class="hero-slides">
+      <div
+        class="hero-slide"
+        *ngFor="let slide of slides; let i = index"
+        [class.active]="i === currentSlide"
+        [style.backgroundImage]="'url(' + slide.image + ')'">
       </div>
-
-      <div class="stat">
-        <h2>500+</h2>
-        <span>Retailers</span>
-      </div>
-
-      <div class="stat">
-        <h2>50K+</h2>
-        <span>Customers</span>
-      </div>
-
+      <div class="hero-overlay"></div>
     </div>
 
-    <!--  EXTRA CONTENT -->
-    <div class="hero-features">
-      <div class="feature">
-        <span>✔</span> Discover premium curated collections
-      </div>
-      <div class="feature">
-        <span>✔</span> Shop with ease and elegance
-      </div>
-      <div class="feature">
-        <span>✔</span> Sell your products as a retailer
+    <div class="hero-content">
+      <span class="hero-eyebrow">Urban Nest Collection</span>
+      <h1 class="hero-title">{{ slides[currentSlide].title }}</h1>
+      <p class="hero-subtitle">{{ slides[currentSlide].subtitle }}</p>
+
+      <div class="hero-actions">
+        <button class="btn-primary" (click)="goToProducts(slides[currentSlide].category)">
+          {{ slides[currentSlide].buttonText }}
+        </button>
+        <button class="btn-outline" (click)="scrollToCategories()">Explore Categories</button>
       </div>
     </div>
 
-  </div>
-
-
-  <!--  RIGHT: LOGO + BANNERS -->
-  <div class="hero-visual">
-
-    <!-- Brand Image -->
-    <img src="assets/images/FinalBrand.png" class="hero-visual-img" alt="Urban Nest Visual" />
-
-
-    <!--  CONSUMER CARD -->
-    <div class="consumer-banner">
-
-      <div class="consumer-text">
-        <h3>Explore as a Consumer</h3>
-        <p>Browse premium products curated for your lifestyle.</p>
-      </div>
-
-      <button class="consumer-btn" (click)="goToProducts()">
-        Start Shopping→
+    <div class="hero-dots">
+      <button
+        *ngFor="let s of slides; let i = index"
+        class="dot"
+        [class.active]="i === currentSlide"
+        (click)="setSlide(i)"
+        [attr.aria-label]="'Go to slide ' + (i + 1)">
       </button>
-
     </div>
 
+    <button class="hero-scroll-cue" (click)="scrollToCategories()" aria-label="Scroll down">
+      <span>Scroll</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M12 4v16M6 14l6 6 6-6"/>
+      </svg>
+    </button>
+  </section>
 
-    <!--  RETAILER CARD -->
-    <div class="retailer-banner">
+  <!-- ================= FEATURED COLLECTIONS ================= -->
+  <section class="collections">
+    <header class="section-header">
+      <span class="eyebrow">Curated For You</span>
+      <h2>Featured Collections</h2>
+    </header>
 
-      <div class="retailer-text">
-        <h3>Sell with Urban Nest</h3>
-        <p>Join as a retailer and grow your business.</p>
+    <div class="collections-grid">
+      <div class="collection-tile large" (click)="goToProducts('Home')">
+        <img src="assets/addvertisement/home-banner.png" alt="Living Spaces">
+        <div class="tile-overlay"></div>
+        <div class="tile-info">
+          <h3>Living Spaces</h3>
+          <span>Shop Now →</span>
+        </div>
       </div>
 
-      <button class="retailer-btn" (click)="goToRetailer()">
-        Continue →
-      </button>
+      <div class="collection-tile" (click)="goToProducts('Fashion')">
+        <img src="assets/addvertisement/fashion-banner.png" alt="Fashion Edit">
+        <div class="tile-overlay"></div>
+        <div class="tile-info">
+          <h3>Fashion Edit</h3>
+          <span>Shop Now →</span>
+        </div>
+      </div>
 
+      <div class="collection-tile" (click)="goToProducts('Beauty')">
+        <img src="assets/addvertisement/beauty-banner.png" alt="Beauty Essentials">
+        <div class="tile-overlay"></div>
+        <div class="tile-info">
+          <h3>Beauty Essentials</h3>
+          <span>Shop Now →</span>
+        </div>
+      </div>
     </div>
+  </section>
 
-  </div>
+  <!-- ================= SHOP BY CATEGORY (unchanged, your existing component) ================= -->
+  <app-category></app-category>
 
-</div>
+  <!-- ================= TRENDING NOW ================= -->
+  <section class="trending" *ngIf="trendingProducts.length">
+    <header class="section-header row">
+      <div>
+        <span class="eyebrow">Handpicked</span>
+        <h2>Trending Now</h2>
+      </div>
+      <button class="link-btn" (click)="goToProducts()">View All →</button>
+    </header>
 
-<section class="ad-slider">
-
-  <div class="slider-card" [attr.data-slide]="currentSlide">
-
-    <div class="slider-content">
-
-      <span class="slider-badge">
-        Urban Nest Exclusive
-      </span>
-
-      <h2>
-        {{ slides[currentSlide].title }}
-      </h2>
-
-      <p>
-        {{ slides[currentSlide].subtitle }}
-      </p>
-
-      <button class="slider-btn"
-              (click)="goToProducts(slides[currentSlide].category)">
-        {{ slides[currentSlide].buttonText }}
-      </button>
-
-    </div> <!-- ✅ close slider-content -->
-
-    <!-- ✅ IMAGE OUTSIDE CONTENT -->
-    <div class="slider-image">
-      <img [src]="slides[currentSlide].image" alt="banner">
+    <div class="product-row">
+      <div class="product-card" *ngFor="let p of trendingProducts" (click)="goToProduct(p)">
+        <div class="product-image-wrap">
+          <img [src]="'http://localhost:5146' + (p.imagepath?.[0] || '')" [alt]="p.productName">
+          <span class="stock-badge" *ngIf="p.stock > 0 && p.stock < 10">Only {{ p.stock }} left</span>
+          <span class="stock-badge out" *ngIf="p.stock === 0">Out of Stock</span>
+        </div>
+        <div class="product-info">
+          <p class="product-category">{{ p.CategoryName }}</p>
+          <h4>{{ p.productName }}</h4>
+          <p class="product-price">₹{{ p.productPrice | number }}</p>
+        </div>
+      </div>
     </div>
+  </section>
 
-  </div> <!-- ✅ close slider-card -->
+  <!-- ================= SHOP BY PRICE (unchanged, your existing component) ================= -->
+  <app-shop-by-price></app-shop-by-price>
 
-  <!-- ✅ DOTS OUTSIDE CARD -->
-  <div class="slider-dots">
-    <span *ngFor="let slide of slides; let i=index"
-          [class.active]="i === currentSlide">
-    </span>
-  </div>
+  <!-- ================= WHY CHOOSE US ================= -->
+  <section class="why-choose">
+    <header class="section-header center">
+      <span class="eyebrow">Our Promise</span>
+      <h2>Why Choose Urban Nest</h2>
+    </header>
 
-</section>
+    <div class="why-grid">
+      <div class="why-item" *ngFor="let f of features">
+        <div class="why-icon" [innerHTML]="f.icon"></div>
+        <h3>{{ f.title }}</h3>
+        <p>{{ f.desc }}</p>
+      </div>
+    </div>
+  </section>
 
-<app-category></app-category>
-<app-shop-by-price></app-shop-by-price>
+  <!-- ================= STATS ================= -->
+  <section class="stats" #statsSection>
+    <div class="stat" *ngFor="let s of stats">
+      <h3>{{ s.display }}</h3>
+      <span>{{ s.label }}</span>
+    </div>
+  </section>
+
+  <!-- ================= NEWSLETTER ================= -->
+  <section class="newsletter">
+    <div class="newsletter-inner">
+      <h2>Stay In The Loop</h2>
+      <p>Be the first to know about new collections, exclusive offers and design stories.</p>
+
+      <form class="newsletter-form" [formGroup]="newsletterForm" (ngSubmit)="subscribeNewsletter()">
+        <input type="email" formControlName="email" placeholder="Enter your email" aria-label="Email address">
+        <button type="submit" [disabled]="newsletterForm.invalid">Subscribe</button>
+      </form>
+
+      <p class="newsletter-success" *ngIf="subscribed">Thank you for subscribing 🤍</p>
+    </div>
+  </section>
+
+</main>

@@ -1,134 +1,170 @@
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Consumer } from '../../../service/consumer';
 import { Product } from '../../../interface/product';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-product-details',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './product-details.html',
-  styleUrls: ['./product-details.css']
+  styleUrl: './product-details.css',
 })
 export class ProductDetails implements OnInit {
 
   private route = inject(ActivatedRoute);
-  private service = inject(Consumer);
-  private chng = inject(ChangeDetectorRef);
   private router = inject(Router);
+  private consumerService = inject(Consumer);
+  private chng = inject(ChangeDetectorRef);
 
   product: Product | null = null;
-  reviews: any[] = [];
-  cartItems: any[] = [];
+  relatedProducts: Product[] = [];
+  loading = true;
+  notFound = false;
 
-  //  FIXED: single string (not array)
-  selectedImage: string = '';
+  activeImageIndex = 0;
+  quantity = 1;
 
-  quantity: number = 1;
+  activeTab: 'description' | 'specifications' | 'reviews' = 'description';
+
+  pincode = '';
+  deliveryChecked = false;
+  deliveryMessage = '';
+
+  addedToCart = false;
+  addedToWishlist = false;
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
+    this.route.params.subscribe((params) => {
+      const id = Number(params['id']);
+      if (id) this.loadProduct(id);
+    });
+  }
 
-    if (id) {
-      //  Load product details
-      this.service.getProductById(id).subscribe({
-        next: (res) => {
-          this.product = res;
-          console.log('Product details:', res);
+  loadProduct(productId: number): void {
+    this.loading = true;
+    this.notFound = false;
 
-          //  Set default image
-          this.selectedImage = res.imagepath?.[0] || '';
+    this.consumerService.allProducts().subscribe({
+      next: (data: Product[]) => {
+        const found = data.find((p) => p.productId === productId);
+
+        if (!found) {
+          this.notFound = true;
+          this.loading = false;
           this.chng.detectChanges();
-        },
-        error: (err) => {
-          console.error('Error loading product:', err);
+          return;
         }
-      });
 
-      //  Load cart items
-      this.service.getCartItems().subscribe({
-        next: (res: any[]) => {
-          this.cartItems = res.map(item => ({
-            productId: item.ProductId,
-            quantity: item.Quantity
-          }));
-          this.chng.detectChanges();
-        },
-        error: (err) => console.error('Error loading cart:', err)
-      });
+        this.product = found;
+        this.activeImageIndex = 0;
+        this.quantity = 1;
+        this.deliveryChecked = false;
 
-      //  Dummy reviews (replace later with API)
-      this.reviews = [
-        { rating: 5, comment: 'Amazing product 🔥' },
-        { rating: 4, comment: 'Very good quality 👍' }
-      ];
-    }
+        this.relatedProducts = data
+          .filter((p) => p.CategoryName === found.CategoryName && p.productId !== found.productId)
+          .slice(0, 4);
+
+        this.trackRecentlyViewed(found);
+
+        this.loading = false;
+        this.chng.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to load product', err);
+        this.notFound = true;
+        this.loading = false;
+        this.chng.detectChanges();
+      },
+    });
   }
 
-  //  Thumbnail click
-  selectImage(img: string): void {
-    this.selectedImage = img;
-    this.chng.detectChanges(); //  Trigger change detection
+  private trackRecentlyViewed(product: Product): void {
+    const viewed: number[] = JSON.parse(localStorage.getItem('recentProducts') || '[]');
+    const filtered = viewed.filter((id) => id !== product.productId);
+    filtered.unshift(product.productId);
+    localStorage.setItem('recentProducts', JSON.stringify(filtered.slice(0, 10)));
+    localStorage.setItem('lastCategory', product.CategoryName);
   }
 
-  //  Increase quantity (max = stock)
+  setActiveImage(index: number): void {
+    this.activeImageIndex = index;
+  }
+
   increaseQty(): void {
-    if (this.product && this.quantity < this.product.stock) {
-      this.quantity++;
-      this.chng.detectChanges(); //  Trigger change detection
-    }
+    if (!this.product) return;
+    if (this.quantity < this.product.stock) this.quantity++;
   }
 
-  //  Decrease quantity (min = 1)
   decreaseQty(): void {
-    if (this.quantity > 1) {
-      this.quantity--;
-    }
+    if (this.quantity > 1) this.quantity--;
   }
 
-  //  Check if product is in cart
-  isInCart(): boolean {
-    return this.cartItems.some(c => c.productId === this.product?.productId);
+  setTab(tab: 'description' | 'specifications' | 'reviews'): void {
+    this.activeTab = tab;
+  }
+
+  checkDelivery(): void {
+    if (!this.pincode || this.pincode.length !== 6) {
+      this.deliveryMessage = 'Please enter a valid 6-digit pincode';
+      this.deliveryChecked = true;
+      return;
+    }
+    this.deliveryChecked = true;
+    this.deliveryMessage = `Delivery available to ${this.pincode}`;
   }
 
   addToCart(): void {
-    if (!this.product) return;
-    console.log('Adding to cart:', {
-      productId: this.product.productId,
-      quantity: this.quantity
-    });
+    if (!this.product || this.product.stock === 0) return;
 
-    this.service.addToCart(this.product.productId).subscribe({
+    this.consumerService.addToCart(this.product.productId, this.quantity).subscribe({
       next: () => {
-        console.log('Product added to cart successfully');
-        alert(' Added to cart!');
-        //  Reload cart items
-        this.service.getCartItems().subscribe({
-          next: (res: any[]) => {
-            this.cartItems = res.map(item => ({
-              productId: item.ProductId,
-              quantity: item.Quantity
-            }));
-            this.chng.detectChanges();
-          }
-        });
+        this.addedToCart = true;
+        this.chng.detectChanges();
+        setTimeout(() => {
+          this.addedToCart = false;
+          this.chng.detectChanges();
+        }, 1800);
       },
-      error: (err) => {
-        console.error('Error adding to cart:', err);
-      }
+      error: (err: any) => console.error('Failed to add to cart', err),
     });
   }
 
-  //  Buy Now - navigate to order page with this product
-  buyNow(): void {
+  addToWishlist(): void {
     if (!this.product) return;
-    this.service.addToCart(this.product.productId).subscribe({
+
+    this.consumerService.addToWishlist(this.product.productId).subscribe({
       next: () => {
-        console.log('Product added to cart for purchase');
-        alert(' Added to cart! Redirecting to checkout...');
-        this.router.navigate(['/consumerNavbar/cart'])
-      }
+        this.addedToWishlist = true;
+        this.chng.detectChanges();
+        setTimeout(() => {
+          this.addedToWishlist = false;
+          this.chng.detectChanges();
+        }, 1800);
+      },
+      error: (err: any) => console.error('Failed to add to wishlist', err),
     });
+  }
+
+  buyNow(): void {
+    if (!this.product || this.product.stock === 0) return;
+
+    this.router.navigate(['/consumerNavbar/address'], {
+      state: {
+        buyNow: true,
+        productId: this.product.productId,
+        quantity: this.quantity,
+      },
+    });
+  }
+
+  goToProduct(product: Product): void {
+    this.router.navigate(['/consumerNavbar/product-details', product.productId]);
+  }
+
+  trackById(index: number, item: Product): number {
+    return item.productId;
   }
 }

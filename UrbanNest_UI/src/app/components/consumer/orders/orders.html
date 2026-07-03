@@ -1,152 +1,201 @@
-<div class="main-content">
+<main class="orders-page">
 
-  <h3 class="mb-3">My Orders</h3>
+  <div class="orders-shell">
 
-  <div *ngIf="orders.length === 0" class="text-muted">
-    You have not placed any orders yet 🛒
-  </div>
-
-  <!-- ✅ Orders List -->
-<div *ngFor="let order of orders"
-     class="card mb-3"
-     [ngClass]="{'cancelled-order': order.Status === 'Cancelled by User'}">
-    <div class="card-body">
-
-      <h6>Order ID: {{ order.OrderId }}</h6>
-
-      <small class="text-muted">
-        {{ order.OrderDate | date:'medium' }}
-      </small>
-
-      <br>
-
-      <!-- ✅ ACTION BUTTONS -->
-      <div class="order-actions">
-
-        <!-- ✅ SHOW CANCEL BUTTON ONLY IF NOT CANCELLED -->
-        <button
-          *ngIf="order.Status !== 'Cancelled by User'; else cancelledTpl"
-          class="btn cancel-btn"
-          [disabled]="
-            order.Status === 'Shipped' ||
-            order.Status === 'Out for Delivery' ||
-            order.Status === 'Delivered'
-          "
-          (click)="cancelOrder(order.OrderId)">
-          Cancel Order
-        </button>
-
-        <!-- ✅ TEMPLATE FOR CANCELLED -->
-        <ng-template #cancelledTpl>
-          <span class="cancelled-label">Cancelled Order </span>
-        </ng-template>
-
-        <!-- ✅ TRACK BUTTON -->
-        <button class="btn track-btn" (click)="trackOrder(order)">
-          Track Order
-        </button>
-
+    <!-- ============ HEADER ============ -->
+    <header class="orders-header">
+      <div>
+        <p class="eyebrow">Your Account</p>
+        <h1>Orders</h1>
       </div>
+      <span class="order-count" *ngIf="!loading()">
+        {{ orders().length }} {{ orders().length === 1 ? 'order' : 'orders' }}
+      </span>
+    </header>
 
-      <!-- ✅ DELIVERY DATE -->
-      <small class="delivery-date" *ngIf="order.EstimatedDeliveryDate">
-        Expected Delivery:
-        {{ order.EstimatedDeliveryDate | date:'mediumDate' }}
-      </small>
+    <!-- ============ FILTER PILLS ============ -->
+    <nav class="filter-row" aria-label="Filter orders by status">
+      <button
+        *ngFor="let f of filters"
+        type="button"
+        class="filter-pill"
+        [class.is-active]="activeFilter() === f.key"
+        (click)="setFilter(f.key)"
+      >
+        {{ f.label }}
+      </button>
+    </nav>
 
-      <!-- ✅ ITEMS TABLE -->
-      <table class="table mt-2">
-        <thead>
-          <tr>
-            <th>Product</th>
-            <th>Qty</th>
-            <th>Price</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr *ngFor="let item of order.items">
-            <td>{{ item.productName }}</td>
-            <td>{{ item.quantity }}</td>
-            <td class="price">₹ {{ item.price }}</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- ✅ TOTAL -->
-      <div class="order-total text-end mt-2">
-        <span>Total Amount: </span>
-        <strong>₹ {{ getOrderTotal(order.items) }}</strong>
+    <!-- ============ LOADING SKELETON ============ -->
+    <div class="order-list" *ngIf="loading()">
+      <div class="order-card skeleton" *ngFor="let i of [1,2,3]">
+        <div class="skeleton-line w-30"></div>
+        <div class="skeleton-line w-60"></div>
+        <div class="skeleton-line w-40"></div>
       </div>
-
-    </div>
-  </div>
-
-</div>
-
-<!-- ✅ ✅ TRACK MODAL -->
-<div class="track-modal" *ngIf="selectedOrder">
-
-  <div class="track-box">
-
-    <!-- HEADER -->
-    <div class="track-header">
-      <h5>Order Tracking</h5>
-      <button (click)="closeTrack()">✕</button>
     </div>
 
-    <!-- BODY -->
-    <div class="track-body">
-      <!-- ✅ STATUS -->
-      <p>
-        <strong>Status:</strong>
+    <!-- ============ ERROR STATE ============ -->
+    <div class="state-panel" *ngIf="!loading() && errorMessage()">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" class="btn btn-secondary" (click)="loadOrders()">
+        Try Again
+      </button>
+    </div>
 
-        <span *ngIf="selectedOrder.Status === 'Cancelled by User'" class="cancelled-text">
-          Order Cancelled 
-        </span>
+    <!-- ============ EMPTY STATE ============ -->
+    <div class="state-panel" *ngIf="!loading() && !errorMessage() && !hasOrders()">
+      <svg viewBox="0 0 24 24" class="state-icon" aria-hidden="true">
+        <path d="M3 7h18l-1.5 12.5a2 2 0 0 1-2 1.5H6.5a2 2 0 0 1-2-1.5L3 7z" />
+        <path d="M8 7V5a4 4 0 0 1 8 0v2" />
+      </svg>
+      <h2>No orders yet</h2>
+      <p>When you place an order, it will show up here.</p>
+      <button type="button" class="btn btn-primary" (click)="goToProducts()">
+        Start Shopping
+      </button>
+    </div>
 
-        <span *ngIf="selectedOrder.Status !== 'Cancelled by User'">
-          {{ selectedOrder.Status }}
-        </span>
-      </p>
+    <!-- ============ FILTER EMPTY STATE ============ -->
+    <div
+      class="state-panel"
+      *ngIf="!loading() && !errorMessage() && hasOrders() && !hasFilteredOrders()"
+    >
+      <h2>No orders in this category</h2>
+      <p>Try a different filter to see the rest of your orders.</p>
+    </div>
 
-      <!-- ✅ DELIVERY -->
-      <p *ngIf="selectedOrder.EstimatedDeliveryDate && selectedOrder.Status !== 'Cancelled by User'">
-        <strong>Expected Delivery:</strong>
-        {{ selectedOrder.EstimatedDeliveryDate | date:'dd MMM' }}
-      </p>
+    <!-- ============ ORDER LIST ============ -->
+    <div class="order-list" *ngIf="!loading() && hasFilteredOrders()" [@listStagger]>
 
-      <!-- ✅ ITEMS -->
-      <div class="track-items">
-        <h6>Order Items</h6>
+      <article
+        class="order-card"
+        *ngFor="let order of filteredOrders()"
+      >
 
-        <div class="track-item" *ngFor="let item of selectedOrder.items">
-          <div class="item-name">{{ item.productName }}</div>
-          <div class="item-meta">
-            Qty: {{ item.quantity }} | ₹ {{ item.price }}
+        <div class="order-card-header">
+          <div class="order-id-block">
+            <p class="order-number">Order #{{ order.orderId }}</p>
+            <p class="order-date">{{ order.orderDate | date: 'mediumDate' }}</p>
+          </div>
+
+          <span class="status-badge" [ngClass]="getStatusClass(order.status)">
+            {{ order.status }}
+          </span>
+        </div>
+
+        <ul class="item-list">
+          <li class="item-row" *ngFor="let item of order.items">
+            <span class="item-name">{{ item.productName }}</span>
+            <span class="item-meta">
+              &times;{{ item.quantity }}
+              <span class="item-price">&#8377;{{ item.price * item.quantity | number:'1.0-0' }}</span>
+            </span>
+          </li>
+        </ul>
+
+        <div class="order-card-footer">
+          <div class="order-total-block">
+            <span class="item-count">{{ getItemCountLabel(order.items) }}</span>
+            <span class="order-total">&#8377;{{ getOrderTotal(order.items) | number:'1.0-0' }}</span>
+          </div>
+
+          <div class="order-actions">
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm"
+              (click)="trackOrder(order)"
+            >
+              Track Order
+            </button>
+
+            <button
+              *ngIf="isCancellable(order)"
+              type="button"
+              class="btn btn-ghost btn-sm"
+              [disabled]="cancellingId() === order.orderId"
+              (click)="cancelOrder(order, $event)"
+            >
+              {{ cancellingId() === order.orderId ? 'Cancelling\u2026' : 'Cancel' }}
+            </button>
           </div>
         </div>
-      </div>
 
-      <!-- ✅ TOTAL -->
-      <div class="track-total">
-        Total: ₹ {{ getOrderTotal(selectedOrder.items) }}
-      </div>
-
-      <!-- ✅ STEPS -->
-      <div class="track-steps"
-           *ngIf="selectedOrder.Status !== 'Cancelled by User'">
-
-        <div class="step" [class.active]="isStepDone('Pending')">Placed</div>
-        <div class="step" [class.active]="isStepDone('Confirmed')">Confirmed</div>
-        <div class="step" [class.active]="isStepDone('Shipped')">Shipped</div>
-        <div class="step" [class.active]="isStepDone('Out for Delivery')">Out</div>
-        <div class="step" [class.active]="isStepDone('Delivered')">Delivered</div>
-
-      </div>
+      </article>
 
     </div>
 
   </div>
 
-</div>
+  <!-- ============ TRACK ORDER SLIDE-OVER ============ -->
+  <ng-container *ngIf="selectedOrder() as order">
+
+    <div
+      class="track-overlay"
+      [@overlayFade]
+      (click)="closeTrack()"
+    ></div>
+
+    <aside
+      class="track-panel"
+      [@panelSlide]
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="track-heading"
+    >
+      <div class="track-panel-header">
+        <div>
+          <p class="eyebrow">Order #{{ order.orderId }}</p>
+          <h2 id="track-heading">Track your order</h2>
+        </div>
+
+        <button
+          type="button"
+          class="icon-btn"
+          (click)="closeTrack()"
+          aria-label="Close tracking panel"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        </button>
+      </div>
+
+      <ol class="timeline" *ngIf="order.status !== 'Cancelled'; else cancelledState">
+        <li
+          class="timeline-step"
+          *ngFor="let step of timelineSteps; let i = index; let last = last"
+          [class.is-done]="isStepDone(i)"
+        >
+          <div class="step-indicator" aria-hidden="true">
+            <span class="step-dot"></span>
+            <span class="step-line" *ngIf="!last"></span>
+          </div>
+          <p class="step-label">{{ step.label }}</p>
+        </li>
+      </ol>
+
+      <ng-template #cancelledState>
+        <div class="cancelled-panel">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M9 9l6 6M15 9l-6 6" />
+          </svg>
+          <p>This order was cancelled.</p>
+        </div>
+      </ng-template>
+
+      <div class="track-items">
+        <p class="track-items-heading">Items in this order</p>
+        <ul>
+          <li *ngFor="let item of order.items">
+            <span>{{ item.productName }} &times; {{ item.quantity }}</span>
+            <span>&#8377;{{ item.price * item.quantity | number:'1.0-0' }}</span>
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+  </ng-container>
+
+</main>

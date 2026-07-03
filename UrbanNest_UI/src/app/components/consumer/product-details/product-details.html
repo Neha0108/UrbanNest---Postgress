@@ -1,103 +1,185 @@
-<div class="product-page" *ngIf="product">
+<main class="pd-page">
 
-  <!-- ===============================
-       LEFT: IMAGE SECTION
-  =============================== -->
-  <div class="image-section">
-
-    <!--  MAIN IMAGE -->
-    <img class="main-image" [src]="'http://localhost:5146' + selectedImage" alt="product image" />
-
-    <!--  THUMBNAILS -->
-    <div class="thumbnail-row" *ngIf="product.imagepath?.length">
-      <img *ngFor="let img of product.imagepath" [src]="'http://localhost:5146' + img" (click)="selectImage(img)"
-        [class.active]="selectedImage === img" alt="thumbnail" />
+  <!-- Loading State -->
+  <div class="pd-loading" *ngIf="loading">
+    <div class="pd-skeleton-gallery">
+      <div class="skeleton-main"></div>
+      <div class="skeleton-thumbs">
+        <div class="skeleton-thumb" *ngFor="let s of [1,2,3,4]"></div>
+      </div>
     </div>
-
-  </div>
-
-
-  <!-- ===============================
-       RIGHT: PRODUCT DETAILS
-  =============================== -->
-  <div class="details-section">
-
-    <!-- PRODUCT NAME -->
-    <h2>{{ product.productName }}</h2>
-
-    <!-- CATEGORY -->
-    <div class="category">
-      {{ product.CategoryName }}
-    </div>
-
-    <!-- PRICE -->
-    <div class="price">
-      ₹ {{ product.productPrice }}
-    </div>
-
-    <!-- STOCK -->
-    <div class="stock" [class.out]="product.stock === 0">
-      {{ product.stock > 0 ? 'In Stock' : 'Out of Stock' }}
-    </div>
-
-    <!-- DESCRIPTION -->
-    <p class="desc">
-      {{ product.productDescription }}
-    </p>
-
-    <!-- ===============================
-         QUANTITY
-    =============================== -->
-    <div class="quantity-box">
-      <button (click)="decreaseQty()">−</button>
-      <span>{{ quantity }}</span>
-      <button (click)="increaseQty()">+</button>
-    </div>
-
-    <!-- ===============================
-         ACTION BUTTONS
-    =============================== -->
-    <div class="button-group">
-      <!-- ADD TO CART BUTTON -->
-      <button class="cart-btn" [disabled]="product.stock === 0 || isInCart()" (click)="addToCart()">
-        {{ isInCart() ? '✓ Already in Cart' : 'Add to Cart' }}
-      </button>
-
-      <!-- BUY NOW BUTTON -->
-      <button class="buy-now-btn" [disabled]="product.stock === 0" (click)="buyNow()">
-        Buy Now
-      </button>
+    <div class="pd-skeleton-info">
+      <div class="skeleton-line short"></div>
+      <div class="skeleton-line long"></div>
+      <div class="skeleton-line medium"></div>
     </div>
   </div>
- <div class="delivery"
-     *ngIf="product.expectedDelivery && product.expectedDelivery !== '0001-01-01T00:00:00'">
 
-  Get it by
-  <strong>
-    {{ product.expectedDelivery | date:'dd MMM' }}
-  </strong>
-
-</div>
-</div>
-
-
-<!-- ===============================
-     REVIEWS SECTION
-================================ -->
-<div class="reviews-section" *ngIf="product">
-
-  <h3>Customer Reviews</h3>
-
-  <div class="review-card" *ngFor="let r of reviews">
-
-    <div class="review-header">
-      ⭐ {{ r.rating }} / 5
-    </div>
-
-    <p class="review-text">
-      {{ r.comment }}
-    </p>
-
+  <!-- Not Found -->
+  <div class="pd-not-found" *ngIf="!loading && notFound">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+      <path d="M3 3h18v18H3V3zM8 12h8"/>
+    </svg>
+    <h3>Product not found</h3>
+    <p>This product may have been removed or is no longer available.</p>
+    <a routerLink="/products" class="btn-primary">Back to Products</a>
   </div>
 
-</div>
+  <!-- Product Content -->
+  <ng-container *ngIf="!loading && !notFound && product as p">
+
+    <nav class="breadcrumb">
+      <a routerLink="/">Home</a>
+      <span>/</span>
+      <a routerLink="/products" [queryParams]="{ category: p.CategoryName }">{{ p.CategoryName }}</a>
+      <span>/</span>
+      <span>{{ p.productName }}</span>
+    </nav>
+
+    <section class="pd-main">
+
+      <!-- ================= GALLERY ================= -->
+      <div class="pd-gallery">
+        <div class="pd-main-image">
+          <img
+            [src]="'http://localhost:5146' + (p.imagepath?.[activeImageIndex] || '')"
+            [alt]="p.productName">
+          <span class="stock-badge out" *ngIf="p.stock === 0">Out of Stock</span>
+        </div>
+
+        <div class="pd-thumbs" *ngIf="p.imagepath && p.imagepath.length > 1">
+          <button
+            class="pd-thumb"
+            *ngFor="let img of p.imagepath; let i = index"
+            [class.active]="i === activeImageIndex"
+            (click)="setActiveImage(i)">
+            <img [src]="'http://localhost:5146' + img" [alt]="p.productName + ' thumbnail'">
+          </button>
+        </div>
+      </div>
+
+      <!-- ================= PURCHASE PANEL ================= -->
+      <div class="pd-info">
+        <p class="pd-category">{{ p.CategoryName }} <span *ngIf="p.SubCategoryName">/ {{ p.SubCategoryName }}</span></p>
+        <h1 class="pd-title">{{ p.productName }}</h1>
+
+        <div class="pd-price-row">
+          <span class="pd-price">₹{{ p.productPrice | number }}</span>
+        </div>
+
+        <p class="pd-stock" [class.low]="p.stock > 0 && p.stock < 10" [class.out]="p.stock === 0">
+          <ng-container *ngIf="p.stock === 0">Out of Stock</ng-container>
+          <ng-container *ngIf="p.stock > 0 && p.stock < 10">Only {{ p.stock }} left in stock</ng-container>
+          <ng-container *ngIf="p.stock >= 10">In Stock</ng-container>
+        </p>
+
+        <!-- Quantity -->
+        <div class="pd-quantity" *ngIf="p.stock > 0">
+          <span>Quantity</span>
+          <div class="qty-control">
+            <button (click)="decreaseQty()" [disabled]="quantity <= 1" aria-label="Decrease quantity">−</button>
+            <span>{{ quantity }}</span>
+            <button (click)="increaseQty()" [disabled]="quantity >= p.stock" aria-label="Increase quantity">+</button>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="pd-actions">
+          <button
+            class="btn-add-cart"
+            [class.added]="addedToCart"
+            [disabled]="p.stock === 0"
+            (click)="addToCart()">
+            {{ addedToCart ? 'Added to Cart ✓' : 'Add to Cart' }}
+          </button>
+
+          <button
+            class="btn-buy-now"
+            [disabled]="p.stock === 0"
+            (click)="buyNow()">
+            Buy Now
+          </button>
+
+          <button
+            class="btn-wishlist-icon"
+            [class.active]="addedToWishlist"
+            (click)="addToWishlist()"
+            aria-label="Add to wishlist">
+            <svg width="20" height="20" viewBox="0 0 24 24" [attr.fill]="addedToWishlist ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.6">
+              <path d="M12 21s-7.5-4.6-10-9.2C0.3 8 2 4 6 4c2.2 0 3.7 1.2 6 3.6C14.3 5.2 15.8 4 18 4c4 0 5.7 4 4 7.8-2.5 4.6-10 9.2-10 9.2z"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Delivery Check -->
+        <div class="pd-delivery">
+          <h4>Check Delivery</h4>
+          <div class="delivery-input-row">
+            <input
+              type="text"
+              maxlength="6"
+              placeholder="Enter pincode"
+              [(ngModel)]="pincode"
+              [ngModelOptions]="{standalone: true}">
+            <button (click)="checkDelivery()">Check</button>
+          </div>
+          <p class="delivery-message" *ngIf="deliveryChecked">{{ deliveryMessage }}</p>
+          <p class="delivery-eta" *ngIf="p.expectedDelivery">
+            Expected delivery by {{ p.expectedDelivery | date:'mediumDate' }}
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TABS ================= -->
+    <section class="pd-tabs-section">
+      <div class="pd-tabs">
+        <button class="tab-btn" [class.active]="activeTab === 'description'" (click)="setTab('description')">Description</button>
+        <button class="tab-btn" [class.active]="activeTab === 'specifications'" (click)="setTab('specifications')">Specifications</button>
+        <button class="tab-btn" [class.active]="activeTab === 'reviews'" (click)="setTab('reviews')">Reviews</button>
+      </div>
+
+      <div class="pd-tab-content">
+        <div *ngIf="activeTab === 'description'" class="tab-panel">
+          <p>{{ p.productDescription }}</p>
+        </div>
+
+        <div *ngIf="activeTab === 'specifications'" class="tab-panel">
+          <table class="spec-table">
+            <tbody>
+              <tr><td>Category</td><td>{{ p.CategoryName }}</td></tr>
+              <tr><td>Sub Category</td><td>{{ p.SubCategoryName || '—' }}</td></tr>
+              <tr><td>Stock Available</td><td>{{ p.stock }}</td></tr>
+              <tr><td>Product ID</td><td>#{{ p.productId }}</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div *ngIf="activeTab === 'reviews'" class="tab-panel">
+          <div class="reviews-empty">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+              <path d="M12 2l2.4 6.6L21 10l-5 4.4L17.4 21 12 17.3 6.6 21 8 14.4 3 10l6.6-1.4L12 2z"/>
+            </svg>
+            <p>No reviews yet</p>
+            <span>Be the first to share your thoughts on this product.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= RELATED PRODUCTS ================= -->
+    <section class="pd-related" *ngIf="relatedProducts.length">
+      <h2>You May Also Like</h2>
+      <div class="related-row">
+        <div class="related-card" *ngFor="let rp of relatedProducts; trackBy: trackById" (click)="goToProduct(rp)">
+          <div class="related-img">
+            <img [src]="'http://localhost:5146' + (rp.imagepath?.[0] || '')" [alt]="rp.productName">
+          </div>
+          <p class="related-name">{{ rp.productName }}</p>
+          <p class="related-price">₹{{ rp.productPrice | number }}</p>
+        </div>
+      </div>
+    </section>
+
+  </ng-container>
+</main>

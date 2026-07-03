@@ -1,129 +1,147 @@
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
-import { CartItem } from '../../../interface/cart-item';
-import { Consumer } from '../../../service/consumer';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { Consumer } from '../../../service/consumer';
+import { CartItem } from '../../../interface/cart-item';
+import { Product } from '../../../interface/product';
 
 @Component({
   selector: 'app-cart',
-  imports: [CommonModule],
+  standalone: true,
+  imports: [CommonModule, RouterModule],
   templateUrl: './cart.html',
   styleUrl: './cart.css',
 })
 export class Cart implements OnInit {
+  private consumerService = inject(Consumer);
+  private router = inject(Router);
+  private chng = inject(ChangeDetectorRef);
 
   cartItems: CartItem[] = [];
-  total = 0;
-  selectedItems: Set<number> = new Set(); //  Track selected product IDs
+  recommendedProducts: Product[] = [];
+  loading = true;
+  updatingId: number | null = null;
+  removingId: number | null = null;
 
-  constructor(private consumerService: Consumer, private router: Router) { }
+  readonly shippingThreshold = 999;
+  readonly shippingFee = 49;
+  readonly taxRate = 0.05; // 5% — adjust to match your actual tax logic if different
 
-  public chg = inject(ChangeDetectorRef);
-
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadCart();
+    this.loadRecommendations();
   }
 
-  loadCart() {
+  loadCart(): void {
+    this.loading = true;
+
+    // ⚠️ Assumed method name — confirm against consumer.ts (backend: ICart.get(userId))
     this.consumerService.getCartItems().subscribe({
       next: (res: any[]) => {
-        this.cartItems = res.map(item => ({
+        this.cartItems = res.map((item) => ({
           ProductId: item.productId,
           ProductName: item.productName,
           ProductPrice: item.productPrice,
           ImagePath: item.imagePath,
-          Quantity: item.quantity
+          Quantity: item.quantity,
         }));
-        console.log("cart items", this.cartItems);
-        this.calculateTotal();
-        this.chg.detectChanges();
+
+        this.loading = false;
+        this.chng.detectChanges();
       },
-      error: err => console.error(err)
+      error: (err) => {
+        console.error('Failed to load cart', err);
+        this.loading = false;
+        this.chng.detectChanges();
+      },
     });
   }
 
-  calculateTotal(): void {
-    this.total = this.cartItems.reduce(
-      (sum, item) => sum + (item.ProductPrice ?? 0) * (item.Quantity ?? 0),
-      0
-    );
-    this.chg.detectChanges();
-  }
-
-  increaseQty(item: CartItem) {
-    item.Quantity++;
-
-    this.consumerService
-      .updateQuantity(item.ProductId, item.Quantity)
-      .subscribe(() => this.calculateTotal());
-  }
-
-  decreaseQty(item: CartItem) {
-    if (item.Quantity === 1) return;
-
-    item.Quantity--;
-
-    this.consumerService
-      .updateQuantity(item.ProductId, item.Quantity)
-      .subscribe(() => this.calculateTotal());
-  }
-
-
-  removeItem(productId: number) {
-    this.consumerService.removeFromCart(productId).subscribe(() => {
-      this.cartItems = this.cartItems.filter(
-        i => i.ProductId !== productId
-      );
-      this.selectedItems.delete(productId); //  Remove from selection
-      this.calculateTotal();
+  loadRecommendations(): void {
+    this.consumerService.allProducts().subscribe({
+      next: (data: Product[]) => {
+        this.recommendedProducts = data.slice(0, 6);
+        this.chng.detectChanges();
+      },
+      error: (err) => console.error('Failed to load recommendations', err),
     });
   }
 
-  //  Toggle item selection
-  toggleItemSelection(productId: number): void {
-    if (this.selectedItems.has(productId)) {
-      this.selectedItems.delete(productId);
-    } else {
-      this.selectedItems.add(productId);
-    }
+  increaseQty(item: CartItem): void {
+    this.updateQty(item, item.Quantity + 1);
   }
 
-  //  Check if item is selected
-  isItemSelected(productId: number): boolean {
-    return this.selectedItems.has(productId);
+  decreaseQty(item: CartItem): void {
+    if (item.Quantity <= 1) return;
+    this.updateQty(item, item.Quantity - 1);
   }
 
-  //  Calculate total for selected items
-  getSelectedTotal(): number {
-    return this.cartItems
-      .filter(item => this.selectedItems.has(item.ProductId))
-      .reduce((sum, item) => sum + (item.ProductPrice ?? 0) * (item.Quantity ?? 0), 0);
-  }
+  private updateQty(item: CartItem, newQty: number): void {
+    this.updatingId = item.ProductId;
 
-  //  Select all items
-  selectAll(): void {
-    this.cartItems.forEach(item => this.selectedItems.add(item.ProductId));
-  }
-
-  //  Deselect all items
-  deselectAll(): void {
-    this.selectedItems.clear();
-  }
-
-  placeOrder() {
-    if (this.selectedItems.size === 0) {
-      alert('❌ Please select at least one item to place order');
-      return;
-    }
-
-    const selectedProductIds = Array.from(this.selectedItems);
-    const selectedTotal = this.getSelectedTotal();
-
-    this.router.navigate(['consumerNavbar/address'], {
-      state: {
-        selectedProductIds: selectedProductIds,
-        selectedTotal: selectedTotal
-      }
+    // ⚠️ Assumed method name — confirm against consumer.ts (backend: ICart.updateQuantity)
+    this.consumerService.updateQuantity(item.ProductId, newQty).subscribe({
+      next: () => {
+        item.Quantity = newQty;
+        this.updatingId = null;
+        this.chng.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to update quantity', err);
+        this.updatingId = null;
+        this.chng.detectChanges();
+      },
     });
+  }
+
+  removeItem(item: CartItem): void {
+    this.removingId = item.ProductId;
+
+    // ⚠️ Assumed method name — confirm against consumer.ts (backend: ICart.RemoveFromCart)
+    this.consumerService.removeFromCart(item.ProductId).subscribe({
+      next: () => {
+        this.cartItems = this.cartItems.filter((i) => i.ProductId !== item.ProductId);
+        this.removingId = null;
+        this.chng.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to remove item', err);
+        this.removingId = null;
+        this.chng.detectChanges();
+      },
+    });
+  }
+
+  get subtotal(): number {
+    return this.cartItems.reduce((sum, item) => sum + item.ProductPrice * item.Quantity, 0);
+  }
+
+  get shipping(): number {
+    if (this.cartItems.length === 0) return 0;
+    return this.subtotal >= this.shippingThreshold ? 0 : this.shippingFee;
+  }
+
+  get tax(): number {
+    return Math.round(this.subtotal * this.taxRate);
+  }
+
+  get total(): number {
+    return this.subtotal + this.shipping + this.tax;
+  }
+
+  get amountToFreeShipping(): number {
+    return Math.max(0, this.shippingThreshold - this.subtotal);
+  }
+
+  goToProduct(product: Product): void {
+    this.router.navigate(['/consumerNavbar/product-details', product.productId]);
+  }
+
+  proceedToCheckout(): void {
+    this.router.navigate(['/consumerNavbar/checkout']);
+  }
+
+  trackByProductId(index: number, item: CartItem): number {
+    return item.ProductId;
   }
 }

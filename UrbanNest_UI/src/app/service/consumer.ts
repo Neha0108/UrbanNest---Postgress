@@ -41,7 +41,7 @@ export class Consumer {
     return this.http.delete<void>(`${this.apiUrl}/RemoveFromWishlist/${productId}`);
   }
 
-  addToCart(productId: number) {
+  addToCart(productId: number, quantity: number) {
     return this.http.post(
       `${this.apiUrl}/AddToCart`,
       { productId, quantity: 1 },

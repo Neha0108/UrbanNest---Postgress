@@ -1,148 +1,187 @@
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
-import { Product } from '../../interface/product';
-import { Consumer } from '../../service/consumer';
-import { ActivatedRoute } from '@angular/router';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
-import { UserService } from '../../service/user-service';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { Consumer } from '../../service/consumer';
+import { Product } from '../../interface/product';
+import { Category } from '../../interface/category';
+
+type SortOption = 'newest' | 'price-low' | 'price-high' | 'name';
 
 @Component({
   selector: 'app-products',
-  imports: [CommonModule, FormsModule],
+  standalone: true,
+  imports: [CommonModule, RouterModule],
   templateUrl: './products.html',
   styleUrl: './products.css',
 })
-export class Products {
+export class Products implements OnInit {
 
-  products: Product[] = [];
-  filteredProducts: Product[] = [];
-
-  categories: string[] = [];
-  selectedCategory: string | null = 'All';
-
-  minPrice: number | null = null;
-  maxPrice: number | null = null;
-  maxPriceAvailable: number = 0;
-
+  private consumerService = inject(Consumer);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private chng = inject(ChangeDetectorRef);
 
-  constructor(
-    private consumerService: Consumer,
-    private route: ActivatedRoute,
-    private snackBar: MatSnackBar,
-    private router: Router,
-    private user: UserService
-  ) { }
+  allProducts: Product[] = [];
+  filteredProducts: Product[] = [];
+  categories: Category[] = [];
+
+  selectedCategory: string | null = null;
+  selectedMaxPrice: number | null = null;
+  sortBy: SortOption = 'newest';
+
+  loading = true;
+  filtersOpen = false;
+  recentlyAddedId: number | null = null;
+  recentlyWishlistedId: number | null = null;
+
+  priceRanges = [
+    { label: 'Under ₹99', value: 99 },
+    { label: 'Under ₹199', value: 199 },
+    { label: 'Under ₹299', value: 299 },
+    { label: 'Under ₹499', value: 499 },
+    { label: 'Under ₹999', value: 999 },
+  ];
 
   ngOnInit(): void {
-    this.loadAll();
-
-    // ✅ Read category from URL
     this.route.queryParams.subscribe((params) => {
-      this.selectedCategory = params['category']
-        ? decodeURIComponent(params['category'])
-        : 'All';
-
-      this.applyFilter();
+      this.selectedCategory = params['category'] ? decodeURIComponent(params['category']) : null;
+      this.selectedMaxPrice = params['maxPrice'] ? Number(params['maxPrice']) : null;
+      this.applyFilters();
     });
 
-    this.route.queryParams.subscribe(params => {
-      const maxPrice = params['maxPrice'];
-
-      if (maxPrice) {
-        this.getProductsByPrice(maxPrice);
-      } else {
-        this.loadAll();
-      }
-    });
+    this.loadData();
   }
 
-  getProductsByPrice(price: number) {
-  this.user.getProductsByMaxPrice(price)
-    .subscribe(res => {
-      this.products = res;
-    });
-}
+  loadData(): void {
+    this.loading = true;
 
-  trackById(index: number, item: Product) {
-    return item.productId;
-  }
-
-  loadAll() {
-    this.consumerService.allProducts().subscribe({
-      next: (res) => {
-        this.products = res;
-
-        // ✅ Category list
-        const uniqueCats = new Set(res.map(p => p.CategoryName));
-        this.categories = ['All', ...Array.from(uniqueCats)];
-
-        // ✅ Max price
-        this.maxPriceAvailable = Math.max(...res.map(p => p.productPrice));
-
-        // ✅ Apply initial filter
-        this.applyFilter();
-
+    this.consumerService.getCategories().subscribe({
+      next: (cats: Category[]) => {
+        this.categories = cats;
         this.chng.detectChanges();
-      }
+      },
+      error: (err) => console.error('Failed to load categories', err),
+    });
+
+    this.consumerService.allProducts().subscribe({
+      next: (data: Product[]) => {
+        this.allProducts = data;
+        this.applyFilters();
+        this.loading = false;
+        this.chng.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to load products', err);
+        this.loading = false;
+        this.chng.detectChanges();
+      },
     });
   }
 
-  applyFilter() {
-    let filtered = this.products;
+  applyFilters(): void {
+    let result = [...this.allProducts];
 
-    // ✅ Category filter
-    if (this.selectedCategory && this.selectedCategory !== 'All') {
-      filtered = filtered.filter(
-        p => p.CategoryName === this.selectedCategory
+    if (this.selectedCategory) {
+      result = result.filter(
+        (p) => p.CategoryName?.toLowerCase() === this.selectedCategory?.toLowerCase()
       );
     }
 
-    // ✅ Min price
-    if (this.minPrice !== null && this.minPrice > 0) {
-      filtered = filtered.filter(
-        p => p.productPrice >= this.minPrice!
-      );
+    if (this.selectedMaxPrice) {
+      result = result.filter((p) => p.productPrice <= this.selectedMaxPrice!);
     }
 
-    // ✅ Max price
-    if (this.maxPrice !== null && this.maxPrice > 0) {
-      filtered = filtered.filter(
-        p => p.productPrice <= this.maxPrice!
-      );
+    result = this.sortProducts(result, this.sortBy);
+
+    this.filteredProducts = result;
+    this.chng.detectChanges();
+  }
+
+  sortProducts(list: Product[], sort: SortOption): Product[] {
+    const sorted = [...list];
+    switch (sort) {
+      case 'price-low':
+        return sorted.sort((a, b) => a.productPrice - b.productPrice);
+      case 'price-high':
+        return sorted.sort((a, b) => b.productPrice - a.productPrice);
+      case 'name':
+        return sorted.sort((a, b) => a.productName.localeCompare(b.productName));
+      default:
+        return sorted;
     }
-
-    this.filteredProducts = filtered;
   }
 
-  filterByCategory(category: string) {
-    this.selectedCategory = category;
-    this.applyFilter();
+  onSortChange(value: string): void {
+    this.sortBy = value as SortOption;
+    this.applyFilters();
   }
 
-  resetPriceFilter() {
-    this.minPrice = null;
-    this.maxPrice = null;
-    this.applyFilter();
-  }
-
-  /* ✅ LOGIN MESSAGE */
-  showAuthMessage() {
-    const snackRef = this.snackBar.open(
-      '⚠ Please sign in to continue',
-      'Login',
-      {
-        duration: 5000,
-        horizontalPosition: 'right',
-        verticalPosition: 'top',
-        panelClass: ['urban-snackbar'],
-      }
-    );
-
-    snackRef.onAction().subscribe(() => {
-      this.router.navigate(['/login']);
+  selectCategory(name: string | null): void {
+    this.router.navigate(['/products'], {
+      queryParams: {
+        category: name ? encodeURIComponent(name) : null,
+        maxPrice: this.selectedMaxPrice ?? null,
+      },
+      queryParamsHandling: 'merge',
     });
+  }
+
+  selectPrice(value: number | null): void {
+    this.router.navigate(['/products'], {
+      queryParams: {
+        category: this.selectedCategory ? encodeURIComponent(this.selectedCategory) : null,
+        maxPrice: value,
+      },
+      queryParamsHandling: 'merge',
+    });
+  }
+
+  clearFilters(): void {
+    this.router.navigate(['/products']);
+  }
+
+  toggleFilters(): void {
+    this.filtersOpen = !this.filtersOpen;
+  }
+
+  goToProduct(product: Product): void {
+    localStorage.setItem('lastCategory', product.CategoryName);
+    this.router.navigate(['/consumerNavbar/product-details', product.productId]);
+  }
+
+  addToWishlist(event: Event, product: Product): void {
+    event.stopPropagation();
+    this.consumerService.addToWishlist(product.productId).subscribe({
+      next: () => {
+        this.recentlyWishlistedId = product.productId;
+        this.chng.detectChanges();
+        setTimeout(() => {
+          this.recentlyWishlistedId = null;
+          this.chng.detectChanges();
+        }, 1500);
+      },
+      error: (err) => console.error('Failed to add to wishlist', err),
+    });
+  }
+
+  addToCart(event: Event, product: Product): void {
+    event.stopPropagation();
+    if (product.stock === 0) return;
+
+    this.consumerService.addToCart(product.productId,1).subscribe({
+      next: () => {
+        this.recentlyAddedId = product.productId;
+        this.chng.detectChanges();
+        setTimeout(() => {
+          this.recentlyAddedId = null;
+          this.chng.detectChanges();
+        }, 1500);
+      },
+      error: (err) => console.error('Failed to add to cart', err),
+    });
+  }
+
+  trackById(index: number, item: Product): number {
+    return item.productId;
   }
 }

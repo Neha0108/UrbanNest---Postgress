@@ -1,80 +1,205 @@
-import { ChangeDetectorRef, Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Category } from '../../LandingPage/category/category';
-import { ShopByPrice } from "../../LandingPage/shop-by-price/shop-by-price";
+import { ShopByPrice } from '../../LandingPage/shop-by-price/shop-by-price';
+import { Footer } from '../../LandingPage/footer/footer';
+import { Consumer } from '../../service/consumer';
+import { Product } from '../../interface/product';
+
+interface HeroSlide {
+  title: string;
+  subtitle: string;
+  buttonText: string;
+  image: string;
+  category: string;
+}
+
+interface WhyFeature {
+  icon: string;
+  title: string;
+  desc: string;
+}
+
+interface StatItem {
+  target: number;
+  suffix: string;
+  label: string;
+  display: string;
+  staticValue?: string;
+}
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterModule, CommonModule, Category, ShopByPrice],
+  imports: [RouterModule, CommonModule, ReactiveFormsModule, Category, ShopByPrice, Footer],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
-export class Home implements OnInit, OnDestroy {
+export class Home implements OnInit, AfterViewInit, OnDestroy {
+
   private router = inject(Router);
   private chng = inject(ChangeDetectorRef);
+  private fb = inject(FormBuilder);
+  private consumerService = inject(Consumer);
 
-  goToRetailer() {
-    this.router.navigate(['/register']); // change route if needed
+  @ViewChild('statsSection') statsSection?: ElementRef<HTMLElement>;
+
+  currentSlide = 0;
+  private sliderInterval: any;
+  private statsObserver?: IntersectionObserver;
+  private statsAnimated = false;
+
+  trendingProducts: Product[] = [];
+  subscribed = false;
+
+  slides: HeroSlide[] = [
+    {
+      title: 'Elevate Everyday Living',
+      subtitle: 'Curated furniture, decor and lifestyle pieces for the modern home.',
+      buttonText: 'Shop The Collection',
+      image: 'assets/addvertisement/home-banner.png',
+      category: 'Home',
+    },
+    {
+      title: 'Mega Fashion Days',
+      subtitle: 'Up to 60% off on premium fashion, footwear and accessories.',
+      buttonText: 'Shop Fashion',
+      image: 'assets/addvertisement/fashion-banner.png',
+      category: 'Fashion',
+    },
+    {
+      title: 'Beauty Essentials Week',
+      subtitle: 'Skincare, wellness and beauty — starting at ₹99.',
+      buttonText: 'Shop Beauty',
+      image: 'assets/addvertisement/beauty-banner.png',
+      category: 'Beauty',
+    },
+  ];
+
+  features: WhyFeature[] = [
+    {
+      icon: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l2.4 6.6L21 10l-5 4.4L17.4 21 12 17.3 6.6 21 8 14.4 3 10l6.6-1.4L12 2z"/></svg>`,
+      title: 'Curated Quality',
+      desc: 'Every piece is handpicked and quality-checked before it reaches you.',
+    },
+    {
+      icon: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12l2-2 4 4 10-10 2 2L9 18z"/></svg>`,
+      title: 'Trusted Retailers',
+      desc: 'A verified network of retailers committed to craftsmanship.',
+    },
+    {
+      icon: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 10h13l4 4v6h-4M3 10v10h4M3 10l3-6h9l3 6M8 20a2 2 0 100-4 2 2 0 000 4zM17 20a2 2 0 100-4 2 2 0 000 4z"/></svg>`,
+      title: 'Reliable Delivery',
+      desc: 'Fast, careful delivery designed for busy urban lives.',
+    },
+    {
+      icon: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.6l-1-1a5.5 5.5 0 10-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 000-7.8z"/></svg>`,
+      title: 'Loved By Thousands',
+      desc: 'Built around comfort, trust and long-term satisfaction.',
+    },
+  ];
+
+  stats: StatItem[] = [
+    { target: 10000, suffix: '+', label: 'Products', display: '0' },
+    { target: 500, suffix: '+', label: 'Retailers', display: '0' },
+    { target: 50000, suffix: '+', label: 'Happy Customers', display: '0' },
+    { target: 0, suffix: '', label: 'Support', display: '24/7', staticValue: '24/7' },
+  ];
+
+  newsletterForm = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+  });
+
+  ngOnInit(): void {
+    this.loadTrending();
+
+    this.sliderInterval = setInterval(() => {
+      this.currentSlide = (this.currentSlide + 1) % this.slides.length;
+      this.chng.detectChanges();
+    }, 5000);
   }
 
- goToProducts(category?: string) {
-  if (category) {
-    this.router.navigate(['/products'], {
-      queryParams: {
-        category: encodeURIComponent(category)
-      }
+  ngAfterViewInit(): void {
+    if (this.statsSection) {
+      this.statsObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting && !this.statsAnimated) {
+              this.statsAnimated = true;
+              this.animateStats();
+            }
+          });
+        },
+        { threshold: 0.3 }
+      );
+      this.statsObserver.observe(this.statsSection.nativeElement);
+    }
+  }
+
+  ngOnDestroy(): void {
+    clearInterval(this.sliderInterval);
+    this.statsObserver?.disconnect();
+  }
+
+  loadTrending(): void {
+    this.consumerService.allProducts().subscribe({
+      next: (data: Product[]) => {
+        this.trendingProducts = data.slice(0, 8);
+        this.chng.detectChanges();
+      },
+      error: (err) => console.error('Failed to load trending products', err),
     });
-  } else {
-    this.router.navigate(['/products']);
   }
-}
 
-currentSlide = 0;
-
-slides = [
-  {
-    title: 'MEGA FASHION DAYS',
-    subtitle: 'Up to 60% OFF on premium fashion, footwear and accessories.',
-    buttonText: 'Shop Fashion',
-    image: 'assets/addvertisement/fashion-banner.png',
-    category: 'Fashion'   // ✅ match CategoryName
-  },
-  {
-    title: 'HOME MAKEOVER FESTIVAL',
-    subtitle: 'Up to 40% OFF on furniture, décor and lifestyle essentials.',
-    buttonText: 'Explore Home',
-    image: 'assets/addvertisement/home-banner.png',
-    category: 'Home'
-  },
-  {
-    title: 'BEAUTY ESSENTIALS WEEK',
-    subtitle: 'Skincare, wellness and beauty products starting at ₹99.',
-    buttonText: 'Shop Beauty',
-    image: 'assets/addvertisement/beauty-banner.png',
-    category: 'Beauty'
+  setSlide(i: number): void {
+    this.currentSlide = i;
   }
-];
 
-private sliderInterval: any;
+  goToProducts(category?: string): void {
+    if (category) {
+      this.router.navigate(['/products'], { queryParams: { category: encodeURIComponent(category) } });
+    } else {
+      this.router.navigate(['/products']);
+    }
+  }
 
-ngOnInit() {
+  goToProduct(product: Product): void {
+    this.router.navigate(['/products'], { queryParams: { category: product.CategoryName } });
+  }
 
-  this.sliderInterval = setInterval(() => {
+  scrollToCategories(): void {
+    document.querySelector('app-category')?.scrollIntoView({ behavior: 'smooth' });
+  }
 
-    this.currentSlide =
-      (this.currentSlide + 1) % this.slides.length;
-      this.chng.detectChanges(); // Trigger change detection to update the view
-      console.log('Current Slide:', this.currentSlide); // Debug log to check slide index
+  subscribeNewsletter(): void {
+    if (this.newsletterForm.invalid) return;
+    // TODO: wire up to your Newsletter API endpoint when ready
+    this.subscribed = true;
+    this.newsletterForm.reset();
+    setTimeout(() => (this.subscribed = false), 4000);
+  }
 
-  }, 4000);
+  private animateStats(): void {
+    const duration = 1600;
+    const start = performance.now();
 
-}
+    const step = (now: number) => {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
 
-ngOnDestroy() {
+      this.stats = this.stats.map((s) =>
+        s.staticValue
+          ? s
+          : { ...s, display: Math.floor(eased * s.target).toLocaleString() + s.suffix }
+      );
 
-  clearInterval(this.sliderInterval);
+      this.chng.detectChanges();
 
-}
+      if (progress < 1) requestAnimationFrame(step);
+    };
+
+    requestAnimationFrame(step);
+  }
 }

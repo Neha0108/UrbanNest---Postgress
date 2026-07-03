@@ -7,10 +7,11 @@ import { Product } from '../../../interface/product';
 import { WishlistItem } from '../../../interface/WishlistItem';
 import { Consumer } from '../../../service/consumer';
 import { FormsModule } from '@angular/forms';
+import { Products } from "../../../LandingPage/products/products";
 
 @Component({
   selector: 'app-userdashboard',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, Products],
   templateUrl: './userdashboard.html',
   styleUrl: './userdashboard.css',
 })
@@ -144,7 +145,7 @@ export class Userdashboard implements OnInit {
   }
 
   addToCart(product: Product) {
-    this.consumerService.addToCart(product.productId).subscribe(() => {
+    this.consumerService.addToCart(product.productId, 1).subscribe(() => {
       this.loadAll();
     });
   }
