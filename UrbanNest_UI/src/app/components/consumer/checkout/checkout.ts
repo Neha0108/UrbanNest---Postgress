@@ -299,27 +299,28 @@ export class Checkout implements OnInit {
 
 }
 
-  private submitOrder(productIds: number[]): void {
-
+private submitOrder(productIds: number[]): void {
   const body = {
     SelectedProductIds: productIds,
-    AddressId: this.selectedAddressId!
+    AddressId: this.selectedAddressId!,
   };
 
-  console.log("========== PLACE ORDER BODY ==========");
-  console.log(body);
-
   this.consumerService.placeOrder(body).subscribe({
-    next: (res) => {
-      console.log(res);
+    next: (res: any) => {
+      this.placingOrder = false;
+      this.router.navigate(['/consumerNavbar/order'], {
+        state: { orderId: res.orderId },
+      });
     },
     error: (err) => {
-      console.log("Status:", err.status);
-      console.log("Error:", err.error);
-      console.log("Validation:", err.error?.errors);
-    }
+      console.error('Failed to place order', err.error);
+      this.placingOrder = false;
+      this.chng.detectChanges();
+      alert('Failed to place your order. Please try again.');
+    },
   });
 }
+
 
   trackByProductId(index: number, item: CartItem): number {
     return item.ProductId;

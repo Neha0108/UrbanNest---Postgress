@@ -1,22 +1,21 @@
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
 import { Product } from '../../../interface/product';
 import { WishlistItem } from '../../../interface/WishlistItem';
 import { Consumer } from '../../../service/consumer';
 import { FormsModule } from '@angular/forms';
-import { Products } from "../../../LandingPage/products/products";
 
 @Component({
   selector: 'app-userdashboard',
-  imports: [CommonModule, FormsModule, Products],
+  standalone: true,
+  imports: [CommonModule, FormsModule,RouterLink],
   templateUrl: './userdashboard.html',
   styleUrl: './userdashboard.css',
 })
 export class Userdashboard implements OnInit {
-
   products: Product[] = [];
   filteredProducts: Product[] = [];
 
@@ -31,20 +30,23 @@ export class Userdashboard implements OnInit {
   maxPrice: number | null = null;
   maxPriceAvailable: number = 0;
 
+  loading = true;
+
   private chng = inject(ChangeDetectorRef);
 
   constructor(
     private consumerService: Consumer,
     private route: ActivatedRoute,
-    private router: Router
-  ) { }
+    private router: Router,
+  ) {}
 
   ngOnInit(): void {
-    //  listen for category from URL
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.subscribe((params) => {
       this.selectedCategory = params['category'] || 'All';
-      this.loadAll();
+      this.applyFilter();
     });
+
+    this.loadAll();
   }
 
   toggleFilters() {
@@ -56,97 +58,110 @@ export class Userdashboard implements OnInit {
   }
 
   loadAll() {
+    this.loading = true;
+
     forkJoin({
       products: this.consumerService.allProducts(),
       wishlist: this.consumerService.getWishlist(),
-      cart: this.consumerService.getCartItems()
+      cart: this.consumerService.getCartItems(),
     }).subscribe({
       next: (res) => {
-        this.products = res.products;
-        console.log(this.products);
+        // Normalize casing defensively — backend sends camelCase JSON
+        // even though the Product interface types CategoryName as PascalCase
+        this.products = res.products.map((p: any) => ({
+          ...p,
+          categoryName: p.categoryName ?? p.CategoryName ?? '',
+          subCategoryName: p.subCategoryName ?? p.SubCategoryName ?? '',
+        }));
+
         this.wishlist = res.wishlist;
 
         this.cart = res.cart.map((item: any) => ({
-          productId: item.ProductId,
-          quantity: item.Quantity
+          productId: item.productId,
+          quantity: item.quantity,
         }));
 
-        // ✅ category list
-        const uniqueCats = new Set(res.products.map(p => p.CategoryName));
+        const uniqueCats = new Set(this.products.map((p) => p.categoryName).filter((c) => !!c));
         this.categories = ['All', ...Array.from(uniqueCats)];
 
-        // ✅ max price
-        this.maxPriceAvailable = Math.max(...res.products.map(p => p.productPrice));
+        this.maxPriceAvailable =
+          this.products.length > 0 ? Math.max(...this.products.map((p) => p.productPrice)) : 0;
 
-        // ✅ IMPORTANT: default values for price
         if (this.minPrice === null) this.minPrice = 0;
         if (this.maxPrice === null) this.maxPrice = this.maxPriceAvailable;
 
-        // ✅ FINAL FILTER
         this.applyFilter();
-
+        this.loading = false;
         this.chng.detectChanges();
-      }
+      },
+      error: (err) => {
+        console.error('Failed to load dashboard data', err);
+        this.loading = false;
+        this.chng.detectChanges();
+      },
     });
   }
 
-  /*  CORE FILTER LOGIC */
   applyFilter() {
-
     let filtered = this.products;
 
-    // ✅ Category filter
     if (this.selectedCategory && this.selectedCategory !== 'All') {
-      filtered = filtered.filter(
-        p => p.CategoryName === this.selectedCategory
-      );
+      filtered = filtered.filter((p) => p.categoryName === this.selectedCategory);
     }
 
-    // ✅ Fix invalid range (IMPORTANT)
     let min = this.minPrice ?? 0;
     let max = this.maxPrice ?? this.maxPriceAvailable;
 
     if (min > max) {
-      [min, max] = [max, min]; // swap values
+      [min, max] = [max, min];
     }
 
-    // ✅ Apply price filter
-    filtered = filtered.filter(
-      p => p.productPrice >= min && p.productPrice <= max
-    );
+    filtered = filtered.filter((p) => p.productPrice >= min && p.productPrice <= max);
 
     this.filteredProducts = filtered;
   }
 
-  /*  Category navbar click */
   filterByCategory(category: string) {
     this.selectedCategory = category;
     this.applyFilter();
   }
 
-  /*  Wishlist */
   isInWishlist(productId: number): boolean {
-    return this.wishlist.some(w => w.productId === productId);
+    return this.wishlist.some((w) => w.productId === productId);
   }
 
   toggleWishlist(productId: number) {
     if (this.isInWishlist(productId)) {
-      this.wishlist = this.wishlist.filter(w => w.productId !== productId);
-      this.consumerService.removeFromWishlist(productId).subscribe();
+      this.wishlist = this.wishlist.filter((w) => w.productId !== productId);
+
+      this.consumerService.removeFromWishlist(productId).subscribe({
+        error: (err) => {
+          console.error('Failed to remove from wishlist', err);
+          this.wishlist.push({ productId } as WishlistItem);
+          this.chng.detectChanges();
+        },
+      });
     } else {
-      this.wishlist.push({ productId: productId } as WishlistItem);
-      this.consumerService.addToWishlist(productId).subscribe();
+      this.wishlist.push({ productId } as WishlistItem);
+
+      this.consumerService.addToWishlist(productId).subscribe({
+        error: (err) => {
+          console.error('Failed to add to wishlist', err);
+          this.wishlist = this.wishlist.filter((w) => w.productId !== productId);
+          this.chng.detectChanges();
+        },
+      });
     }
   }
 
-  /*  Cart */
   isInCart(productId: number): boolean {
-    return this.cart.some(c => c.productId === productId);
+    return this.cart.some((c) => c.productId === productId);
   }
 
   addToCart(product: Product) {
-    this.consumerService.addToCart(product.productId, 1).subscribe(() => {
-      this.loadAll();
+    this.consumerService.addToCart(product.productId, 1).subscribe({
+      next: () => this.loadAll(),
+      error: (err) => console.error('Failed to add to cart', err),
     });
   }
 
@@ -158,9 +173,19 @@ export class Userdashboard implements OnInit {
     this.applyFilter();
   }
 
+  buyNow(event: Event, item: Product): void {
+    event.stopPropagation();
+    if (item.stock === 0) return;
+
+    this.consumerService.addToCart(item.productId, 1).subscribe({
+      next: () => this.router.navigate(['/consumerNavbar/checkout']),
+      error: (err) => console.error('Failed to buy now', err),
+    });
+  }
+
   resetPrice() {
-    this.minPrice = null;
-    this.maxPrice = null;
+    this.minPrice = 0;
+    this.maxPrice = this.maxPriceAvailable;
     this.applyFilter();
   }
 }

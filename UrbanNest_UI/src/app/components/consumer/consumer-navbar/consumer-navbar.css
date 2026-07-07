@@ -1,5 +1,5 @@
 .main-content {
-  margin-top: 85px;
+  margin-top: 55px;
   min-height: 100vh;   /* ✅ IMPORTANT */
   background: linear-gradient(135deg, #0a0a0a, #181818);
 }

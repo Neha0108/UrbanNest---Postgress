@@ -1,131 +1,152 @@
-<div class="main-content">
-  <div class="container mt-4">
+<main class="products-page">
 
-    <!-- Category Navbar -->
-    <!-- Filter Button -->
-    <div class="filter-bar">
-      <button class="filter-toggle" (click)="toggleFilters()">Filter</button>
+  <!-- ================= PAGE HEADER ================= -->
+  <header class="products-header">
+    <div class="header-text">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a routerLink="/consumerNavbar/home">Home</a>
+        <span>/</span>
+        <span>{{ selectedCategory && selectedCategory !== 'All' ? selectedCategory : 'All Products' }}</span>
+      </nav>
+      <h1>{{ selectedCategory && selectedCategory !== 'All' ? selectedCategory : 'All Products' }}</h1>
+      <p>{{ filteredProducts.length }} product{{ filteredProducts.length === 1 ? '' : 's' }} found</p>
     </div>
 
-    <!-- Overlay when filter panel open -->
-    <div class="filter-overlay" *ngIf="showFilters" (click)="toggleFilters()"></div>
+    <div class="header-controls">
+      <button class="filter-toggle-mobile" (click)="toggleFilters()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M4 6h16M7 12h10M10 18h4" />
+        </svg>
+        Filters
+      </button>
+    </div>
+  </header>
 
-    <!-- Filter Panel (contains categories + price) -->
-    <aside class="filter-panel" [class.open]="showFilters">
-      <div class="filter-panel-header">
-        <h5>Filters</h5>
-        <button class="close-btn" (click)="toggleFilters()">✕</button>
+  <div class="products-layout">
+
+    <!-- ================= SIDEBAR FILTERS ================= -->
+    <aside class="filters-sidebar" [class.open]="showFilters">
+
+      <div class="filters-sidebar-header">
+        <h3>Filters</h3>
+        <button class="close-filters" (click)="toggleFilters()" aria-label="Close filters">✕</button>
       </div>
 
-      <div class="filter-section">
-        <h6>Categories</h6>
-        <div class="category-navbar">
-          <button class="category-item" *ngFor="let cat of categories" (click)="filterByCategory(cat); toggleFilters()"
-            [class.active]="selectedCategory === cat">
-            {{ cat }}
-          </button>
-        </div>
+      <div class="filter-group">
+        <h4>Category</h4>
+        <ul class="filter-list">
+          <li *ngFor="let cat of categories">
+            <button class="filter-option" [class.active]="selectedCategory === cat" (click)="filterByCategory(cat)">
+              {{ cat }}
+            </button>
+          </li>
+        </ul>
       </div>
 
-      <div class="filter-section price-filter">
-        <h6>Filter by Price</h6>
+      <div class="filter-group">
+        <h4>Price Range</h4>
 
-        <div class="range-slider">
-
-          <input type="range" min="0" max="100000" [(ngModel)]="minPrice" (input)="applyPriceFilter()" />
-
-          <input type="range" min="0" max="100000" [(ngModel)]="maxPrice" (input)="applyPriceFilter()" />
-
+        <div class="price-slider-row">
+          <label>Min: ₹{{ minPrice }}</label>
+          <input type="range" min="0" [max]="maxPriceAvailable" [(ngModel)]="minPrice" (input)="applyPriceFilter()">
         </div>
 
-        <div class="price-values">
-          ₹ {{ minPrice }} - ₹ {{ maxPrice }}
+        <div class="price-slider-row">
+          <label>Max: ₹{{ maxPrice }}</label>
+          <input type="range" min="0" [max]="maxPriceAvailable" [(ngModel)]="maxPrice" (input)="applyPriceFilter()">
         </div>
 
-        <button class="reset-btn" (click)="resetPrice()">Reset</button>
+        <button class="reset-price-btn" (click)="resetPrice()">Reset Price</button>
       </div>
 
     </aside>
 
+    <div class="filters-backdrop" *ngIf="showFilters" (click)="toggleFilters()"></div>
 
-    <div class="row">
-      <div class="col-md-4 mb-4" *ngFor="let item of filteredProducts; trackBy: trackById">
+    <!-- ================= PRODUCT GRID ================= -->
+    <section class="products-grid-wrap">
 
-        <div class="product-card">
+      <!-- Loading skeletons -->
+      <!-- Loading skeletons -->
+      <div class="products-grid" *ngIf="loading">
+        <div class="product-card skeleton" *ngFor="let s of [1,2,3,4,5,6]">
+          <div class="skeleton-img"></div>
+          <div class="skeleton-line short"></div>
+          <div class="skeleton-line"></div>
+        </div>
+      </div>
 
-          <!--  HEART ICON (TOP RIGHT) -->
-          <div class="wishlist-icon" [class.active]="isInWishlist(item.productId)"
-            (click)="toggleWishlist(item.productId)">
-            ♥
-          </div>
+      <!-- Empty state -->
+      <div class="empty-state" *ngIf="!loading && filteredProducts.length === 0">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+          <path d="M3 3h18v18H3V3zM8 12h8M12 8v8" />
+        </svg>
+        <h3>No products found</h3>
+        <p>Try adjusting your filters to find what you're looking for.</p>
+        <button class="clear-filters-btn" (click)="resetPrice(); filterByCategory('All')">Clear Filters</button>
+      </div>
+
+      <!-- Product Grid -->
+      <div class="products-grid" *ngIf="!loading && filteredProducts.length > 0">
+        <div class="product-card" *ngFor="let item of filteredProducts; let i = index; trackBy: trackById"
+          [style.animation-delay.ms]="i * 60">
 
           <!-- Product Image -->
-          <div *ngIf="item.imagepath" class="img-wrapper">
-            <div id="carousel{{item.productId}}" class="carousel slide" data-bs-ride="carousel">
-              <div class="carousel-inner">
-                <div class="carousel-indicators">
-                  <button *ngFor="let img of item.imagepath; let i = index" type="button"
-                    [attr.data-bs-target]="'#carousel' + item.productId" [attr.data-bs-slide-to]="i"
-                    [class.active]="i === 0"></button>
-                </div>
-                <div *ngFor="let img of item.imagepath; let i = index" class="carousel-item" [class.active]="i === 0">
-                  <img [src]="'http://localhost:5146' + img" class="d-block w-100 product-img" />
-                </div>
-              </div>
+          <div class="product-image-wrap" (click)="viewDetails(item.productId)">
 
-              <!-- controls -->
-              <button class="carousel-control-prev" type="button" [attr.data-bs-target]="'#carousel' + item.productId"
-                data-bs-slide="prev">
-                <span class="carousel-control-prev-icon"></span>
-              </button>
+            <button class="wishlist-icon-btn" [class.active]="isInWishlist(item.productId)"
+              (click)="$event.stopPropagation(); toggleWishlist(item.productId)" aria-label="Toggle wishlist">
+              <svg width="18" height="18" viewBox="0 0 24 24"
+                [attr.fill]="isInWishlist(item.productId) ? 'currentColor' : 'none'" stroke="currentColor"
+                stroke-width="1.8">
+                <path
+                  d="M12 21s-7.5-4.6-10-9.2C0.3 8 2 4 6 4c2.2 0 3.7 1.2 6 3.6C14.3 5.2 15.8 4 18 4c4 0 5.7 4 4 7.8-2.5 4.6-10 9.2-10 9.2z" />
+              </svg>
+            </button>
 
-              <button class="carousel-control-next" type="button" [attr.data-bs-target]="'#carousel' + item.productId"
-                data-bs-slide="next">
-                <span class="carousel-control-next-icon"></span>
-              </button>
+            <span class="stock-badge" *ngIf="item.stock > 0 && item.stock < 10">Only {{ item.stock }} left</span>
+            <span class="stock-badge out" *ngIf="item.stock === 0">Out of Stock</span>
+
+            <img *ngIf="item.imagepath && item.imagepath.length" [src]="'http://localhost:5146' + item.imagepath[0]"
+              class="product-img" [alt]="item.productName" loading="lazy">
+
+            <div class="quick-view-overlay">
+              <span>View Details</span>
             </div>
           </div>
 
           <div class="product-info">
+            <p class="product-category" *ngIf="item.categoryName">{{ item.categoryName }}</p>
+            <h4 (click)="viewDetails(item.productId)">{{ item.productName }}</h4>
 
-            <span class="product-category">
-              {{ item.CategoryName }}
-            </span>
-
-            <h5 class="product-title">
-              {{ item.productName }}
-            </h5>
-
-            <div class="product-meta">
-              <span>₹ {{ item.productPrice }}</span>
-            </div>
-
-            <!--  ACTIONS -->
-            <div class="product-actions">
-
-              <!--  VIEW MORE -->
-              <button class="view-btn" (click)="viewDetails(item.productId)">
-                View More
-              </button>
-
-              <!--  ADD TO CART -->
-              <button class="cart-btn" [disabled]="isInCart(item.productId)" (click)="addToCart(item)">
-                {{ isInCart(item.productId) ? 'Added' : 'Add to Cart' }}
-              </button>
-
-            </div>
-            <div class="delivery">
-              Get it by <strong>
+            <div class="price-row">
+              <p class="product-price">₹{{ item.productPrice | number }}</p>
+              <p class="delivery" *ngIf="item.expectedDelivery">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
                 {{ item.expectedDelivery | date:'dd MMM' }}
-              </strong>
+              </p>
             </div>
 
+            <div class="product-actions">
+              <button class="btn-add-cart" [class.added]="isInCart(item.productId)"
+                [disabled]="isInCart(item.productId)" (click)="addToCart(item)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  *ngIf="!isInCart(item.productId)">
+                  <path d="M3 3h2l2.4 12.2a2 2 0 002 1.8h8.6a2 2 0 002-1.6L21 8H6" />
+                </svg>
+                {{ isInCart(item.productId) ? 'Added ✓' : 'Add to Cart' }}
+              </button>
+
+              <button class="btn-buy-now" (click)="buyNow($event, item)">
+                Buy Now
+              </button>
+            </div>
           </div>
-
         </div>
-
       </div>
-    </div>
 
+    </section>
   </div>
-</div>
+</main>

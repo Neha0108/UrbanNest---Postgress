@@ -28,7 +28,7 @@ namespace UrbanNest.Service
             consumerdata.FirstName = consumer.FirstName;
             consumerdata.LastName = consumer.LastName;
             consumerdata.Phone = consumer.Phone;
-            consumerdata.Date_of_Birth = consumer.Date_of_Birth;
+            consumerdata.Date_of_Birth = DateTime.SpecifyKind(consumer.Date_of_Birth, DateTimeKind.Utc);
             consumerdata.Gender = consumer.Gender;
 
             if (image != null && image.Length > 0)

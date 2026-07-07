@@ -52,6 +52,7 @@ submit(): void {
     next: (response) => {
       const token = response.token;
       localStorage.setItem('token', token);
+      localStorage.setItem('role', this.getUserRoleFromToken(token) || '');
 
       const role = this.getUserRoleFromToken(token);
 
@@ -59,7 +60,7 @@ submit(): void {
         this.router.navigateByUrl('/retailerNavbar/retailerdashboard',{replaceUrl: true });
       }
       else if (role === 'Consumer') {
-        this.router.navigateByUrl('/consumerNavbar/welcome',{replaceUrl: true });
+        this.router.navigateByUrl('/consumerNavbar/home',{replaceUrl: true });
       }
       else if (role === 'Admin') {
         this.router.navigate(['/admin']);

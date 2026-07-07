@@ -2,10 +2,7 @@
 
   <!--  SIDEBAR -->
   <aside class="sidebar">
-    <!-- LOGO -->
-    <a class="navbar-brand d-flex align-items-center">
-      <img src="assets/images/FinalBrand.png" class="brand-logo me-2" />
-    </a>
+
     <h1 class="brand-text">Urban Nest Seller
       <app-notification-panel >
       </app-notification-panel>
@@ -30,6 +27,8 @@
     <a routerLink="add-product" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
       ➕ Add Product
     </a>
+    
+  <a routerLink="reviews" routerLinkActive="active">⭐ Reviews</a>
 
     <!-- PROFILE DROPDOWN -->
     <div class="profile-wrapper" (click)="toggleDropdown()">

@@ -1,12 +1,14 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using QuestPDF;
 using QuestPDF.Infrastructure;
 using System.Text;
 using System.Text.Json;
 using UrbanNest.DataAccess;
 using UrbanNest.Repository;
 using UrbanNest.Service;
+
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration
@@ -37,6 +39,7 @@ builder.Services.AddScoped<IOrder, SOrder>();
 builder.Services.AddScoped<IAdmin, SAdmin>();
 builder.Services.AddScoped<IAddress, SAddress>();
 builder.Services.AddScoped<INotification, SNotification>();
+builder.Services.AddScoped<IReview, SReview>();
 
 
 QuestPDF.Settings.License = LicenseType.Community;
@@ -96,5 +99,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
 app.Run();

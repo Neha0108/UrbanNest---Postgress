@@ -27,18 +27,34 @@ import { ShopByPrice } from './LandingPage/shop-by-price/shop-by-price';
 import { Orders as retailerOrders } from './components/retailer/orders/orders';
 import { Customers } from './components/retailer/customers/customers';
 import { Checkout } from './components/consumer/checkout/checkout';
+import { Reviews } from './components/retailer/review/review';
+import { authGuard } from './guards/auth-guard';
+import { roleGuard } from './guards/role-guard';
+import { Navbar } from './LandingPage/navbar/navbar';
+import { guestGuard } from './guards/guest-guard';
+import { redirectGuard } from './guards/redirect-guard';
 
 export const routes: Routes = [
-  {path: '', component: Home},
-  { path: 'login', component: Login },
-  {path: 'about',component:About},
-  { path: 'register', component: Register },
-  {path: 'products', component: Products },
-  {path: 'category',component: Category},
-  {path: 'shop-by-price', component: ShopByPrice},
+  {
+  path: '',
+  component: Navbar,
+  canActivate: [redirectGuard],
+  children: [
+    { path: '', redirectTo: 'home', pathMatch: 'full' },
+
+    { path: 'home', component: Home },
+    { path: 'login', component: Login, canActivate: [guestGuard] },
+    { path: 'register', component: Register, canActivate: [guestGuard] },
+    { path: 'about', component: About },
+    { path: 'products', component: Products },
+    { path: 'category', component: Category },
+    { path: 'shop-by-price', component: ShopByPrice }
+  ]
+},
   {
     path: 'consumerNavbar',
     component: ConsumerNavbar,
+    canActivate: [authGuard, roleGuard(['Consumer'])],
     children: [
       { path: '', redirectTo: 'home', pathMatch: 'full' },
       { path: 'home', component: Home },
@@ -59,6 +75,7 @@ export const routes: Routes = [
   {
     path: 'retailerNavbar',
     component: RetailerNavbar,
+    canActivate: [authGuard, roleGuard(['Retailer'])],
     children: [
       { path: '', redirectTo: 'retailerdashboard', pathMatch: 'full' },
       { path: 'retailerdashboard', component: Retailerdashboard },
@@ -68,10 +85,11 @@ export const routes: Routes = [
       { path: 'retailer-profile', component: retailerProfile },
       { path: 'change-password', component: ChangePassword },
       { path: 'retailerOrders', component: retailerOrders },
-      { path: 'customers', component: Customers }
+      { path: 'customers', component: Customers },
+      { path: 'reviews', component: Reviews }
     ]
   },
 
-  { path: 'admin', component: AdminComponent }
+  { path: 'admin', component: AdminComponent, canActivate: [authGuard, roleGuard(['Admin']) ] }
 
 ];

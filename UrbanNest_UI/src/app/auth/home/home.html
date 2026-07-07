@@ -101,7 +101,7 @@
           <span class="stock-badge out" *ngIf="p.stock === 0">Out of Stock</span>
         </div>
         <div class="product-info">
-          <p class="product-category">{{ p.CategoryName }}</p>
+          <p class="product-category">{{ p.categoryName }}</p>
           <h4>{{ p.productName }}</h4>
           <p class="product-price">₹{{ p.productPrice | number }}</p>
         </div>
@@ -151,4 +151,5 @@
     </div>
   </section>
 
+  <app-footer></app-footer>
 </main>

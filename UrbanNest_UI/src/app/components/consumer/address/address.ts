@@ -1,376 +1,234 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { Consumer } from '../../../service/consumer';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { Consumer } from '../../../service/consumer';
+import { Address as AddressModel } from '../../../interface/address';
+import {
+  trigger,
+  transition,
+  style,
+  animate,
+  query,
+  stagger,
+} from '@angular/animations';
 
 @Component({
   selector: 'app-address',
-  imports: [CommonModule, ReactiveFormsModule],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './address.html',
   styleUrl: './address.css',
+  animations: [
+    trigger('listStagger', [
+      transition(':enter', [
+        query(
+          '.address-card',
+          [
+            style({ opacity: 0, transform: 'translateY(12px)' }),
+            stagger(60, [
+              animate(
+                '360ms cubic-bezier(0.16, 1, 0.3, 1)',
+                style({ opacity: 1, transform: 'translateY(0)' })
+              ),
+            ]),
+          ],
+          { optional: true }
+        ),
+      ]),
+    ]),
+    trigger('panelSlide', [
+      transition(':enter', [
+        style({ transform: 'translateX(100%)' }),
+        animate(
+          '340ms cubic-bezier(0.16, 1, 0.3, 1)',
+          style({ transform: 'translateX(0)' })
+        ),
+      ]),
+      transition(':leave', [
+        animate(
+          '260ms cubic-bezier(0.4, 0, 1, 1)',
+          style({ transform: 'translateX(100%)' })
+        ),
+      ]),
+    ]),
+    trigger('overlayFade', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('260ms ease', style({ opacity: 1 })),
+      ]),
+      transition(':leave', [animate('220ms ease', style({ opacity: 0 }))]),
+    ]),
+    trigger('bannerIn', [
+      transition(':enter', [
+        style({ opacity: 0, height: 0, marginBottom: 0 }),
+        animate(
+          '260ms ease',
+          style({ opacity: 1, height: '*', marginBottom: '20px' })
+        ),
+      ]),
+      transition(':leave', [animate('200ms ease', style({ opacity: 0 }))]),
+    ]),
+  ],
 })
-export class Address {
+export class Address implements OnInit {
+  private consumerService = inject(Consumer);
+  private fb = inject(FormBuilder);
 
-  addresses: any[] = [];
-  selectedAddressId: number = 0;
-  selectedProductIds: number[] = [];
-  selectedTotal: number = 0;
-  noAddress = false;
-  addressForm!: FormGroup;
-  showForm = false;
+  readonly addresses = signal<AddressModel[]>([]);
+  readonly loading = signal(true);
+  readonly errorMessage = signal<string | null>(null);
+  readonly successMessage = signal<string | null>(null);
 
-  constructor(
-    private addressService: Consumer,
-    private fb: FormBuilder,
-    private router: Router
-  ) {
-    const nav = this.router.getCurrentNavigation();
-    this.selectedProductIds = nav?.extras?.state?.['selectedProductIds'] || [];
-    this.selectedTotal = nav?.extras?.state?.['selectedTotal'] || 0;
-  }
+  readonly showForm = signal(false);
+  readonly saving = signal(false);
+  readonly deletingId = signal<number | null>(null);
 
-  ngOnInit() {
-    this.initForm();
+  readonly locating = signal(false);
+  readonly locationCaptured = signal(false);
+  readonly locationError = signal<string | null>(null);
+
+  readonly hasAddresses = computed(() => this.addresses().length > 0);
+
+  readonly sortedAddresses = computed(() =>
+    [...this.addresses()].sort((a, b) => Number(b.isDefault) - Number(a.isDefault))
+  );
+
+  readonly form: FormGroup = this.fb.group({
+    fullName: ['', [Validators.required, Validators.minLength(2)]],
+    phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
+    addressLine: ['', [Validators.required, Validators.minLength(5)]],
+    city: ['', Validators.required],
+    state: ['', Validators.required],
+    pincode: ['', [Validators.required, Validators.pattern(/^[0-9]{6}$/)]],
+    isDefault: [false],
+    latitude: [null],
+    longitude: [null],
+  });
+
+  ngOnInit(): void {
     this.loadAddresses();
-
-    if (this.selectedProductIds.length === 0) {
-      console.warn('No selected products received');
-    }
   }
 
-  initForm() {
-    this.addressForm = this.fb.group({
-      fullName: [''],
-      phone: [''],
-      addressLine: [''],
-      city: [''],
-      state: [''],
-      pincode: [''],
-      latitude: [''],
-      longitude: [''],
-      isDefault: [false]
-    });
-  }
+  loadAddresses(): void {
+    this.loading.set(true);
+    this.errorMessage.set(null);
 
-  loadAddresses() {
-    this.addressService.getAddresses().subscribe({
-      next: (res: any[]) => {
-        console.log('Saved addresses from API:', res);
-
-        this.addresses = (res || []).map(a => ({
-          addressId: a.addressId ?? a.AddressId,
-          fullName: a.fullName ?? a.FullName,
-          phone: a.phone ?? a.Phone,
-          addressLine: a.addressLine ?? a.AddressLine,
-          city: a.city ?? a.City,
-          state: a.state ?? a.State,
-          pincode: a.pincode ?? a.Pincode,
-          latitude: a.latitude ?? a.Latitude,
-          longitude: a.longitude ?? a.Longitude,
-          isDefault: a.isDefault ?? a.IsDefault
-        }));
-
-        if (this.addresses.length === 0) {
-          this.noAddress = true;
-          this.showForm = true;
-          this.selectedAddressId = 0;
-        } else {
-          this.noAddress = false;
-          this.showForm = false;
-
-          const defaultAddr = this.addresses.find((x: any) => x.isDefault);
-
-          if (defaultAddr) {
-            this.selectedAddressId = defaultAddr.addressId;
-          } else {
-            this.selectedAddressId = this.addresses[0]?.addressId;
-          }
-
-          console.log('Mapped addresses:', this.addresses);
-          console.log('Selected address id:', this.selectedAddressId);
-        }
+    this.consumerService.getAddresses().subscribe({
+      next: (res: AddressModel[]) => {
+        this.addresses.set(res ?? []);
+        this.loading.set(false);
       },
       error: (err) => {
-        console.error('Address load failed:', err);
-        alert(err.error?.message || 'Failed to load addresses');
-      }
+        console.error(err);
+        this.errorMessage.set('We couldn\u2019t load your addresses. Please refresh.');
+        this.loading.set(false);
+      },
     });
   }
 
-  saveAddress() {
-    this.addressService.addAddress(this.addressForm.value)
-      .subscribe(() => {
-        this.showForm = false;
-        this.addressForm.reset({
-          fullName: '',
-          phone: '',
-          addressLine: '',
-          city: '',
-          state: '',
-          pincode: '',
-          latitude: '',
-          longitude: '',
-          isDefault: false
-        });
-        this.loadAddresses();
-      });
+  openForm(): void {
+    this.form.reset({ isDefault: this.addresses().length === 0 });
+    this.locationCaptured.set(false);
+    this.locationError.set(null);
+    this.showForm.set(true);
   }
 
-  selectAddress(id: number) {
-    this.selectedAddressId = id;
+  closeForm(): void {
+    this.showForm.set(false);
   }
 
-  deleteAddress(id: number) {
-    this.addressService.deleteAddress(id)
-      .subscribe(() => this.loadAddresses());
-  }
-
-  getCurrentLocation() {
-    navigator.geolocation.getCurrentPosition((pos) => {
-      const lat = pos.coords.latitude;
-      const lng = pos.coords.longitude;
-
-      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
-        .then(res => res.json())
-        .then(data => {
-          const a = data.address;
-
-          this.addressForm.patchValue({
-            addressLine: data.display_name,
-            city: a.city || a.town || a.village || '',
-            state: a.state || '',
-            pincode: a.postcode || '',
-            latitude: lat,
-            longitude: lng
-          });
-        })
-        .catch(err => {
-          console.error('Location address fetch failed:', err);
-          alert('Unable to fetch address from current location');
-        });
-    }, err => {
-      console.error('Location permission denied:', err);
-      alert('Please allow location access');
-    });
-  }
-
- placeOrder() {
-
-  console.log('===== PLACE ORDER STARTED =====');
-
-  console.log('Selected Products:', this.selectedProductIds);
-  console.log('Selected Address:', this.selectedAddressId);
-  console.log('Selected Total:', this.selectedTotal);
-
-  if (this.selectedProductIds.length === 0) {
-    console.error('No products selected');
-    alert('❌ No products selected');
-    return;
-  }
-
-  if (!this.selectedAddressId) {
-    console.error('No address selected');
-    alert('❌ Please select or add an address');
-    return;
-  }
-
-  if (!this.selectedTotal || this.selectedTotal <= 0) {
-    console.error('Invalid amount:', this.selectedTotal);
-    alert('❌ Invalid order amount');
-    return;
-  }
-
-  const amount = this.selectedTotal;
-
-  console.log('Creating Razorpay Order...');
-  console.log('Amount Sent To Backend:', amount);
-
-  this.addressService.payment(amount).subscribe({
-
-    next: (orderRes: any) => {
-
-      console.log('==============================');
-      console.log('ORDER CREATED SUCCESSFULLY');
-      console.log('Full Response:', orderRes);
-      console.log('Order Id:', orderRes.orderId);
-      console.log('Amount:', orderRes.amount);
-      console.log('Currency:', orderRes.currency);
-      console.log('Key:', orderRes.key);
-      console.log('==============================');
-      next: (orderRes: any) => {
-
-  console.log("FULL RESPONSE");
-  console.log(JSON.stringify(orderRes));
-
-  console.log("TYPE OF AMOUNT");
-  console.log(typeof orderRes.amount);
-
-  console.log("TYPE OF CURRENCY");
-  console.log(typeof orderRes.currency);
-
-  console.log(orderRes);
-
-}
-
-      const options: any = {
-
-        key: orderRes.key,
-        amount: orderRes.amount,
-        currency: orderRes.currency,
-        name: 'Urban Nest',
-        description: 'Order Payment',
-        order_id: orderRes.orderId,
-
-        method: {
-          upi: true,
-          card: true,
-          netbanking: true,
-          wallet: true
-        },
-
-        prefill: {
-          name: 'Neha',
-          contact: '7419119498'
-        },
-
-        handler: (response: any) => {
-
-          console.log('==============================');
-          console.log('PAYMENT SUCCESS');
-          console.log('Razorpay Response:', response);
-          console.log('Payment Id:', response.razorpay_payment_id);
-          console.log('Order Id:', response.razorpay_order_id);
-          console.log('Signature:', response.razorpay_signature);
-          console.log('==============================');
-
-          const verifyBody = {
-            razorpayOrderId: response.razorpay_order_id,
-            razorpayPaymentId: response.razorpay_payment_id,
-            razorpaySignature: response.razorpay_signature
-          };
-
-          console.log('Verify Payload:', verifyBody);
-
-          this.addressService.verifyPayment(verifyBody).subscribe({
-
-            next: (verifyRes) => {
-
-              console.log('==============================');
-              console.log('PAYMENT VERIFIED');
-              console.log('Verify Response:', verifyRes);
-              console.log('==============================');
-
-              const orderBody = {
-                selectedProductIds: this.selectedProductIds,
-                addressId: this.selectedAddressId
-              };
-
-              console.log('Order Body:', orderBody);
-
-              this.addressService.placeOrder(orderBody).subscribe({
-
-                next: (res: any) => {
-
-                  console.log('==============================');
-                  console.log('ORDER PLACED SUCCESSFULLY');
-                  console.log(res);
-                  console.log('==============================');
-
-                  alert('✅ Payment successful and order placed');
-                  this.router.navigate(['consumerNavbar/orders']);
-                },
-
-                error: (err) => {
-
-                  console.log('==============================');
-                  console.log('ORDER PLACEMENT FAILED');
-                  console.log(err);
-                  console.log('Status:', err.status);
-                  console.log('Error:', err.error);
-                  console.log('==============================');
-
-                  alert(
-                    err.error?.message ||
-                    err.error ||
-                    '❌ Order failed after payment'
-                  );
-                }
-              });
-            },
-
-            error: (err) => {
-
-              console.log('==============================');
-              console.log('PAYMENT VERIFICATION FAILED');
-              console.log(err);
-              console.log('Status:', err.status);
-              console.log('Error Body:', err.error);
-              console.log('==============================');
-
-              alert(JSON.stringify(err.error));
-            }
-          });
-        },
-
-        modal: {
-          ondismiss: () => {
-            console.log('User closed Razorpay popup');
-            alert('Payment cancelled');
-          }
-        },
-
-        theme: {
-          color: '#C9A45C'
-        }
-      };
-
-      console.log('Razorpay Options:', options);
-
-      const Razorpay = (window as any).Razorpay;
-
-      if (!Razorpay) {
-        console.error('Razorpay SDK Missing');
-        alert('Razorpay SDK not loaded. Please refresh the page.');
-        return;
-      }
-
-      console.log('Opening Razorpay Checkout');
-
-      const razorpay = new Razorpay(options);
-
-      razorpay.on('payment.failed', function (response: any) {
-
-        console.log('==============================');
-        console.log('PAYMENT FAILED EVENT');
-        console.log(response);
-        console.log('Code:', response.error?.code);
-        console.log('Description:', response.error?.description);
-        console.log('Reason:', response.error?.reason);
-        console.log('Metadata:', response.error?.metadata);
-        console.log('==============================');
-
-        alert(response.error?.description || 'Payment Failed');
-      });
-
-      razorpay.open();
-    },
-
-    error: (err) => {
-
-      console.log('==============================');
-      console.log('CREATE ORDER FAILED');
-      console.log(err);
-      console.log('Status:', err.status);
-      console.log('Error Body:', err.error);
-      console.log('==============================');
-
-      alert(
-        err.error?.message ||
-        JSON.stringify(err.error) ||
-        '❌ Failed to start payment'
-      );
+  useCurrentLocation(): void {
+    if (!navigator.geolocation) {
+      this.locationError.set('Geolocation is not supported on this device.');
+      return;
     }
-  });
-}
+
+    this.locating.set(true);
+    this.locationError.set(null);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        this.form.patchValue({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+        this.locationCaptured.set(true);
+        this.locating.set(false);
+      },
+      () => {
+        this.locationError.set('Couldn\u2019t access your location. You can still fill the address manually.');
+        this.locating.set(false);
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  }
+
+  saveAddress(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    this.saving.set(true);
+    this.errorMessage.set(null);
+
+    const value = this.form.value;
+    const payload: AddressModel = {
+      fullName: value.fullName,
+      phone: value.phone,
+      addressLine: value.addressLine,
+      city: value.city,
+      state: value.state,
+      pincode: value.pincode,
+      isDefault: value.isDefault,
+      latitude: value.latitude ?? undefined,
+      longitude: value.longitude ?? undefined,
+    };
+
+    this.consumerService.addAddress(payload).subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.showForm.set(false);
+        this.successMessage.set('Address saved successfully.');
+        this.loadAddresses();
+        setTimeout(() => this.successMessage.set(null), 3500);
+      },
+      error: (err) => {
+        console.error(err);
+        this.saving.set(false);
+        this.errorMessage.set('Couldn\u2019t save this address. Please try again.');
+      },
+    });
+  }
+
+  deleteAddress(address: AddressModel): void {
+    if (!address.addressId) return;
+    if (!confirm('Remove this address from your account?')) return;
+
+    this.deletingId.set(address.addressId);
+
+    this.consumerService.deleteAddress(address.addressId).subscribe({
+      next: () => {
+        this.addresses.update((list) =>
+          list.filter((a) => a.addressId !== address.addressId)
+        );
+        this.deletingId.set(null);
+      },
+      error: (err) => {
+        console.error(err);
+        alert('Couldn\u2019t remove this address. Please try again.');
+        this.deletingId.set(null);
+      },
+    });
+  }
+
+  get f() {
+    return this.form.controls;
+  }
 }

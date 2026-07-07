@@ -23,8 +23,11 @@ namespace UrbanNest.DataAccess
         public DbSet<ProductImage> ProductImages { get; set; }
         public DbSet<EmailOTP> emailOTPs { get; set; }
         public DbSet<UserAddress> UserAddress { get; set; }
-
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Review> Reviews { get; set; }
+        public DbSet<ReviewHelpful> ReviewHelpful { get; set; }
+        public DbSet<ReviewReply> ReviewReplies { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

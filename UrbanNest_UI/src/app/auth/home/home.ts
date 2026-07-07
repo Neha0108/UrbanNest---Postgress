@@ -166,7 +166,7 @@ export class Home implements OnInit, AfterViewInit, OnDestroy {
   }
 
   goToProduct(product: Product): void {
-    this.router.navigate(['/products'], { queryParams: { category: product.CategoryName } });
+    this.router.navigate(['/products'], { queryParams: { category: product.categoryName } });
   }
 
   scrollToCategories(): void {

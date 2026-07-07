@@ -8,22 +8,19 @@ import { environment } from '../../env/environment';
   providedIn: 'root',
 })
 export class UserService {
-
   private apiUrl = `${environment.apiUrl}`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   loginUser(useremail: string, userpassword: string) {
-    return this.http.post<{ token: string }>(`${this.apiUrl}/Auth/Login`,
-      {
-        UserEmail: useremail,
-        UserPassword: userpassword
-      }
-    );
+    return this.http.post<{ token: string }>(`${this.apiUrl}/Auth/Login`, {
+      UserEmail: useremail,
+      UserPassword: userpassword,
+    });
   }
 
   registerUser(user: User): Observable<User> {
-    return this.http.post<User>(`${this.apiUrl}/Auth/Register`, user,);
+    return this.http.post<User>(`${this.apiUrl}/Auth/Register`, user);
   }
 
   isLoggedIn(): boolean {
@@ -58,7 +55,6 @@ export class UserService {
     return this.http.post(`${this.apiUrl}/Auth/ResendOtp`, { email });
   }
 
-
   private toFormData(data: Record<string, any>): FormData {
     const formData = new FormData();
     Object.keys(data).forEach((key) => {
@@ -71,5 +67,51 @@ export class UserService {
 
   getProductsByMaxPrice(price: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/Products/ByMaxPrice/${price}`);
+  }
+
+  getUserRole(): string | null {
+    if (typeof window === 'undefined') return null;
+
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+
+      const role =
+        payload.role ??
+        payload.Role ??
+        payload.UserRole ??
+        payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+
+      return role ?? null;
+    } catch {
+      return null;
+    }
+  }
+
+  getCurrentUserId(): number | null {
+    if (typeof window === 'undefined') return null;
+
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+
+      const rawId =
+        payload.UserId ??
+        payload.userId ??
+        payload.nameid ??
+        payload.sub ??
+        payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+
+      if (rawId === undefined || rawId === null) return null;
+
+      const id = Number(rawId);
+      return isNaN(id) ? null : id;
+    } catch {
+      return null;
+    }
   }
 }

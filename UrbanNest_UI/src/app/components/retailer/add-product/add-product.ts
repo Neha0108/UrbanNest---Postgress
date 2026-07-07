@@ -120,15 +120,15 @@ loadProduct(id: number) {
     this.productForm.patchValue({
       productName: res.productName,
       productDescription: res.productDescription,
-      CategoryName: res.CategoryName,
-      SubCategoryName: res.SubCategoryName,
+      CategoryName: res.categoryName,
+      SubCategoryName: res.subCategoryName,
       productPrice: res.productPrice,
       stock: res.stock
     });
 
     // Find selected category
     const selectedCategory = this.categories.find(
-      c => c.categoryName === res.CategoryName
+      c => c.categoryName === res.categoryName
     );
 
     if (selectedCategory) {
@@ -143,7 +143,7 @@ loadProduct(id: number) {
 
             // Set saved subcategory after loading dropdown
             this.productForm.patchValue({
-              SubCategoryName: res.SubCategoryName
+              SubCategoryName: res.subCategoryName
             });
 
           },

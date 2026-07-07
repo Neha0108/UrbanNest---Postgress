@@ -169,20 +169,30 @@ namespace UrbanNest.Service
 
         public async Task<ProductViewDTO?> getbyId(int id)
         {
-            return await database.Products
-        .Where(p => p.productId == id)
-        .Select(p => new ProductViewDTO
-        {
-            productId = p.productId,
-            productName = p.productName,
-            productDescription = p.Description,
-            CategoryName = p.Category.CategoryName,
-            productPrice = p.productPrice,
-            imagepath = p.imagepath.Select(i => i.ImageUrl).ToList(),
-            stock = p.stock,
-            expectedDelivery = DateTime.Now.AddDays(7)
-        })
-        .FirstOrDefaultAsync();
+            var raw = await database.Products.Include(p => p.SubCategory).FirstOrDefaultAsync(p => p.productId == id);
+            Console.WriteLine($"SubCategoryId: {raw?.SubCategoryId}, SubCategory: {raw?.SubCategory?.SubCategoryName}");
+
+            var data =  await database.Products
+                .Include(p => p.Category)
+                .Include(p => p.SubCategory)
+                .Include(p => p.Retailer)
+                .Where(p => p.productId == id)
+                .Select(p => new ProductViewDTO
+                {
+                    productId = p.productId,
+                    productName = p.productName,
+                    retailerName = p.Retailer.ShopName,
+                    productDescription = p.Description,
+                    categoryName = p.Category.CategoryName,
+                    subCategoryName = p.SubCategory.SubCategoryName,
+                    productPrice = p.productPrice,
+                    imagepath = p.imagepath.Select(i => i.ImageUrl).ToList(),
+                    stock = p.stock,
+                    expectedDelivery = DateTime.Now.AddDays(7)
+                })
+                .FirstOrDefaultAsync();
+            Console.WriteLine(data);
+            return data;
         }
 
 
@@ -198,7 +208,7 @@ namespace UrbanNest.Service
                     productPrice = p.productPrice,
                     imagepath = p.imagepath.Select(i => i.ImageUrl).ToList(),
                     stock = p.stock,
-                    CategoryName = p.Category.CategoryName,
+                    categoryName = p.Category.CategoryName,
                     expectedDelivery = DateTime.Now.AddDays(7)
                 })
                 .ToListAsync();
@@ -219,7 +229,7 @@ namespace UrbanNest.Service
                     productName = p.productName,
                     //RetailerName = p.Retailer.userName,     
                     productDescription = p.Description,
-                    CategoryName = p.Category.CategoryName,
+                    categoryName = p.Category.CategoryName,
                     productPrice = p.productPrice,
                     imagepath = p.imagepath != null ? p.imagepath.Select(i => i.ImageUrl).ToList() : new List<string>(),
                     stock = p.stock

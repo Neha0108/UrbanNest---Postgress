@@ -4,10 +4,10 @@
     {
         public int productId { get; set; }
         public string productName { get; set; } = string.Empty;
-        public string? RetailerName { get; set; } = string.Empty;
+        public string? retailerName { get; set; } = string.Empty;
         public string productDescription { get; set; } = string.Empty;
-        public string CategoryName { get; set; } = string.Empty;
-        public string SubCategoryName { get; set; } = string.Empty;
+        public string categoryName { get; set; } = string.Empty;
+        public string subCategoryName { get; set; } = string.Empty;
         public double productPrice { get; set; }
         public List<string> imagepath { get; set; }
         public int stock { get; set; }

@@ -37,7 +37,7 @@ export class SuggestedProducts {
 
       if (this.lastCategory) {
         this.recommended = this.products.filter(
-          p => p.CategoryName?.toLowerCase() === this.lastCategory?.toLowerCase()
+          p => p.categoryName?.toLowerCase() === this.lastCategory?.toLowerCase()
         );
       } else {
         this.recommended = this.products.slice(0, 6);
@@ -64,7 +64,7 @@ export class SuggestedProducts {
     localStorage.setItem('recentProducts', JSON.stringify(viewed.slice(0, 10)));
 
     // ✅ Store last category
-    localStorage.setItem('lastCategory', product.CategoryName);
+    localStorage.setItem('lastCategory', product.categoryName);
 
     // ✅ Redirect to product details page
     this.router.navigate(['/consumerNavbar/product-details', product.productId]);

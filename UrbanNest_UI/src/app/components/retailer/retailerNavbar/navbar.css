@@ -1,189 +1,218 @@
-/* ===============================
-   LAYOUT
-================================ */
+/* ==================== LAYOUT ==================== */
+
 .retailer-layout {
   display: flex;
   min-height: 100vh;
-  background:#0f0f10 ;
+  background: #0b0b0b;
 }
 
-/* ===============================
-   SIDEBAR
-================================ */
+/* ==================== SIDEBAR ==================== */
+
 .sidebar {
   width: 260px;
-  background: #0f0f10;   /*  BLACK */
-  color: #ffffff;
-  padding: 1.8rem 1.3rem;
-
+  flex-shrink: 0;
+  background: rgba(20, 20, 20, 0.9);
+  border-right: 1px solid rgba(255, 196, 0, 0.12);
+  backdrop-filter: blur(16px);
+  padding: 24px 18px;
   display: flex;
   flex-direction: column;
-
-  position: fixed;
+  gap: 6px;
+  position: sticky;
   top: 0;
-  left: 0;
   height: 100vh;
-
-  border-right: 1px solid rgba(212,175,55,0.15);
+  overflow-y: auto;
 }
 
-/* LINKS */
-.sidebar a {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+/* ==================== BRAND ==================== */
 
-  padding: 10px 15px;
-  margin-bottom: 10px;
-
-  color: rgba(255,255,255,0.7);
+.navbar-brand {
   text-decoration: none;
+  margin-bottom: 12px;
+}
 
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
   border-radius: 12px;
-  transition: all 0.3s ease;
-}
-
-/*  HOVER */
-.sidebar a:hover {
-  background: rgba(212,175,55,0.08);
-  color: #D4AF37;
-}
-
-/*  ACTIVE TAB (PREMIUM GOLD) */
-.sidebar a.active {
-  background: linear-gradient(
-    90deg,
-    rgba(212,175,55,0.12),
-  );
-
-  color: #D4AF37;
-  font-weight: 600;
-
-  border-left: 3px solid #D4AF37;
-}
-
-/* ===============================
-   BRAND
-================================ */
-.brand-logo {
-  width: 150px;
-  height: 100px;
+  background: linear-gradient(135deg, #f5c542, #c99b1c);
+  color: #111;
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+  box-shadow: 0 0 16px rgba(245, 197, 66, 0.35);
 }
 
 .brand-text {
-  font-size: 1.3rem;
+  color: #f5d06f;
+  font-size: 1.15rem;
   font-weight: 700;
-  margin-bottom: 2rem;
-  letter-spacing: -0.03em;
-  padding-left: 8px;
-  color: #ffffff;
+  margin: 0 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 
-/* ===============================
-   SIDEBAR LINKS
-================================ */
-.sidebar a {
-  display: block;
-  padding: 0.8rem 1rem;
-  margin-bottom: 0.75rem;
-  color: var(--text-secondary);
+/* ==================== NAV LINKS ==================== */
+
+.sidebar > a {
+  color: #ccc;
   text-decoration: none;
-  border-radius: 999px;
-  font-size: 0.95rem;
-  transition: all 0.3s ease;
+  font-size: 0.92rem;
+  font-weight: 500;
+  padding: 12px 16px;
+  border-radius: 12px;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-/*  ACTIVE (PILL STYLE - FINAL) */
-.sidebar a.active {
-  border: 1.5px solid #D4AF37;
-  color: #D4AF37;
-  background: rgba(212, 175, 55, 0.08);
+.sidebar > a:hover {
+  background: rgba(255, 196, 0, 0.08);
+  color: #f5c542;
+}
+
+.sidebar > a.active {
+  background: rgba(245, 197, 66, 0.14);
+  color: #f5c542;
   font-weight: 600;
-  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+  box-shadow: inset 0 0 0 1px rgba(255, 196, 0, 0.2);
 }
 
-/*  HOVER */
-.sidebar a:hover {
-  border: 1.5px solid #E5C158;
-  color: #E5C158;
-  background: rgba(212, 175, 55, 0.08);
-}
+/* ==================== PROFILE ==================== */
 
-/* ===============================
-   PROFILE SECTION
-================================ */
 .profile-wrapper {
   margin-top: auto;
   position: relative;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
 }
 
 .profile-header {
   display: flex;
   align-items: center;
   gap: 10px;
-
-  padding: 12px;
-
-  background: rgba(255,255,255,0.05);
-  border-radius: 14px;
-
-  cursor: pointer;
-  transition: 0.3s ease;
+  padding: 10px 12px;
+  border-radius: 12px;
+  transition: background 0.2s ease;
 }
 
 .profile-header:hover {
-  background: rgba(212,175,55,0.08);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .profile-icon {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-
-  background: rgba(212,175,55,0.1);
-  display: grid;
-  place-items: center;
+  background: rgba(245, 197, 66, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
 }
 
-/* ===============================
-   DROPDOWN
-================================ */
+.username {
+  color: #eee;
+  font-size: 0.9rem;
+  font-weight: 500;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.arrow {
+  color: #888;
+  font-size: 0.7rem;
+  transition: transform 0.2s ease;
+}
+
 .profile-dropdown {
   position: absolute;
-  bottom: calc(100% + 10px);
+  bottom: calc(100% + 8px);
   left: 0;
-  width: 100%;
-
-  background: #1a1a1a;
-  border: 1px solid rgba(212,175,55,0.2);
-  border-radius: 12px;
-
-  overflow: hidden;
+  right: 0;
+  background: rgba(25, 25, 25, 0.98);
+  border: 1px solid rgba(255, 196, 0, 0.15);
+  border-radius: 14px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 0 24px rgba(0, 0, 0, 0.5);
+  z-index: 10;
 }
 
 .profile-dropdown a,
 .profile-dropdown button {
-  padding: 10px 12px;
-  color: #fff;
-  background: transparent;
+  color: #ccc;
+  text-decoration: none;
+  background: none;
   border: none;
   text-align: left;
+  font-size: 0.85rem;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
   width: 100%;
 }
 
 .profile-dropdown a:hover,
 .profile-dropdown button:hover {
-  background: rgba(212,175,55,0.1);
-  color: #D4AF37;
+  background: rgba(255, 196, 0, 0.1);
+  color: #f5c542;
 }
 
-/* ===============================
-   MAIN CONTENT (FIXED GAP )
-================================ */
+.profile-dropdown button {
+  color: #ff6b6b;
+}
+
+.profile-dropdown button:hover {
+  background: rgba(255, 107, 107, 0.1);
+  color: #ff6b6b;
+}
+
+/* ==================== MAIN CONTENT ==================== */
+
 .content {
-  padding-top: 0px;
-  margin-left: 140px;   /*  MUST match sidebar width */
   flex: 1;
-  min-height: 100vh;
-  padding: 1rem;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+/* ==================== RESPONSIVE ==================== */
+
+@media (max-width: 900px) {
+  .retailer-layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .brand-text {
+    width: 100%;
+  }
+
+  .profile-wrapper {
+    margin-top: 0;
+    border-top: none;
+    padding-top: 0;
+  }
 }

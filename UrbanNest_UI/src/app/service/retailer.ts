@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Product } from '../interface/product';
 import { Observable } from 'rxjs';
 import { Category } from '../interface/category';
+import { Review } from '../interface/review';
 
 @Injectable({
   providedIn: 'root',
@@ -56,10 +57,20 @@ export class Retailer {
       {}
     );
   }
+
   getSubCategories(categoryId: number) {
     return this.http.get<any[]>(`${this.apiUrl}/GetSubCategory/${categoryId}`);
   }
+
   getRetailerCustomers() {
     return this.http.get<any[]>(`${this.apiUrl}/GetRetailerCustomers`);
+  }
+
+  getMyReviews() {
+    return this.http.get<Review[]>(`http://localhost:5146/api/Review/GetMine`);
+  }
+
+  replyToReview(reviewId: number, message: string) {
+    return this.http.post(`http://localhost:5146/api/Review/Reply`, { reviewId, message });
   }
 }

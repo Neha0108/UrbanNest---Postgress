@@ -1,15 +1,11 @@
 
 import { Component, signal } from '@angular/core';
-import {  RouterOutlet } from '@angular/router';
-import { Navbar } from "./LandingPage/navbar/navbar";
-import { ConsumerNavbar } from './components/consumer/consumer-navbar/consumer-navbar';
-import { RetailerNavbar } from './components/retailer/retailerNavbar/navbar';
-import { CommonModule } from '@angular/common';
-import { AdminComponent }  from "./components/admin/admin";
+import { RouterOutlet } from '@angular/router';import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Navbar, ConsumerNavbar, RetailerNavbar, CommonModule, AdminComponent],
+  imports: [RouterOutlet, CommonModule],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

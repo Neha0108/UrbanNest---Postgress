@@ -6,6 +6,6 @@ export interface Product {
   imagepath?: string[]; 
   productDescription: string; 
   stock: number;         
-  CategoryName: string;
-  SubCategoryName: string;
+  categoryName: string;
+  subCategoryName: string;
   };

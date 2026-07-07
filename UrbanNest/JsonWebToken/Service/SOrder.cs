@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using QuestPDF.Fluent;
 using UrbanNest.DataAccess;
+using QuestPDF.Helpers;
 using UrbanNest.DTO;
 using UrbanNest.Model;
 using UrbanNest.Repository;
@@ -8,28 +10,25 @@ namespace UrbanNest.Service
 {
     public class SOrder : IOrder
     {
-        private readonly DataBase _db;
+        private readonly DataBase database;
         private readonly INotification _notif;
 
         public SOrder(DataBase db, INotification notif)
         {
-            _db = db;
+            database = db;
             _notif = notif;
         }
 
-        // ── Place Order ───────────────────────────────────────────────────────
-
-        public async Task<(bool success, string message, int orderId)> PlaceOrderAsync(
-            int userId, PlaceOrderRequest request)
+        public async Task<(bool success, string message, int orderId)> PlaceOrderAsync(int userId, PlaceOrderRequest request)
         {
-            var cartItems = await _db.cartItems
+            var cartItems = await database.cartItems
                 .Include(c => c.Product)
                 .Include(c => c.Cart)
                 .Where(c => c.Cart.UserId == userId &&
                             request.SelectedProductIds.Contains(c.ProductId))
                 .ToListAsync();
 
-            var address = await _db.UserAddress
+            var address = await database.UserAddress
                 .FirstOrDefaultAsync(a => a.AddressId == request.AddressId && a.UserId == userId);
 
             if (address == null)
@@ -44,7 +43,7 @@ namespace UrbanNest.Service
                     return (false, $"{item.Product?.productName} is out of stock", 0);
             }
 
-            using var transaction = await _db.Database.BeginTransactionAsync();
+            using var transaction = await database.Database.BeginTransactionAsync();
 
             try
             {
@@ -56,15 +55,15 @@ namespace UrbanNest.Service
                     Status = "Pending"
                 };
 
-                _db.orders.Add(order);
-                await _db.SaveChangesAsync();
+                database.orders.Add(order);
+                await database.SaveChangesAsync();
 
                 // Track unique retailers in this order for notifications
                 var retailerIds = new HashSet<int>();
 
                 foreach (var item in cartItems)
                 {
-                    _db.orderItems.Add(new OrderItem
+                    database.orderItems.Add(new OrderItem
                     {
                         OrderId = order.OrderId,
                         ProductId = item.ProductId,
@@ -90,12 +89,12 @@ namespace UrbanNest.Service
                     }
                 }
 
-                _db.cartItems.RemoveRange(cartItems);
-                await _db.SaveChangesAsync();
+                database.cartItems.RemoveRange(cartItems);
+                await database.SaveChangesAsync();
                 await transaction.CommitAsync();
 
                 // Get consumer record for notification
-                var consumer = await _db.consumers
+                var consumer = await database.consumers
                     .FirstOrDefaultAsync(c => c.UserId == userId);
 
                 if (consumer != null)
@@ -134,12 +133,12 @@ namespace UrbanNest.Service
 
         public async Task<object?> GetRetailerOrdersAsync(int userId)
         {
-            var retailer = await _db.retailers
+            var retailer = await database.retailers
                 .FirstOrDefaultAsync(r => r.UserId == userId);
 
             if (retailer == null) return null;
 
-            var orders = await _db.orderItems
+            var orders = await database.orderItems
                 .Include(o => o.Product)
                 .Include(o => o.Order)
                 .Where(o => o.RetailerId == retailer.RetailerId)
@@ -171,7 +170,7 @@ namespace UrbanNest.Service
 
         public async Task<object?> GetUserOrdersAsync(int userId)
         {
-            return await _db.orders
+            return await database.orders
                 .Where(o => o.UsersId == userId)
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
@@ -196,13 +195,13 @@ namespace UrbanNest.Service
         public async Task<(bool success, string message)> UpdateOrderStatusAsync(
             int orderId, string status, int userId)
         {
-            var retailer = await _db.retailers
+            var retailer = await database.retailers
                 .FirstOrDefaultAsync(r => r.UserId == userId);
 
             if (retailer == null)
                 return (false, "Retailer not found");
 
-            var order = await _db.orders
+            var order = await database.orders
                 .Include(o => o.OrderItems)
                 .FirstOrDefaultAsync(o => o.OrderId == orderId);
 
@@ -230,10 +229,10 @@ namespace UrbanNest.Service
                 return (false, "Invalid order status");
 
             order.Status = status;
-            await _db.SaveChangesAsync();
+            await database.SaveChangesAsync();
 
             // Notify consumer of status change
-            var consumer = await _db.consumers
+            var consumer = await database.consumers
                 .FirstOrDefaultAsync(c => c.UserId == order.UsersId);
 
             if (consumer != null)
@@ -266,7 +265,7 @@ namespace UrbanNest.Service
 
         public async Task<(bool success, string message)> CancelOrderAsync(int orderId, int userId)
         {
-            var order = await _db.orders
+            var order = await database.orders
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
                 .FirstOrDefaultAsync(o => o.OrderId == orderId && o.UsersId == userId);
@@ -288,10 +287,10 @@ namespace UrbanNest.Service
                     item.Product.stock += item.Quantity;
             }
 
-            await _db.SaveChangesAsync();
+            await database.SaveChangesAsync();
 
             // Notify consumer
-            var consumer = await _db.consumers
+            var consumer = await database.consumers
                 .FirstOrDefaultAsync(c => c.UserId == userId);
 
             if (consumer != null)
@@ -323,12 +322,147 @@ namespace UrbanNest.Service
 
             return (true, "Order cancelled by user");
         }
-
-        // ── GenerateInvoicePdf — already implemented, keep your existing code ─
-        public Task<byte[]> GenerateInvoicePdf(int orderId)
+        public async Task<byte[]> GenerateInvoicePdf(int orderId)
         {
-            // Your existing implementation stays here unchanged
-            throw new NotImplementedException("Keep your existing GenerateInvoicePdf implementation");
+            var order = await database.orders
+                .Include(o => o.Address)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                .FirstAsync(o => o.OrderId == orderId);
+
+            var address = order.Address;
+
+            var document = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Margin(30);
+
+                    page.Header().Row(row =>
+                    {
+                        row.ConstantItem(100).Image(File.ReadAllBytes("wwwroot/FinalBrand.png")).FitArea();
+
+                        row.RelativeItem().Column(col =>
+                        {
+                            col.Item().Text("UrbanNest")
+                                .FontSize(24)
+                                .Bold()
+                                .FontColor("#C9A45C");
+
+                            col.Item().Text("Luxury Living")
+                                .FontSize(10)
+                                .FontColor(Colors.Grey.Medium);
+                        });
+
+                        row.ConstantItem(180).Column(col =>
+                        {
+                            col.Item().AlignRight().Text("INVOICE")
+                                .FontSize(18).Bold();
+
+                            col.Item().AlignRight().Text($"Order ID: {order.OrderId}");
+                            col.Item().AlignRight().Text($"Date: {order.OrderDate:dd MMM yyyy}");
+                        });
+                    });
+
+                    page.Content().PaddingVertical(15).Column(col =>
+                    {
+                        col.Item().Row(row =>
+                        {
+                            row.RelativeItem().Column(c =>
+                            {
+                                c.Item().Text("Shipping Address").Bold().FontSize(12);
+
+                                c.Item().Text(address?.FullName ?? "Customer");
+                                c.Item().Text(address?.AddressLine ?? "Address not available");
+                                c.Item().Text($"{address?.City}, {address?.State} - {address?.Pincode}");
+                                c.Item().Text($"Phone: {address?.Phone ?? "N/A"}");
+                            });
+
+                            row.RelativeItem().Column(c =>
+                            {
+                                c.Item().AlignRight().Text("Payment").Bold().FontSize(12);
+                                c.Item().AlignRight().Text("Mode: Online");
+                                c.Item().AlignRight().Text("Status: Paid");
+                            });
+                        });
+
+                        col.Item().PaddingVertical(10).LineHorizontal(1).LineColor("#C9A45C");
+
+                        col.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn(4);
+                                columns.RelativeColumn(1);
+                                columns.RelativeColumn(2);
+                                columns.RelativeColumn(2);
+                            });
+
+                            table.Header(header =>
+                            {
+                                header.Cell().Background("#C9A45C").Padding(5)
+                                    .Text("Product").Bold().FontColor(Colors.White);
+
+                                header.Cell().Background("#C9A45C").Padding(5)
+                                    .AlignCenter().Text("Qty").Bold().FontColor(Colors.White);
+
+                                header.Cell().Background("#C9A45C").Padding(5)
+                                    .AlignRight().Text("Price").Bold().FontColor(Colors.White);
+
+                                header.Cell().Background("#C9A45C").Padding(5)
+                                    .AlignRight().Text("Total").Bold().FontColor(Colors.White);
+                            });
+
+                            double subtotal = 0;
+
+                            foreach (var item in order.OrderItems)
+                            {
+                                var name = item.Product?.productName ?? "Product";
+                                double total = item.Price * item.Quantity;
+                                subtotal += total;
+
+                                table.Cell().Padding(5).Text(name);
+                                table.Cell().Padding(5).AlignCenter().Text(item.Quantity.ToString());
+                                table.Cell().Padding(5).AlignRight().Text($"Rs {item.Price}");
+                                table.Cell().Padding(5).AlignRight().Text($"Rs {total}");
+                            }
+
+                            double gst = subtotal * 0.18;
+                            double grandTotal = subtotal + gst;
+
+                            table.Cell().ColumnSpan(3).AlignRight().Text("Subtotal:");
+                            table.Cell().AlignRight().Text($"Rs {subtotal}");
+
+                            table.Cell().ColumnSpan(3).AlignRight().Text("GST (18%):");
+                            table.Cell().AlignRight().Text($"Rs {gst}");
+
+                            table.Cell().ColumnSpan(3).AlignRight().Text("Grand Total:")
+                                .Bold().FontColor("#C9A45C");
+
+                            table.Cell().AlignRight()
+                                .Text($"Rs {grandTotal}")
+                                .Bold().FontColor("#C9A45C");
+                        });
+
+                        col.Item().PaddingTop(15).LineHorizontal(1).LineColor("#C9A45C");
+
+                        col.Item().PaddingTop(10)
+                            .AlignCenter()
+                            .Text("Thank you for shopping with UrbanNest!")
+                            .Italic()
+                            .FontSize(10);
+                    });
+
+                    page.Footer().AlignCenter().Text(txt =>
+                    {
+                        txt.Span("UrbanNest • Premium Experience ")
+                            .FontSize(9)
+                            .FontColor("#C9A45C");
+                    });
+                });
+            });
+
+            return document.GeneratePdf();
         }
     }
 }

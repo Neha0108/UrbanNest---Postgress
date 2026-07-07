@@ -428,6 +428,99 @@ namespace UrbanNest.Migrations
                     b.ToTable("Retailers", (string)null);
                 });
 
+            modelBuilder.Entity("UrbanNest.Model.Review", b =>
+                {
+                    b.Property<int>("ReviewId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ReviewId"));
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsVerifiedPurchase")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ReviewId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Reviews");
+                });
+
+            modelBuilder.Entity("UrbanNest.Model.ReviewHelpful", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ReviewId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReviewId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ReviewHelpful");
+                });
+
+            modelBuilder.Entity("UrbanNest.Model.ReviewReply", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("RetailerId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ReviewId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RetailerId");
+
+                    b.HasIndex("ReviewId")
+                        .IsUnique();
+
+                    b.ToTable("ReviewReplies");
+                });
+
             modelBuilder.Entity("UrbanNest.Model.Role", b =>
                 {
                     b.Property<int>("RoleId")
@@ -721,6 +814,63 @@ namespace UrbanNest.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("UrbanNest.Model.Review", b =>
+                {
+                    b.HasOne("UrbanNest.Model.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("UrbanNest.Model.Users", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("UrbanNest.Model.ReviewHelpful", b =>
+                {
+                    b.HasOne("UrbanNest.Model.Review", "Review")
+                        .WithMany("HelpfulVotes")
+                        .HasForeignKey("ReviewId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("UrbanNest.Model.Users", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Review");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("UrbanNest.Model.ReviewReply", b =>
+                {
+                    b.HasOne("UrbanNest.Model.Retailer", "Retailer")
+                        .WithMany()
+                        .HasForeignKey("RetailerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("UrbanNest.Model.Review", "Review")
+                        .WithOne("Reply")
+                        .HasForeignKey("UrbanNest.Model.ReviewReply", "ReviewId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Retailer");
+
+                    b.Navigation("Review");
+                });
+
             modelBuilder.Entity("UrbanNest.Model.SubCategory", b =>
                 {
                     b.HasOne("UrbanNest.Model.Category", "Category")
@@ -800,6 +950,13 @@ namespace UrbanNest.Migrations
             modelBuilder.Entity("UrbanNest.Model.Retailer", b =>
                 {
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("UrbanNest.Model.Review", b =>
+                {
+                    b.Navigation("HelpfulVotes");
+
+                    b.Navigation("Reply");
                 });
 
             modelBuilder.Entity("UrbanNest.Model.Role", b =>
