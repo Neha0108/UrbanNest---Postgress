@@ -26,9 +26,11 @@ namespace UrbanNest.Service
                 throw new Exception("Grok API Key not found.");
             }
 
-            _httpClient.DefaultRequestHeaders.Clear();
+            var request = new HttpRequestMessage(
+                HttpMethod.Post,
+                "https://api.x.ai/v1/chat/completions");
 
-            _httpClient.DefaultRequestHeaders.Authorization =
+            request.Headers.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue(
                     "Bearer",
                     apiKey);
@@ -38,19 +40,15 @@ namespace UrbanNest.Service
                 model = "grok-4",
                 messages = new[]
                 {
-            new
-            {
-                role = "user",
-                content = prompt
-            }
-        }
+                    new
+                    {
+                        role = "user",
+                        content = prompt
+                    }
+                }
             };
 
             var json = JsonSerializer.Serialize(body);
-
-            var request = new HttpRequestMessage(
-                HttpMethod.Post,
-                "https://api.x.ai/v1/chat/completions");
 
             request.Content = new StringContent(
                 json,
@@ -58,11 +56,29 @@ namespace UrbanNest.Service
                 "application/json");
 
             var response = await _httpClient.SendAsync(request);
-
             var result = await response.Content.ReadAsStringAsync();
 
-            throw new Exception(
-                $"Status:{response.StatusCode}\n\n{result}");
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception(
+                    $"Grok API error. Status:{response.StatusCode}\n\n{result}");
+            }
+
+            using var doc = JsonDocument.Parse(result);
+
+            var choices = doc.RootElement.GetProperty("choices");
+
+            if (choices.GetArrayLength() == 0)
+            {
+                throw new Exception("Grok API returned no choices.");
+            }
+
+            var content = choices[0]
+                .GetProperty("message")
+                .GetProperty("content")
+                .GetString();
+
+            return content ?? string.Empty;
         }
     }
 }

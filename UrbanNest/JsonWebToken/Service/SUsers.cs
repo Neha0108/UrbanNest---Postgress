@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Google.Apis.Auth;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -150,6 +151,47 @@ namespace UrbanNest.Service
 
             await database.SaveChangesAsync();
             return "Profile updated successfully";
+        }
+
+        public async Task<string?> GoogleLogin(string idToken)
+        {
+            var payload = await GoogleJsonWebSignature.ValidateAsync(idToken);
+
+            var user = await database.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.userEmail == payload.Email);
+
+            if (user == null)
+            {
+                var consumerRole = await database.Role
+                    .FirstOrDefaultAsync(r => r.Name == "Consumer");
+
+                user = new Users
+                {
+                    userName = payload.Name,
+                    userEmail = payload.Email,
+                    userPassword = "",
+                    RoleId = consumerRole.RoleId
+                };
+
+                database.Users.Add(user);
+                await database.SaveChangesAsync();
+
+                var consumer = new Consumer
+                {
+                    UserId = user.UserId,
+                    FirstName = payload.Name
+                };
+
+                database.consumers.Add(consumer);
+                await database.SaveChangesAsync();
+
+                user = await database.Users
+                    .Include(x => x.Role)
+                    .FirstOrDefaultAsync(x => x.UserId == user.UserId);
+            }
+
+            return IssueToken(user);
         }
 
         public async Task<string> changePassword(int id, ChangePassword changePassword)

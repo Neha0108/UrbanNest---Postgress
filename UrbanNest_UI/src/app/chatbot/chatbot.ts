@@ -1,183 +1,109 @@
-import {
-  Component,
-  ElementRef,
-  ViewChild,
-  signal
-} from '@angular/core';
+import { Component, ElementRef, EventEmitter, Output, ViewChild, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-
-import { Chatbotservice } from '../service/chatbotservice';
-import {
-  ChatMessage,
-  ChatProductCard,
-  ChatResponse
-} from '../interface/chat-message';
-import { Consumer } from '../service/consumer';
+import { Chatbotservice} from '../service/chatbotservice';
+import { ChatMessage, ChatProductCard } from '../interface/chat-message';
 
 @Component({
   selector: 'app-chatbot',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './chatbot.html',
-  styleUrls: ['./chatbot.css']
+  styleUrl: './chatbot.css'
 })
-export class Chatbot {
+export class Chatbot implements AfterViewChecked {
+  @Output() close = new EventEmitter<void>();
+  @ViewChild('scrollAnchor') private scrollAnchor!: ElementRef<HTMLDivElement>;
 
-  @ViewChild('messageContainer')
-  messageContainer!: ElementRef<HTMLDivElement>;
-
-  isOpen = signal(false);
-
-  messages = signal<ChatMessage[]>([
+  messages: ChatMessage[] = [
     {
-      from: 'bot',
-      text: 'Hi! I am Urban Nest AI. Ask me about products, orders, cart, wishlist, or shopping recommendations.'
+      sender: 'bot',
+      text: "Hi! I'm your Urban Nest assistant. Ask me about products, your cart, wishlist, or recent orders.",
+      quickReplies: ['Track Order', 'Categories', 'Show my Cart', 'Show my Wishlist', 'Help'],
+      timestamp: new Date()
     }
-  ]);
-
-  quickReplies = signal<string[]>([
-    'Track Order',
-    'Show my Cart',
-    'Show my Wishlist',
-    'Beauty Products',
-    'Help'
-  ]);
+  ];
 
   draft = '';
-
-  sending = signal(false);
-
-  addedIds = new Set<number>();
+  loading = false;
+  private shouldScroll = false;
 
   constructor(
     private chatbotService: Chatbotservice,
-    private consumerService: Consumer,
     private router: Router
   ) {}
 
-  toggle(): void {
-    this.isOpen.update(value => !value);
-
-    setTimeout(() => this.scrollToBottom(), 100);
+  ngAfterViewChecked(): void {
+    if (this.shouldScroll) {
+      this.scrollToBottom();
+      this.shouldScroll = false;
+    }
   }
 
-  sendQuickReply(text: string): void {
-    this.draft = text;
-    this.send();
-  }
-
-  send(): void {
-    const text = this.draft.trim();
-
-    if (!text || this.sending()) {
+  send(text?: string): void {
+    const message = (text ?? this.draft).trim();
+    if (!message || this.loading) {
       return;
     }
 
-    this.messages.update(messages => [
-      ...messages,
-      {
-        from: 'user',
-        text
-      }
-    ]);
+    this.messages.push({
+      sender: 'user',
+      text: message,
+      timestamp: new Date()
+    });
 
     this.draft = '';
+    this.loading = true;
+    this.shouldScroll = true;
 
-    this.sending.set(true);
-
-    this.scrollToBottom();
-
-    this.chatbotService.ask(text).subscribe({
-      next: (res: ChatResponse) => {
-
-        this.messages.update(messages => [
-          ...messages,
-          {
-            from: 'bot',
-            text: res.reply,
-            products: res.products
-          }
-        ]);
-
-        if (res.quickReplies?.length) {
-          this.quickReplies.set(res.quickReplies);
-        }
-
-        this.sending.set(false);
-
-        this.scrollToBottom();
+    this.chatbotService.ask(message).subscribe({
+      next: (res) => {
+        this.messages.push({
+          sender: 'bot',
+          text: res.reply,
+          products: res.products,
+          quickReplies: res.quickReplies,
+          timestamp: new Date()
+        });
+        this.loading = false;
+        this.shouldScroll = true;
       },
-
-      error: (err) => {
-
-        console.error('Chatbot Error:', err);
-
-        this.messages.update(messages => [
-          ...messages,
-          {
-            from: 'bot',
-            text: 'Sorry, Urban Nest AI is currently unavailable.'
-          }
-        ]);
-
-        this.sending.set(false);
-
-        this.scrollToBottom();
+      error: () => {
+        this.messages.push({
+          sender: 'bot',
+          text: "Sorry, I couldn't reach the assistant right now. Please try again in a moment.",
+          quickReplies: ['Track Order', 'Categories', 'Help'],
+          timestamp: new Date()
+        });
+        this.loading = false;
+        this.shouldScroll = true;
       }
     });
   }
 
+  onQuickReply(reply: string): void {
+    this.send(reply);
+  }
+
+  goToProduct(product: ChatProductCard): void {
+    this.router.navigate(['/product', product.productId]);
+    this.close.emit();
+  }
+
+  onClose(): void {
+    this.close.emit();
+  }
+
+  trackByIndex(index: number): number {
+    return index;
+  }
+
   private scrollToBottom(): void {
-    setTimeout(() => {
-      if (this.messageContainer) {
-        this.messageContainer.nativeElement.scrollTop =
-          this.messageContainer.nativeElement.scrollHeight;
-      }
-    }, 100);
-  }
-
-  imageUrl(card: ChatProductCard): string {
-    const image = card.imagePath?.[0];
-
-    return image
-      ? `http://localhost:5146${image}`
-      : 'assets/no-image.png';
-  }
-
-  viewProduct(card: ChatProductCard): void {
-    this.router.navigate([
-      '/consumerNavbar/product-details',
-      card.productId
-    ]);
-  }
-
-  addToCart(card: ChatProductCard): void {
-
-    if (this.addedIds.has(card.productId)) {
-      return;
+    try {
+      this.scrollAnchor.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    } catch {
+      // ignore if not yet rendered
     }
-
-    this.consumerService
-      .addToCart(card.productId, 1)
-      .subscribe({
-        next: () => {
-          this.addedIds.add(card.productId);
-        },
-        error: (err) => {
-          console.error('Add To Cart Failed', err);
-        }
-      });
-  }
-
-  addToWishlist(card: ChatProductCard): void {
-    this.consumerService
-      .addToWishlist(card.productId)
-      .subscribe({
-        error: err => {
-          console.error('Add To Wishlist Failed', err);
-        }
-      });
   }
 }

@@ -1,8 +1,3 @@
-export interface ChatMessage {
-    from: 'user' | 'bot';
-    text: string;
-    products?: ChatProductCard[];
-}
 export interface ChatProductCard {
   productId: number;
   productName: string;
@@ -10,6 +5,14 @@ export interface ChatProductCard {
   imagePath: string[];
   stock: number;
   categoryName: string;
+}
+
+export interface ChatMessage {
+  sender: 'user' | 'bot';
+  text: string;
+  products?: ChatProductCard[];
+  quickReplies?: string[];
+  timestamp: Date;
 }
 
 export interface ChatResponse {

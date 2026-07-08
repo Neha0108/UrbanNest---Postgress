@@ -94,15 +94,15 @@ namespace UrbanNest.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> VerifyOtp([FromBody] OtpDTO dto)
+        public async Task<IActionResult> VerifyOtp([FromBody] OtpDTO otp)
         {
-            var isValid = await semail.VerifyOTP(dto.Email, dto.OTP);
+            var isValid = await semail.VerifyOTP(otp.Email, otp.OTP);
 
             if (!isValid)
             {
                 return BadRequest(new { message = "Invalid or expired OTP" });
             }
-            Console.WriteLine($"EMAIL: {dto.Email}, OTP: {dto.OTP}");
+            Console.WriteLine($"EMAIL: {otp.Email}, OTP: {otp.OTP}");
             return Ok(new { message = "OTP verified successfully" });
         }
 
@@ -141,7 +141,22 @@ namespace UrbanNest.Controllers
             return Ok(products);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> GoogleLogin([FromBody] GoogleLogingoogle google)
+        {
+            try
+            {
+                var token = await service.GoogleLogin(google.Igoogleken);
 
+                if (token == null)
+                    return Unauthorized();
 
+                return Ok(new { token });
+            }
+            catch
+            {
+                return BadRequest("Invalid Google token");
+            }
+        }
     }
 }

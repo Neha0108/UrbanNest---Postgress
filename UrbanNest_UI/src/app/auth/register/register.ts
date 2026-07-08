@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -19,6 +19,7 @@ export class Register implements OnInit {
   private userService = inject(UserService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
+  private chng = inject(ChangeDetectorRef);
 
   userform!: FormGroup;
   retailerForm!: FormGroup;
@@ -107,6 +108,7 @@ export class Register implements OnInit {
         this.startTimer();
         this.otpSuccess = 'OTP sent successfully to your email ';
         setTimeout(() => this.otpSuccess = '', 3000);
+        this.chng.detectChanges();  // Force change detection to update the view
       },
       error: (err) => {
         this.otpError = err?.error?.message || 'Failed to send OTP. Please try again.';
@@ -133,6 +135,7 @@ export class Register implements OnInit {
       next: () => {
         this.otpVerified = true;
         this.otpSuccess = 'OTP verified successfully ✅';
+        this.chng.detectChanges();  // Force change detection to update the view
       },
       error: (err) => {
         console.log("VERIFY ERROR:", err);
@@ -158,6 +161,7 @@ export class Register implements OnInit {
         this.startTimer();
         this.otpSuccess = 'OTP resent successfully ';
         setTimeout(() => this.otpSuccess = '', 2000);
+        this.chng.detectChanges();
       },
       error: (err) => this.otpError = err?.error?.message || 'Failed to resend OTP'
     });

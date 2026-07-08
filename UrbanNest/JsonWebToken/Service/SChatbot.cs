@@ -31,10 +31,8 @@ namespace UrbanNest.Service
             try
             {
                 var products = await product.getAll();
-
-                var wishlistItems = await wishlist.GetWishlist(userId);
-
-                var cartItems = await cart.get(userId);
+                var wishlistItems = await wishlist.GetWishlist(userId) ?? [];
+                var cartItems = await cart.get(userId) ?? [];
 
                 var orders = await database.orders
                     .Where(o => o.UsersId == userId)
@@ -78,68 +76,11 @@ Rules:
 
                 var response = await grok.AskAsync(prompt);
 
-                return new ChatResponseDTO
-                {
-                    Reply = response,
-                    QuickReplies = DefaultQuickReplies.ToList()
-                };
+                return Reply(response);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                try
-                {
-                    var products = await product.getAll();
-
-                    var wishlistItems =
-                        await wishlist.GetWishlist(userId) ?? [];
-
-                    var cartItems =
-                        await cart.get(userId) ?? [];
-
-                    var orders = await database.orders
-                        .Where(o => o.UsersId == userId)
-                        .OrderByDescending(o => o.OrderDate)
-                        .Take(5)
-                        .ToListAsync();
-
-                    var prompt = $@"
-You are Urban Nest shopping assistant.
-
-User Message:
-{message}
-
-User Cart:
-{string.Join("\n",
-                cartItems.Select(c =>
-                $"{c.ProductName} | Qty:{c.Quantity} | ₹{c.ProductPrice}"))}
-
-User Wishlist:
-{string.Join("\n",
-                wishlistItems.Select(w =>
-                $"{w.ProductName} | ₹{w.ProductPrice}"))}
-
-Recent Orders:
-{string.Join("\n",
-                orders.Select(o =>
-                $"Order #{o.OrderId} | {o.Status}"))}
-
-Products Available:
-{string.Join("\n",
-                products.Take(100).Select(p =>
-                $"{p.productName} | {p.categoryName} | ₹{p.productPrice}"))}
-
-Keep answers concise and helpful.
-";
-
-                    var aiReply = await grok.AskAsync(prompt);
-
-                    return Reply(aiReply);
-                }
-                catch (Exception ex)
-                {
-                    return Reply(
-                        $"AI assistant unavailable. {ex.Message}");
-                }
+                return Reply($"AI assistant unavailable. {ex.Message}");
             }
         }
 

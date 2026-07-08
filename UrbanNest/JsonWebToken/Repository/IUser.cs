@@ -9,5 +9,6 @@ namespace UrbanNest.Repository
         Task<string?> login(Login login);
         Task<string> updateUser(int id, Register register);
         Task<string> changePassword(int id, ChangePassword changePassword);
+        Task<string?> GoogleLogin(string idToken);
     }
 }
