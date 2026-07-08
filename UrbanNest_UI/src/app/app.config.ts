@@ -1,29 +1,17 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners, importProvidersFrom } from '@angular/core';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
-
+import { SocialLoginModule, SocialAuthServiceConfig, GoogleLoginProvider} from '@abacritt/angularx-social-login';
 import { routes } from './app.routes';
 
 import { provideHttpClient, withFetch, withInterceptors} from '@angular/common/http';
 
-import { SocialAuthServiceConfig, GoogleLoginProvider } from '@abacritt/angularx-social-login';
-
-
 import { tokenInterceptor } from './interceptor/token-interceptor';
+import { environment } from '../env/environment';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provide: 'SocialAuthServiceConfig',
-    useValue: {
-      autoLogin: false,
-      providers: [
-        {
-          id: 'GoogleLoginProvider.PROVIDER_ID',
-          provider: new GoogleLoginProvider('YOUR_GOOGLE_CLIENT_ID')
-        }
-      ]
-    } as SocialAuthServiceConfig,
-
+  
     provideBrowserGlobalErrorListeners(),
 
     provideRouter(
@@ -37,8 +25,6 @@ export const appConfig: ApplicationConfig = {
 
     provideHttpClient(withFetch()),
 
-    provideHttpClient(
-      withInterceptors([tokenInterceptor])
-    )
+    provideHttpClient(withInterceptors([tokenInterceptor])),
   ]
 };

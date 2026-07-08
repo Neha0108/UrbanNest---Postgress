@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Chatbotservice} from '../service/chatbotservice';
 import { ChatMessage, ChatProductCard } from '../interface/chat-message';
+import { environment } from '../../env/environment';
 
 @Component({
   selector: 'app-chatbot',
@@ -15,6 +16,8 @@ import { ChatMessage, ChatProductCard } from '../interface/chat-message';
 export class Chatbot implements AfterViewChecked {
   @Output() close = new EventEmitter<void>();
   @ViewChild('scrollAnchor') private scrollAnchor!: ElementRef<HTMLDivElement>;
+
+  isOpen = false;
 
   messages: ChatMessage[] = [
     {
@@ -38,6 +41,13 @@ export class Chatbot implements AfterViewChecked {
     if (this.shouldScroll) {
       this.scrollToBottom();
       this.shouldScroll = false;
+    }
+  }
+
+  toggleOpen(): void {
+    this.isOpen = !this.isOpen;
+    if (this.isOpen) {
+      this.shouldScroll = true;
     }
   }
 
@@ -88,16 +98,19 @@ export class Chatbot implements AfterViewChecked {
 
   goToProduct(product: ChatProductCard): void {
     this.router.navigate(['/product', product.productId]);
+    this.isOpen = false;
     this.close.emit();
   }
 
   onClose(): void {
+    this.isOpen = false;
     this.close.emit();
   }
 
   trackByIndex(index: number): number {
     return index;
   }
+
 
   private scrollToBottom(): void {
     try {

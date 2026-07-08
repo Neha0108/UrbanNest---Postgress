@@ -9,7 +9,7 @@
             public int ProductId { get; set; }
             public string ProductName { get; set; } = string.Empty;
             public double ProductPrice { get; set; }
-            public List<string> ImagePath { get; set; } = new();
+            public List<string> ImagePath { get; set; }
             public int Stock { get; set; }
             public string CategoryName { get; set; } = string.Empty;
         }

@@ -1,4 +1,4 @@
-﻿using iText.Commons.Actions.Contexts;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -62,6 +62,7 @@ namespace UrbanNest.Controllers
                 return Ok(new { token });
             }
         }
+
         [HttpGet]
         public IActionResult GetUserName()
         {
@@ -70,10 +71,16 @@ namespace UrbanNest.Controllers
             return Ok(new { userName = userName, role = role });
         }
 
+        [Authorize]
         [HttpPut]
-        public async Task<IActionResult> ChangePass([FromForm] ChangePassword changePassword)
+        public async Task<IActionResult> ChangePass([FromBody] ChangePassword changePassword)
         {
-            int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var claim = User.FindFirst(ClaimTypes.NameIdentifier);
+
+            if (claim == null || !int.TryParse(claim.Value, out int userId))
+            {
+                return Unauthorized();
+            }
 
             var result = await service.changePassword(userId, changePassword);
 
@@ -142,11 +149,11 @@ namespace UrbanNest.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> GoogleLogin([FromBody] GoogleLogingoogle google)
+        public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginDTO google)
         {
             try
             {
-                var token = await service.GoogleLogin(google.Igoogleken);
+                var token = await service.GoogleLogin(google.IdToken);
 
                 if (token == null)
                     return Unauthorized();

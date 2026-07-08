@@ -100,7 +100,16 @@ namespace UrbanNest.Service
 
             if (user == null) return null;
 
-            bool isValid = BCrypt.Net.BCrypt.Verify(log.UserPassword, user.userPassword);
+            bool isValid;
+            try
+            {
+                isValid = BCrypt.Net.BCrypt.Verify(log.UserPassword, user.userPassword);
+            }
+            catch (BCrypt.Net.SaltParseException)
+            {
+                // Account has no usable password hash (e.g. Google-only account)
+                return null;
+            }
 
             if (!isValid) return null;
 
@@ -120,8 +129,7 @@ namespace UrbanNest.Service
                 new Claim(ClaimTypes.Email, user.userEmail),
                 new Claim(JwtRegisteredClaimNames.Sub, user.UserId.ToString()),
                 new Claim(ClaimTypes.Role, user.Role.Name)
-            }
-            ;
+            };
 
             var token = new JwtSecurityToken(
                 issuer: configuration["Jwt:Issuer"],
@@ -155,7 +163,12 @@ namespace UrbanNest.Service
 
         public async Task<string?> GoogleLogin(string idToken)
         {
-            var payload = await GoogleJsonWebSignature.ValidateAsync(idToken);
+            var settings = new GoogleJsonWebSignature.ValidationSettings
+            {
+                Audience = new[] { configuration["Google:ClientId"] }
+            };
+
+            var payload = await GoogleJsonWebSignature.ValidateAsync(idToken, settings);
 
             var user = await database.Users
                 .Include(u => u.Role)
@@ -170,7 +183,9 @@ namespace UrbanNest.Service
                 {
                     userName = payload.Name,
                     userEmail = payload.Email,
-                    userPassword = "",
+                    // Random unusable hash — Google-only accounts can never log in via
+                    // password, and this avoids BCrypt.Verify throwing on an empty string.
+                    userPassword = BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString()),
                     RoleId = consumerRole.RoleId
                 };
 

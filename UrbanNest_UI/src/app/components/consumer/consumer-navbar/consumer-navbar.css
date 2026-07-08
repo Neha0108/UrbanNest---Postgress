@@ -239,6 +239,25 @@
   background: rgba(255,107,107,0.08);
   color: #ff6b6b;
 }
+.main-content {
+  position: relative;
+}
+
+app-chatbot {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  display: block;
+}
+
+@media (max-width: 480px) {
+  app-chatbot {
+    bottom: 0;
+    right: 0;
+    left: 0;
+  }
+}
 
 /* ==========================
    ANIMATION

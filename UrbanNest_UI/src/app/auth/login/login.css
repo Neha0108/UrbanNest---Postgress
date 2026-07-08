@@ -165,3 +165,53 @@ a {
 a:hover {
   color: #D4AF37;
 }
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1.4rem 0;
+  color: #ADADAD;
+  font-size: 0.8rem;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #E8E5DB;
+}
+
+.divider span {
+  padding: 0 12px;
+}
+
+.google-btn-wrap {
+  display: flex;
+  justify-content: center;
+}
+.google-btn-wrap{
+    margin-top:20px;
+    display:flex;
+    justify-content:center;
+}
+
+.divider{
+    display:flex;
+    align-items:center;
+    margin:24px 0;
+}
+
+.divider::before,
+.divider::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background:#ddd;
+}
+
+.divider span{
+    margin:0 15px;
+    color:#777;
+    font-size:14px;
+}

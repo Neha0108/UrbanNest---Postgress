@@ -1,4 +1,16 @@
-<div class="chat-panel">
+<!-- Floating toggle button — always visible -->
+<button
+  type="button"
+  class="chat-fab"
+  (click)="toggleOpen()"
+  [attr.aria-label]="isOpen ? 'Close chat' : 'Open chat'"
+>
+  <span *ngIf="!isOpen">💬</span>
+  <span *ngIf="isOpen">&times;</span>
+</button>
+
+<!-- Panel — only rendered/visible when open -->
+<div class="chat-panel" *ngIf="isOpen">
   <div class="chat-header">
     <div class="chat-header-title">
       <span class="chat-dot"></span>
@@ -25,11 +37,9 @@
             *ngFor="let product of msg.products"
             (click)="goToProduct(product)"
           >
-            <img
-              class="chat-product-img"
-              [src]="product.imagePath?.[0] || '/assets/images/brand.png'"
-              [alt]="product.productName"
-            />
+
+            <img class = "chat-product-image" [src]="'http://localhost:5146' + product.imagePath[0]" alt="{{ product.productName }}" />
+
             <div class="chat-product-info">
               <span class="chat-product-name">{{ product.productName }}</span>
               <span class="chat-product-meta">{{ product.categoryName }}</span>

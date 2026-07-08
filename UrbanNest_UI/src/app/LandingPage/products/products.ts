@@ -65,7 +65,6 @@ export class Products implements OnInit {
   loadData(): void {
     this.loading = true;
     this.isLoggedIn = this.userService.isLoggedIn();
-    this.refreshUserState();
 
     this.consumerService.getCategories().subscribe({
       next: (cats: Category[]) => {
@@ -98,51 +97,6 @@ export class Products implements OnInit {
         this.chng.detectChanges();
       },
     });
-  }
-
-  private refreshUserState(): void {
-    this.isLoggedIn = this.userService.isLoggedIn();
-
-    if (!this.isLoggedIn) {
-      this.cartProductIds.clear();
-      this.wishlistProductIds.clear();
-      return;
-    }
-
-    this.consumerService.getCartItems().subscribe({
-      next: (items: any[]) => {
-        this.cartProductIds = new Set(items.map((item) => item.productId));
-        this.chng.detectChanges();
-      },
-      error: (err) => console.error('Failed to load cart items', err),
-    });
-
-    this.consumerService.getWishlist().subscribe({
-      next: (items: any[]) => {
-        this.wishlistProductIds = new Set(items.map((item) => item.productId));
-        this.chng.detectChanges();
-      },
-      error: (err) => console.error('Failed to load wishlist', err),
-    });
-  }
-
-  isProductInCart(productId: number): boolean {
-    return this.cartProductIds.has(productId);
-  }
-
-  isProductInWishlist(productId: number): boolean {
-    return this.wishlistProductIds.has(productId);
-  }
-
-  private requireLogin(): boolean {
-    this.isLoggedIn = this.userService.isLoggedIn();
-
-    if (!this.isLoggedIn) {
-      this.router.navigate(['/login']);
-      return false;
-    }
-
-    return true;
   }
 
   applyFilters(): void {
@@ -235,57 +189,6 @@ export class Products implements OnInit {
     this.router.navigate(['/consumerNavbar/product-details', product.productId]);
   }
 
-  addToWishlist(event: Event, product: Product): void {
-    event.stopPropagation();
-
-    if (!this.requireLogin()) {
-      return;
-    }
-
-    if (this.isProductInWishlist(product.productId)) {
-      this.recentlyWishlistedId = product.productId;
-      this.chng.detectChanges();
-      return;
-    }
-
-    this.consumerService.addToWishlist(product.productId).subscribe({
-      next: () => {
-        this.wishlistProductIds.add(product.productId);
-        this.recentlyWishlistedId = product.productId;
-        this.chng.detectChanges();
-        setTimeout(() => {
-          this.recentlyWishlistedId = null;
-          this.chng.detectChanges();
-        }, 1500);
-      },
-      error: (err) => console.error('Failed to add to wishlist', err),
-    });
-  }
-
-  addToCart(event: Event, product: Product): void {
-    event.stopPropagation();
-
-    if (!this.requireLogin()) {
-      return;
-    }
-
-    if (product.stock === 0 || this.isProductInCart(product.productId)) {
-      return;
-    }
-
-    this.consumerService.addToCart(product.productId, 1).subscribe({
-      next: () => {
-        this.cartProductIds.add(product.productId);
-        this.recentlyAddedId = product.productId;
-        this.chng.detectChanges();
-        setTimeout(() => {
-          this.recentlyAddedId = null;
-          this.chng.detectChanges();
-        }, 1500);
-      },
-      error: (err) => console.error('Failed to add to cart', err),
-    });
-  }
 
   trackById(index: number, item: Product): number {
     return item.productId;

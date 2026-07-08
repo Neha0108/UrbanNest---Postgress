@@ -115,5 +115,9 @@ export class UserService {
     }
   }
 
+  googleLogin(idToken: string): Observable<{ token: string }> {
+  return this.http.post<{ token: string }>(`${this.apiUrl}/Auth/GoogleLogin`, { idToken });
+}
+
   
 }

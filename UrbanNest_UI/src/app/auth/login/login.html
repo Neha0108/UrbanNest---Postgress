@@ -4,10 +4,11 @@
     <header class="section-header">
       <p class="eyebrow">Welcome back</p>
       <h1 class="section-title">Sign in to Urban Nest</h1>
-      <p class="body-copy">Access your curated wardrobe, favorites, and order history in a calm, premium space.</p>
+      <p class="body-copy">
+        Access your curated wardrobe, favorites, and order history in a calm, premium space.
+      </p>
     </header>
 
-    <!--  Reactive Form Binding -->
     <form [formGroup]="loginForm" (ngSubmit)="submit()">
 
       <!-- Email -->
@@ -20,8 +21,10 @@
           formControlName="UserEmail"
         />
 
-        <!-- optional error -->
-        <small class="text-danger" *ngIf="loginForm.get('UserEmail')?.touched && loginForm.get('UserEmail')?.invalid">
+        <small
+          class="text-danger"
+          *ngIf="loginForm.get('UserEmail')?.touched && loginForm.get('UserEmail')?.invalid"
+        >
           Please enter a valid email
         </small>
       </div>
@@ -36,16 +39,18 @@
           formControlName="UserPassword"
         />
 
-        <!-- optional error -->
-        <small class="text-danger" *ngIf="loginForm.get('UserPassword')?.touched && loginForm.get('UserPassword')?.invalid">
+        <small
+          class="text-danger"
+          *ngIf="loginForm.get('UserPassword')?.touched && loginForm.get('UserPassword')?.invalid"
+        >
           Password is required
         </small>
       </div>
 
       <!-- Login Button -->
       <button
-        class="btn btn-primary w-100 login-btn"
         type="submit"
+        class="btn btn-primary w-100 login-btn"
         [disabled]="loginForm.invalid"
       >
         Sign In
@@ -53,13 +58,25 @@
 
     </form>
 
-    <!-- error from backend -->
+    <!-- Divider -->
+    <div class="divider">
+      <span>OR</span>
+    </div>
+
+    <!-- Google Button -->
+    <div class="google-btn-wrap">
+      <div id="googleButton"></div>
+    </div>
+
+    <!-- Error -->
     <p class="text-danger mt-3" *ngIf="errorMessage">
       {{ errorMessage }}
     </p>
 
+    <!-- Register -->
     <p class="small-note">
-      New here? <a routerLink="/register">Click here to register</a>
+      New here?
+      <a routerLink="/register">Click here to register</a>
     </p>
 
   </div>
