@@ -9,8 +9,7 @@ namespace UrbanNest.Repository
         Task<object?> GetUserOrdersAsync(int userId);
         Task<(bool success, string message)> UpdateOrderStatusAsync(int orderId, string status, int userId);
         Task<(bool success, string message)> CancelOrderAsync(int orderId, int userId);
-
-        // Already exists — keep it
         Task<byte[]> GenerateInvoicePdf(int orderId);
+        Task<(bool success, string message)> SetDeliveryDetailsAsync(int orderId, DeliveryDetailsDTO dto, int retailerUserId);
     }
 }

@@ -1,10 +1,11 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Retailer } from '../../../service/retailer';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-orders',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './orders.html',
   styleUrl: './orders.css',
 })
@@ -48,6 +49,8 @@ export class Orders implements OnInit {
             orderId: order.orderId || order.OrderId,
             orderDate: order.orderDate || order.OrderDate,
             status: order.status || order.Status,
+            deliveryPersonName: order.deliveryPersonName || order.DeliveryPersonName || null,
+            deliveryPersonPhone: order.deliveryPersonPhone || order.DeliveryPersonPhone || null,
             items: items.map((item: any) => ({
               productId: item.productId || item.ProductId,
               productName: item.productName || item.ProductName,
@@ -94,4 +97,47 @@ export class Orders implements OnInit {
   getStatusClass(status: string): string {
     return 'status-' + status?.toLowerCase().replaceAll(' ', '-');
   }
+
+
+deliveryModalOrderId: number | null = null;
+deliveryForm = { deliveryPersonName: '', deliveryPersonPhone: '' };
+deliverySubmitting = false;
+
+openDeliveryModal(order: any) {
+  this.deliveryModalOrderId = order.orderId;
+  this.deliveryForm = {
+    deliveryPersonName: order.deliveryPersonName || '',
+    deliveryPersonPhone: order.deliveryPersonPhone || '',
+  };
+}
+
+closeDeliveryModal() {
+  this.deliveryModalOrderId = null;
+}
+
+submitDeliveryDetails() {
+  if (!this.deliveryModalOrderId) return;
+  if (!this.deliveryForm.deliveryPersonName.trim() || !this.deliveryForm.deliveryPersonPhone.trim()) {
+    alert('Name and phone are required');
+    return;
+  }
+
+  this.deliverySubmitting = true;
+  this.retailerService.setDeliveryDetails(this.deliveryModalOrderId, this.deliveryForm).subscribe({
+    next: () => {
+      const order = this.orders.find(o => o.orderId === this.deliveryModalOrderId);
+      if (order) {
+        order.deliveryPersonName = this.deliveryForm.deliveryPersonName;
+        order.deliveryPersonPhone = this.deliveryForm.deliveryPersonPhone;
+      }
+      this.deliverySubmitting = false;
+      this.closeDeliveryModal();
+    },
+    error: (err) => {
+      console.error(err);
+      alert(err.error?.message || 'Failed to save delivery details');
+      this.deliverySubmitting = false;
+    }
+  });
+}
 }

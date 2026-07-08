@@ -3,10 +3,11 @@ import { Router, RouterLink, RouterOutlet, RouterLinkActive, RouterModule } from
 import { UserService } from '../../../service/user-service';
 import { CommonModule } from '@angular/common';
 import { NotificationPanel } from "../../../notification-panel/notification-panel";
+import { Chatbot } from "../../../chatbot/chatbot";
 
 @Component({
   selector: 'app-consumer-navbar',
-  imports: [RouterLink, RouterOutlet, RouterLinkActive, CommonModule, RouterModule, NotificationPanel],
+  imports: [RouterLink, RouterOutlet, RouterLinkActive, CommonModule, RouterModule, NotificationPanel, Chatbot],
   templateUrl: './consumer-navbar.html',
   styleUrl: './consumer-navbar.css',
 })

@@ -1,0 +1,42 @@
+<div class="chatbot-wrapper">
+
+  <button class="chatbot-fab" (click)="toggle()" aria-label="Open support chat">
+    <span *ngIf="!isOpen()">💬</span>
+    <span *ngIf="isOpen()">✕</span>
+  </button>
+
+  <div class="chatbot-panel" *ngIf="isOpen()">
+
+    <div class="chatbot-header">
+      <span>Urban Nest Support</span>
+    </div>
+
+    <div class="chatbot-messages">
+      <div
+        *ngFor="let msg of messages()"
+        class="chatbot-bubble"
+        [ngClass]="msg.from === 'user' ? 'bubble-user' : 'bubble-bot'"
+      >
+        {{ msg.text }}
+      </div>
+
+      <div class="chatbot-bubble bubble-bot" *ngIf="sending()">
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+      </div>
+    </div>
+
+    <div class="chatbot-input-row">
+      <input
+        [(ngModel)]="draft"
+        (keydown.enter)="send()"
+        placeholder="Ask about your order..."
+        [disabled]="sending()"
+      />
+      <button (click)="send()" [disabled]="sending() || !draft.trim()">➤</button>
+    </div>
+
+  </div>
+
+</div>

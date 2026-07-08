@@ -1,8 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QuestPDF.Fluent;
-using UrbanNest.DataAccess;
 using QuestPDF.Helpers;
+using UrbanNest.DataAccess;
 using UrbanNest.DTO;
+using UrbanNest.Migrations;
 using UrbanNest.Model;
 using UrbanNest.Repository;
 
@@ -11,12 +12,12 @@ namespace UrbanNest.Service
     public class SOrder : IOrder
     {
         private readonly DataBase database;
-        private readonly INotification _notif;
+        private readonly INotification notification;
 
         public SOrder(DataBase db, INotification notif)
         {
             database = db;
-            _notif = notif;
+            notification = notif;
         }
 
         public async Task<(bool success, string message, int orderId)> PlaceOrderAsync(int userId, PlaceOrderRequest request)
@@ -79,7 +80,7 @@ namespace UrbanNest.Service
                     // Low stock alert
                     if (item.Product.stock <= 5)
                     {
-                        await _notif.SendToRetailerAsync(
+                        await notification.SendToRetailerAsync(
                             retailerId: item.Product.RetailerId,
                             type: NotificationTypes.LowStock,
                             title: "Low Stock Alert ⚠️",
@@ -99,7 +100,7 @@ namespace UrbanNest.Service
 
                 if (consumer != null)
                 {
-                    await _notif.SendToConsumerAsync(
+                    await notification.SendToConsumerAsync(
                         consumerId: consumer.ConsumerId,
                         type: NotificationTypes.OrderPlaced,
                         title: "Order Placed! 🎉",
@@ -111,7 +112,7 @@ namespace UrbanNest.Service
                 // Notify every retailer who has items in this order
                 foreach (var retailerId in retailerIds)
                 {
-                    await _notif.SendToRetailerAsync(
+                    await notification.SendToRetailerAsync(
                         retailerId: retailerId,
                         type: NotificationTypes.NewOrderReceived,
                         title: "New Order Received 📦",
@@ -150,6 +151,8 @@ namespace UrbanNest.Service
                     Status = group.Key.Status,
                     CustomerName = group.Key.User.userName,
                     CustomerEmail = group.Key.User.userEmail,
+                    DeliveryPersonName = group.Key.DeliveryPersonName,
+                    DeliveryPersonPhone = group.Key.DeliveryPersonPhone,
                     Items = group.Select(o => new
                     {
                         ProductId = o.ProductId,
@@ -180,6 +183,8 @@ namespace UrbanNest.Service
                     o.OrderId,
                     o.OrderDate,
                     o.Status,
+                    o.DeliveryPersonName,
+                    o.DeliveryPersonPhone,
                     Items = o.OrderItems.Select(oi => new
                     {
                         oi.Product.productName,
@@ -248,7 +253,7 @@ namespace UrbanNest.Service
 
                 if (type != null)
                 {
-                    await _notif.SendToConsumerAsync(
+                    await notification.SendToConsumerAsync(
                         consumerId: consumer.ConsumerId,
                         type: type,
                         title: title!,
@@ -295,7 +300,7 @@ namespace UrbanNest.Service
 
             if (consumer != null)
             {
-                await _notif.SendToConsumerAsync(
+                await notification.SendToConsumerAsync(
                     consumerId: consumer.ConsumerId,
                     type: NotificationTypes.OrderCancelled,
                     title: "Order Cancelled",
@@ -311,7 +316,7 @@ namespace UrbanNest.Service
 
             foreach (var retailerId in retailerIds)
             {
-                await _notif.SendToRetailerAsync(
+                await notification.SendToRetailerAsync(
                     retailerId: retailerId,
                     type: NotificationTypes.RetailerOrderCancelled,
                     title: "Order Cancelled by Customer",
@@ -463,6 +468,42 @@ namespace UrbanNest.Service
             });
 
             return document.GeneratePdf();
+        }
+
+        public async Task<(bool success, string message)> SetDeliveryDetailsAsync(int orderId, DeliveryDetailsDTO dto, int retailerUserId)
+        {
+            var retailer = await database.retailers.FirstOrDefaultAsync(r => r.UserId == retailerUserId);
+            if (retailer == null)
+                return (false, "Retailer profile not found");
+
+            var order = await database.orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.OrderId == orderId);
+
+            if (order == null)
+                return (false, "Order not found");
+
+            bool ownsOrder = order.OrderItems.Any(i => i.RetailerId == retailer.RetailerId);
+            if (!ownsOrder)
+                return (false, "You do not have permission to update this order");
+
+            order.DeliveryPersonName = dto.DeliveryPersonName;
+            order.DeliveryPersonPhone = dto.DeliveryPersonPhone;
+            await database.SaveChangesAsync();
+
+            var consumer = await database.consumers.FirstOrDefaultAsync(c => c.UserId == order.UsersId);
+            if (consumer != null)
+            {
+                await notification.SendToConsumerAsync(
+                    consumer.ConsumerId,
+                    NotificationTypes.OutForDelivery,
+                    "Delivery partner assigned",
+                    $"{dto.DeliveryPersonName} will deliver your order #{order.OrderId}.",
+                    orderId: order.OrderId
+                );
+            }
+
+            return (true, "Delivery details updated");
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Razorpay.Api;
 using System.Security.Claims;
 using UrbanNest.DataAccess;
 using UrbanNest.DTO;
@@ -11,14 +12,14 @@ namespace UrbanNest.Controllers
     public class OrderController : ControllerBase
     {
         private readonly DataBase _db;
-        private readonly IEmail _email;
-        private readonly IOrder _order;
+        private readonly IEmail email;
+        private readonly IOrder order;
 
         public OrderController(DataBase db, IEmail email, IOrder order)
         {
             _db = db;
-            _email = email;
-            _order = order;
+            this.email = email;
+            this.order = order;
         }
 
         private int GetUserId() =>
@@ -31,7 +32,7 @@ namespace UrbanNest.Controllers
         {
             var userId = GetUserId();
 
-            var (success, message, orderId) = await _order.PlaceOrderAsync(userId, request);
+            var (success, message, orderId) = await order.PlaceOrderAsync(userId, request);
 
             if (!success)
                 return BadRequest(new { message });
@@ -40,7 +41,7 @@ namespace UrbanNest.Controllers
             byte[] pdfBytes;
             try
             {
-                pdfBytes = await _order.GenerateInvoicePdf(orderId);
+                pdfBytes = await order.GenerateInvoicePdf(orderId);
             }
             catch (Exception ex)
             {
@@ -53,7 +54,7 @@ namespace UrbanNest.Controllers
             var user = await _db.Users.FindAsync(userId);
             try
             {
-                await _email.SendInvoiceEmail(user!.userEmail, pdfBytes);
+                await email.SendInvoiceEmail(user!.userEmail, pdfBytes);
             }
             catch (Exception ex)
             {
@@ -68,7 +69,7 @@ namespace UrbanNest.Controllers
         [HttpGet]
         public async Task<IActionResult> GetRetailerOrders()
         {
-            var result = await _order.GetRetailerOrdersAsync(GetUserId());
+            var result = await order.GetRetailerOrdersAsync(GetUserId());
 
             if (result == null)
                 return BadRequest("Retailer not found");
@@ -81,7 +82,7 @@ namespace UrbanNest.Controllers
         [HttpGet]
         public async Task<IActionResult> GetUserOrders()
         {
-            var result = await _order.GetUserOrdersAsync(GetUserId());
+            var result = await order.GetUserOrdersAsync(GetUserId());
             return Ok(result);
         }
 
@@ -90,7 +91,7 @@ namespace UrbanNest.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateOrderStatus(int orderId, string status)
         {
-            var (success, message) = await _order.UpdateOrderStatusAsync(orderId, status, GetUserId());
+            var (success, message) = await order.UpdateOrderStatusAsync(orderId, status, GetUserId());
 
             if (!success)
             {
@@ -108,7 +109,7 @@ namespace UrbanNest.Controllers
         [HttpPut]
         public async Task<IActionResult> CancelOrder(int orderId)
         {
-            var (success, message) = await _order.CancelOrderAsync(orderId, GetUserId());
+            var (success, message) = await order.CancelOrderAsync(orderId, GetUserId());
 
             if (!success)
             {
@@ -116,6 +117,15 @@ namespace UrbanNest.Controllers
                 return BadRequest(new { message });
             }
 
+            return Ok(new { message });
+        }
+
+        [HttpPut("{orderId}")]
+        public async Task<IActionResult> SetDeliveryDetails(int orderId, [FromBody] DeliveryDetailsDTO dto)
+        {
+            int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var (success, message) = await order.SetDeliveryDetailsAsync(orderId, dto, userId);
+            if (!success) return BadRequest(new { message });
             return Ok(new { message });
         }
     }

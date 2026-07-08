@@ -401,10 +401,150 @@ select {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--gold);
 }
+/* ===============================
+   DELIVERY MODAL
+================================ */
+.delivery-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.25s ease;
+}
+
+.delivery-modal {
+  width: 100%;
+  max-width: 420px;
+  background: #1D2128;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 18px;
+  padding: 28px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.delivery-modal h4 {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 20px;
+}
+
+.delivery-modal label {
+  display: block;
+  color: #d4af37;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+.delivery-modal label:not(:first-of-type) {
+  margin-top: 16px;
+}
+
+.delivery-modal input {
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 10px;
+  background: #0F1115;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 0.95rem;
+  transition: 0.25s ease;
+}
+
+.delivery-modal input::placeholder {
+  color: #6b6b6b;
+}
+
+.delivery-modal input:focus {
+  outline: none;
+  border-color: #d4af37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+}
+
+.delivery-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.delivery-modal-actions button {
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.delivery-modal-actions button:first-child {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ccc;
+}
+
+.delivery-modal-actions button:first-child:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.delivery-modal-actions .save-btn {
+  background: #d4af37;
+  color: #000;
+}
+
+.delivery-modal-actions .save-btn:hover {
+  background: #e5c158;
+  transform: translateY(-1px);
+}
+
+.delivery-modal-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* trigger button on the order row */
+.delivery-btn {
+  margin-top: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  background: rgba(212, 175, 55, 0.08);
+  color: #d4af37;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.delivery-btn:hover {
+  background: rgba(212, 175, 55, 0.16);
+  transform: translateY(-1px);
+}
+
 
 /* ============================================
    RESPONSIVE
    ============================================ */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 
 @media (max-width: 900px) {
   :host {

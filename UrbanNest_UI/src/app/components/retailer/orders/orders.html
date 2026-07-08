@@ -59,6 +59,8 @@
 
           </select>
 
+          <button class="delivery-btn" (click)="openDeliveryModal(order)">{{ order.deliveryPersonName ? '🚴 Edit Delivery Info' : '🚴 Add Delivery Info' }}</button>
+
         </div>
 
       </div>
@@ -70,5 +72,23 @@
     </div>
 
   </div>
+  <div class="delivery-modal-backdrop" *ngIf="deliveryModalOrderId" (click)="closeDeliveryModal()">
+  <div class="delivery-modal" (click)="$event.stopPropagation()">
+    <h4>Delivery Details — Order #{{ deliveryModalOrderId }}</h4>
+
+    <label>Delivery Person Name</label>
+    <input [(ngModel)]="deliveryForm.deliveryPersonName" placeholder="e.g. Ramesh Kumar" />
+
+    <label>Phone Number</label>
+    <input [(ngModel)]="deliveryForm.deliveryPersonPhone" placeholder="e.g. 9876543210" />
+
+    <div class="delivery-modal-actions">
+      <button (click)="closeDeliveryModal()" [disabled]="deliverySubmitting">Cancel</button>
+      <button class="save-btn" (click)="submitDeliveryDetails()" [disabled]="deliverySubmitting">
+        {{ deliverySubmitting ? 'Saving...' : 'Save' }}
+      </button>
+    </div>
+  </div>
+</div>
 
 </div>

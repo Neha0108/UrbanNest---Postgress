@@ -73,4 +73,8 @@ export class Retailer {
   replyToReview(reviewId: number, message: string) {
     return this.http.post(`http://localhost:5146/api/Review/Reply`, { reviewId, message });
   }
+
+  setDeliveryDetails(orderId: number, data: { deliveryPersonName: string; deliveryPersonPhone: string}) {
+  return this.http.put(`http://localhost:5146/api/Order/SetDeliveryDetails/${orderId}`, data);
+}
 }

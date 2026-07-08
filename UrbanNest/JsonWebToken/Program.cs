@@ -40,6 +40,7 @@ builder.Services.AddScoped<IAdmin, SAdmin>();
 builder.Services.AddScoped<IAddress, SAddress>();
 builder.Services.AddScoped<INotification, SNotification>();
 builder.Services.AddScoped<IReview, SReview>();
+builder.Services.AddScoped<IChatbot, SChatbot>();
 
 
 QuestPDF.Settings.License = LicenseType.Community;

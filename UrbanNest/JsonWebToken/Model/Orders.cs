@@ -13,5 +13,7 @@ namespace UrbanNest.Model
         public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
         public int AddressId { get; set; }
         public UserAddress Address { get; set; }
+        public string? DeliveryPersonName { get; set; }
+        public string? DeliveryPersonPhone { get; set; }
     }
 }

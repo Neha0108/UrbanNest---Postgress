@@ -2,18 +2,7 @@ import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Consumer } from '../../../service/consumer';
-import {
-  trigger,
-  transition,
-  style,
-  animate,
-  query,
-  stagger,
-} from '@angular/animations';
-
-// ---------------------------------------------------------------------
-// Types (frontend-only — mirrors backend response shape, no API change)
-// ---------------------------------------------------------------------
+import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
 
 export interface OrderItem {
   productId: number;
@@ -29,6 +18,8 @@ export interface Order {
   orderDate: string;
   status: OrderStatus;
   items: OrderItem[];
+  deliveryPersonName?: string | null;
+  deliveryPersonPhone?: string | null;
 }
 
 export type OrderStatus =
@@ -39,13 +30,7 @@ export type OrderStatus =
   | 'Delivered'
   | 'Cancelled';
 
-export type OrderFilter =
-  | 'all'
-  | 'Pending'
-  | 'Confirmed'
-  | 'Shipped'
-  | 'Delivered'
-  | 'Cancelled';
+export type OrderFilter = 'all' | 'Pending' | 'Confirmed' | 'Shipped' | 'Delivered' | 'Cancelled';
 
 interface TimelineStepDef {
   key: OrderStatus;
@@ -78,34 +63,25 @@ const CANCELLABLE_STATUSES: OrderStatus[] = ['Pending', 'Confirmed'];
             stagger(60, [
               animate(
                 '380ms cubic-bezier(0.16, 1, 0.3, 1)',
-                style({ opacity: 1, transform: 'translateY(0)' })
+                style({ opacity: 1, transform: 'translateY(0)' }),
               ),
             ]),
           ],
-          { optional: true }
+          { optional: true },
         ),
       ]),
     ]),
     trigger('panelSlide', [
       transition(':enter', [
         style({ transform: 'translateX(100%)' }),
-        animate(
-          '340ms cubic-bezier(0.16, 1, 0.3, 1)',
-          style({ transform: 'translateX(0)' })
-        ),
+        animate('340ms cubic-bezier(0.16, 1, 0.3, 1)', style({ transform: 'translateX(0)' })),
       ]),
       transition(':leave', [
-        animate(
-          '260ms cubic-bezier(0.4, 0, 1, 1)',
-          style({ transform: 'translateX(100%)' })
-        ),
+        animate('260ms cubic-bezier(0.4, 0, 1, 1)', style({ transform: 'translateX(100%)' })),
       ]),
     ]),
     trigger('overlayFade', [
-      transition(':enter', [
-        style({ opacity: 0 }),
-        animate('260ms ease', style({ opacity: 1 })),
-      ]),
+      transition(':enter', [style({ opacity: 0 }), animate('260ms ease', style({ opacity: 1 }))]),
       transition(':leave', [animate('220ms ease', style({ opacity: 0 }))]),
     ]),
   ],
@@ -164,6 +140,8 @@ export class Orders implements OnInit {
           orderId: o.orderId ?? o.OrderId,
           orderDate: o.orderDate ?? o.OrderDate,
           status: (o.status ?? o.Status ?? 'Pending') as OrderStatus,
+          deliveryPersonName: o.deliveryPersonName ?? o.DeliveryPersonName ?? null,
+          deliveryPersonPhone: o.deliveryPersonPhone ?? o.DeliveryPersonPhone ?? null,
           items: (o.items ?? o.Items ?? []).map((i: any) => ({
             productId: i.productId ?? i.ProductId,
             productName: i.productName ?? i.ProductName,
@@ -176,6 +154,7 @@ export class Orders implements OnInit {
 
         this.orders.set(normalised);
         this.loading.set(false);
+        console.log('Orders loaded:', normalised);
       },
       error: (err) => {
         console.error(err);
@@ -217,8 +196,8 @@ export class Orders implements OnInit {
       next: () => {
         this.orders.update((list) =>
           list.map((o) =>
-            o.orderId === order.orderId ? { ...o, status: 'Cancelled' as OrderStatus } : o
-          )
+            o.orderId === order.orderId ? { ...o, status: 'Cancelled' as OrderStatus } : o,
+          ),
         );
         this.cancellingId.set(null);
       },
@@ -244,5 +223,12 @@ export class Orders implements OnInit {
 
   goToProducts(): void {
     this.router.navigate(['/consumerNavbar/userdashboard']);
+  }
+
+  hasDeliveryInfo(order: Order): boolean {
+    return (
+      !!order.deliveryPersonName &&
+      (order.status === 'Out for Delivery' || order.status === 'Delivered')
+    );
   }
 }
