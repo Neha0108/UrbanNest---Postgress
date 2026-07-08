@@ -1,89 +1,183 @@
-import { Component, signal } from '@angular/core';
-import { Chatbotservice } from '../service/chatbotservice';
-import { ChatMessage, ChatProductCard } from '../interface/chat-message';
-import { FormsModule } from '@angular/forms';
+import {
+  Component,
+  ElementRef,
+  ViewChild,
+  signal
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Consumer } from '../service/consumer';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+
+import { Chatbotservice } from '../service/chatbotservice';
+import {
+  ChatMessage,
+  ChatProductCard,
+  ChatResponse
+} from '../interface/chat-message';
+import { Consumer } from '../service/consumer';
 
 @Component({
   selector: 'app-chatbot',
-  imports: [FormsModule,CommonModule],
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './chatbot.html',
-  styleUrl: './chatbot.css',
+  styleUrls: ['./chatbot.css']
 })
 export class Chatbot {
 
+  @ViewChild('messageContainer')
+  messageContainer!: ElementRef<HTMLDivElement>;
+
   isOpen = signal(false);
+
   messages = signal<ChatMessage[]>([
-    { from: 'bot', text: "Hi! I can help you find products, check your cart/wishlist, or track an order." },
+    {
+      from: 'bot',
+      text: 'Hi! I am Urban Nest AI. Ask me about products, orders, cart, wishlist, or shopping recommendations.'
+    }
   ]);
-  quickReplies = signal<string[]>(['Track Order', 'Categories', 'Show my Cart', 'Show my Wishlist', 'Help']);
+
+  quickReplies = signal<string[]>([
+    'Track Order',
+    'Show my Cart',
+    'Show my Wishlist',
+    'Beauty Products',
+    'Help'
+  ]);
+
   draft = '';
+
   sending = signal(false);
+
   addedIds = new Set<number>();
 
   constructor(
     private chatbotService: Chatbotservice,
     private consumerService: Consumer,
-    private router: Router,
+    private router: Router
   ) {}
 
-  toggle() {
-    this.isOpen.update((v) => !v);
+  toggle(): void {
+    this.isOpen.update(value => !value);
+
+    setTimeout(() => this.scrollToBottom(), 100);
   }
 
-  sendQuickReply(text: string) {
+  sendQuickReply(text: string): void {
     this.draft = text;
     this.send();
   }
 
-  send() {
+  send(): void {
     const text = this.draft.trim();
-    if (!text || this.sending()) return;
 
-    this.messages.update((list) => [...list, { from: 'user', text }]);
+    if (!text || this.sending()) {
+      return;
+    }
+
+    this.messages.update(messages => [
+      ...messages,
+      {
+        from: 'user',
+        text
+      }
+    ]);
+
     this.draft = '';
+
     this.sending.set(true);
 
+    this.scrollToBottom();
+
     this.chatbotService.ask(text).subscribe({
-      next: (res) => {
-        this.messages.update((list) => [
-          ...list,
-          { from: 'bot', text: res.reply, products: res.products },
+      next: (res: ChatResponse) => {
+
+        this.messages.update(messages => [
+          ...messages,
+          {
+            from: 'bot',
+            text: res.reply,
+            products: res.products
+          }
         ]);
-        this.quickReplies.set(res.quickReplies ?? []);
+
+        if (res.quickReplies?.length) {
+          this.quickReplies.set(res.quickReplies);
+        }
+
         this.sending.set(false);
+
+        this.scrollToBottom();
       },
-      error: () => {
-        this.messages.update((list) => [
-          ...list,
-          { from: 'bot', text: 'Sorry, something went wrong. Please try again.' },
+
+      error: (err) => {
+
+        console.error('Chatbot Error:', err);
+
+        this.messages.update(messages => [
+          ...messages,
+          {
+            from: 'bot',
+            text: 'Sorry, Urban Nest AI is currently unavailable.'
+          }
         ]);
+
         this.sending.set(false);
-      },
+
+        this.scrollToBottom();
+      }
     });
+  }
+
+  private scrollToBottom(): void {
+    setTimeout(() => {
+      if (this.messageContainer) {
+        this.messageContainer.nativeElement.scrollTop =
+          this.messageContainer.nativeElement.scrollHeight;
+      }
+    }, 100);
   }
 
   imageUrl(card: ChatProductCard): string {
-    const path = card.imagePath?.[0];
-    return path ? 'http://localhost:5146' + path : '';
+    const image = card.imagePath?.[0];
+
+    return image
+      ? `http://localhost:5146${image}`
+      : 'assets/no-image.png';
   }
 
-  viewProduct(card: ChatProductCard) {
-    this.router.navigate(['/consumerNavbar/product-details', card.productId]);
+  viewProduct(card: ChatProductCard): void {
+    this.router.navigate([
+      '/consumerNavbar/product-details',
+      card.productId
+    ]);
   }
 
-  addToCart(card: ChatProductCard) {
-    this.consumerService.addToCart(card.productId, 1).subscribe({
-      next: () => this.addedIds.add(card.productId),
-      error: (err) => console.error('Add to cart failed', err),
-    });
+  addToCart(card: ChatProductCard): void {
+
+    if (this.addedIds.has(card.productId)) {
+      return;
+    }
+
+    this.consumerService
+      .addToCart(card.productId, 1)
+      .subscribe({
+        next: () => {
+          this.addedIds.add(card.productId);
+        },
+        error: (err) => {
+          console.error('Add To Cart Failed', err);
+        }
+      });
   }
 
-  addToWishlist(card: ChatProductCard) {
-    this.consumerService.addToWishlist(card.productId).subscribe({
-      error: (err) => console.error('Add to wishlist failed', err),
-    });
+  addToWishlist(card: ChatProductCard): void {
+    this.consumerService
+      .addToWishlist(card.productId)
+      .subscribe({
+        error: err => {
+          console.error('Add To Wishlist Failed', err);
+        }
+      });
   }
 }

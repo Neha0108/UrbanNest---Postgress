@@ -41,7 +41,7 @@ builder.Services.AddScoped<IAddress, SAddress>();
 builder.Services.AddScoped<INotification, SNotification>();
 builder.Services.AddScoped<IReview, SReview>();
 builder.Services.AddScoped<IChatbot, SChatbot>();
-
+builder.Services.AddHttpClient<IGrok, SGrok>();
 
 QuestPDF.Settings.License = LicenseType.Community;
 

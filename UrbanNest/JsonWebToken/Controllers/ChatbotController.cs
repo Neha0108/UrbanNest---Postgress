@@ -21,9 +21,15 @@ namespace UrbanNest.Controllers
         [HttpPost]
         public async Task<IActionResult> Ask([FromBody] ChatMessageDTO dto)
         {
-            int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-            var reply = await chatbot.GetReplyAsync(userId, dto.Message);
-            return Ok(new { reply });
+            var claim = User.FindFirst(ClaimTypes.NameIdentifier);
+
+            if (claim == null ||
+                !int.TryParse(claim.Value, out int userId))
+            {
+                return Unauthorized();
+            }
+            ChatResponseDTO response = await chatbot.GetReplyAsync(userId, dto.Message);
+            return Ok(response);
         }
     }
 }

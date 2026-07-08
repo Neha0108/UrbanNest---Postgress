@@ -14,6 +14,8 @@ dist/
 bin/
 obj/
 appsettings.json
+secure.json
+UrbanNest/JsonWebToken/secure.json
 *.user
 *.suo
 *.vs/

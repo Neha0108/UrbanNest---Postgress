@@ -11,13 +11,34 @@
       <span>Urban Nest Support</span>
     </div>
 
-    <div class="chatbot-messages">
-      <div
-        *ngFor="let msg of messages()"
-        class="chatbot-bubble"
-        [ngClass]="msg.from === 'user' ? 'bubble-user' : 'bubble-bot'"
-      >
-        {{ msg.text }}
+    <div class="chatbot-messages" #messagesContainer>
+      <div *ngFor="let msg of messages()" class="chatbot-bubble"
+        [ngClass]="msg.from === 'user' ? 'bubble-user' : 'bubble-bot'">
+
+        <div>{{ msg.text }}</div>
+
+        <div *ngIf="msg.products?.length" class="product-cards-row">
+
+          <div *ngFor="let card of msg.products" class="chat-product-card">
+
+            <img [src]="imageUrl(card)" [alt]="card.productName">
+
+            <div class="chat-product-info">
+              <h4 class="chat-product-name">{{ card.productName }}</h4>
+              <p class="chat-product-price">₹{{ card.productPrice }}</p>
+            </div>
+
+            <button class = "chat-product-actions" (click)="viewProduct(card)">
+              View Details
+              </button>
+
+            <button class="chat-product-actions" (click)="addToCart(card)">
+              Add To Cart
+            </button>
+
+          </div>
+
+        </div>
       </div>
 
       <div class="chatbot-bubble bubble-bot" *ngIf="sending()">
@@ -28,12 +49,8 @@
     </div>
 
     <div class="chatbot-input-row">
-      <input
-        [(ngModel)]="draft"
-        (keydown.enter)="send()"
-        placeholder="Ask about your order..."
-        [disabled]="sending()"
-      />
+      <input [(ngModel)]="draft" (keydown.enter)="send()" placeholder="Ask about your order..."
+        [disabled]="sending()" />
       <button (click)="send()" [disabled]="sending() || !draft.trim()">➤</button>
     </div>
 
