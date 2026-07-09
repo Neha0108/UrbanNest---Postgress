@@ -5,6 +5,7 @@ using QuestPDF;
 using QuestPDF.Infrastructure;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using UrbanNest.DataAccess;
 using UrbanNest.Repository;
 using UrbanNest.Service;
@@ -18,6 +19,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
     options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
 });
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
@@ -42,6 +44,7 @@ builder.Services.AddScoped<INotification, SNotification>();
 builder.Services.AddScoped<IReview, SReview>();
 builder.Services.AddScoped<IChatbot, SChatbot>();
 builder.Services.AddHttpClient<IGemini, SGemini>();
+builder.Services.AddScoped<ICoupon, SCoupon>();
 
 QuestPDF.Settings.License = LicenseType.Community;
 

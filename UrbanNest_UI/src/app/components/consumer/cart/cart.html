@@ -95,13 +95,46 @@
       </p>
 
       <!-- Coupon — UI only, backend not available yet -->
-      <div class="coupon-box">
-        <input type="text" placeholder="Coupon code" disabled>
-        <button disabled>Apply</button>
-      </div>
-      <p class="coupon-note">Coupons coming soon</p>
+      <!-- Coupon input -->
+<div class="coupon-box" *ngIf="!appliedCoupon">
+  <input
+    type="text"
+    placeholder="Coupon code"
+    [(ngModel)]="couponCode"
+    (keyup.enter)="applyCoupon()"
+    [disabled]="applyingCoupon">
+  <button (click)="applyCoupon()" [disabled]="applyingCoupon || !couponCode.trim()">
+    {{ applyingCoupon ? 'Applying...' : 'Apply' }}
+  </button>
+</div>
+<p class="coupon-error" *ngIf="couponError">{{ couponError }}</p>
+
+<!-- Applied coupon chip -->
+<div class="coupon-applied" *ngIf="appliedCoupon">
+  <span>Coupon {{ appliedCoupon.couponCode }} applied</span>
+  <button class="coupon-remove" (click)="removeCoupon()">Remove</button>
+</div>
+
+<!-- All active coupons, loaded at order summary -->
+<div class="available-coupons" *ngIf="!loadingCoupons && availableCoupons.length">
+  <p class="available-coupons-label">Available offers</p>
+  <div
+    class="available-coupon-row"
+    *ngFor="let c of availableCoupons"
+    (click)="selectCoupon(c)">
+    <span class="coupon-chip">{{ c.couponCode }}</span>
+    <span class="coupon-chip-desc">
+      {{ c.discountType === 'Flat' ? '₹' + c.discountValue + ' off' : c.discountValue + '% off' }}
+    </span>
+  </div>
+</div>
 
       <div class="summary-divider"></div>
+
+      <div class="summary-row discount-row" *ngIf="discount > 0">
+  <span>Discount</span>
+  <span>−₹{{ discount | number }}</span>
+</div>
 
       <div class="summary-row total">
         <span>Total</span>
@@ -130,4 +163,4 @@
     </div>
   </section>
 
-</main>
+</main>>

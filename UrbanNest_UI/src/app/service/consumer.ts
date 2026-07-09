@@ -118,5 +118,13 @@ export class Consumer {
 
   toggleHelpful(reviewId: number) {
     return this.http.post<{ message: string; helpfulCount: number }>(`http://localhost:5146/api/Review/Helpful/${reviewId}`, {});
-}
+  }
+
+  getactiveCoupons() {
+    return this.http.get<any[]>(`${environment.apiUrl}/Coupon`);
+  }
+
+  applyCoupon(couponCode: string) {
+    return this.http.post(`${environment.apiUrl}/Coupon/Apply`, { couponCode });
+  }
 }

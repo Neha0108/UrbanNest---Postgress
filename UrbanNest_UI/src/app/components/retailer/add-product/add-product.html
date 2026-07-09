@@ -60,8 +60,8 @@
           [class.is-invalid]="productForm.get('SubCategoryName')?.touched && productForm.get('SubCategoryName')?.invalid"
           formControlName="SubCategoryName">
           <option value="">Select Subcategory</option>
-          <option *ngFor="let sc of subcategories" [value]="sc.SubCategoryName">
-            {{ sc.SubCategoryName }}
+          <option *ngFor="let sc of subcategories" [value]="sc.subCategoryName">
+            {{ sc.subCategoryName }}
           </option>
         </select>
         <small class="text-danger"

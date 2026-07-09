@@ -33,6 +33,8 @@ import { roleGuard } from './guards/role-guard';
 import { Navbar } from './LandingPage/navbar/navbar';
 import { guestGuard } from './guards/guest-guard';
 import { redirectGuard } from './guards/redirect-guard';
+import { Coupons } from './components/retailer/coupons/coupons';
+import { Offers } from './components/consumer/offers/offers';
 
 export const routes: Routes = [
   {
@@ -69,7 +71,8 @@ export const routes: Routes = [
       { path: 'product-details/:id', component: ProductDetails },
       { path: 'suggested-products', component: SuggestedProducts },
       { path: 'address', component: Address },
-      { path: 'checkout', component: Checkout }
+      { path: 'checkout', component: Checkout },
+      { path: 'offers', component: Offers }
     ]
   },
 
@@ -87,7 +90,8 @@ export const routes: Routes = [
       { path: 'change-password', component: ChangePassword },
       { path: 'retailerOrders', component: retailerOrders },
       { path: 'customers', component: Customers },
-      { path: 'reviews', component: Reviews }
+      { path: 'reviews', component: Reviews },
+      { path: 'coupons', component: Coupons }
     ]
   },
 

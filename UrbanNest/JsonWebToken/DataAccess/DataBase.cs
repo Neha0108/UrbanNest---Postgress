@@ -27,6 +27,7 @@ namespace UrbanNest.DataAccess
         public DbSet<Review> Reviews { get; set; }
         public DbSet<ReviewHelpful> ReviewHelpful { get; set; }
         public DbSet<ReviewReply> ReviewReplies { get; set; }
+        public DbSet<Coupon> Coupons { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -86,6 +87,10 @@ namespace UrbanNest.DataAccess
                 .WithMany(p => p.imagepath)
                 .HasForeignKey(i => i.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Coupon>()
+                .HasIndex(c => c.CouponCode)
+                .IsUnique();
         }
     }
 }

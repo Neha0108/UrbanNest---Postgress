@@ -149,6 +149,12 @@
             </div>
             <span class="review-item-price">₹{{ (item.ProductPrice * item.Quantity) | number }}</span>
           </div>
+          <div class="review-block" *ngIf="appliedCoupon">
+  <h4>Coupon Applied</h4>
+  <p>{{ appliedCoupon.couponCode }} — 
+    {{ appliedCoupon.discountType === 'Flat' ? '₹' + appliedCoupon.discountValue + ' off' : appliedCoupon.discountValue + '% off' }}
+  </p>
+</div>
         </div>
 
         <div class="step-nav">
@@ -175,6 +181,10 @@
           <span *ngIf="shipping === 0" class="free-label">Free</span>
         </div>
         <div class="summary-row"><span>Tax</span><span>₹{{ tax | number }}</span></div>
+        <div class="summary-row discount-row" *ngIf="discount > 0">
+  <span>Discount ({{ appliedCoupon?.couponCode }})</span>
+  <span>−₹{{ discount | number }}</span>
+</div>
 
         <div class="summary-divider"></div>
 

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using UrbanNest.DataAccess;
 using UrbanNest.DTO;
+using UrbanNest.Migrations;
 using UrbanNest.Model;
 using UrbanNest.Repository;
 
@@ -17,12 +18,14 @@ namespace UrbanNest.Controllers
         private readonly IProduct iproduct;
         private readonly DataBase database;
         private readonly IProfile iprofile;
+        private readonly ICoupon coupon;
 
-        public RetailerController(IProduct iproduct, DataBase database, IProfile iprofile)
+        public RetailerController(IProduct iproduct, DataBase database, IProfile iprofile, ICoupon coupon)
         {
             this.iproduct = iproduct;
             this.database = database;
             this.iprofile = iprofile;
+            this.coupon = coupon;
         }
 
         [HttpPost]
@@ -206,6 +209,50 @@ namespace UrbanNest.Controllers
                 .ToListAsync();
 
             return Ok(customers);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateCoupon([FromBody] CouponCreateDTO dto)
+        {
+            var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
+            var (success, message, data) = await coupon.RetailerCreateAsync(userId, dto);
+            if (!success) return BadRequest(new { message });
+            return Ok(data);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetMyCoupons()
+        {
+            var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
+            var data = await coupon.RetailerGetAllAsync(userId);
+            return Ok(data);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetMyCouponById(int id)
+        {
+            var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
+            var data = await coupon.RetailerGetByIdAsync(userId, id);
+            if (data == null) return NotFound();
+            return Ok(data);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateMyCoupon(int id, [FromBody] CouponUpdateDTO dto)
+        {
+            var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
+            var (success, message) = await coupon.RetailerUpdateAsync(userId, id, dto);
+            if (!success) return BadRequest(new { message });
+            return Ok(new { message });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteMyCoupon(int id)
+        {
+            var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
+            var (success, message) = await coupon.RetailerDeleteAsync(userId, id);
+            if (!success) return BadRequest(new { message });
+            return Ok(new { message });
         }
     }
 }

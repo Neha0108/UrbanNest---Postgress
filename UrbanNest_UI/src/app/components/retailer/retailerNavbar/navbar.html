@@ -27,8 +27,12 @@
     <a routerLink="add-product" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
       ➕ Add Product
     </a>
-    
-  <a routerLink="reviews" routerLinkActive="active">⭐ Reviews</a>
+
+    <a routerLink="reviews" routerLinkActive="active">⭐ Reviews</a>
+
+    <a routerLink="coupons" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      🎟️ Coupons
+    </a>
 
     <!-- PROFILE DROPDOWN -->
     <div class="profile-wrapper" (click)="toggleDropdown()">

@@ -7,6 +7,7 @@ import { ShopByPrice } from '../../LandingPage/shop-by-price/shop-by-price';
 import { Footer } from '../../LandingPage/footer/footer';
 import { Consumer } from '../../service/consumer';
 import { Product } from '../../interface/product';
+import { Offers } from "../../components/consumer/offers/offers";
 
 interface HeroSlide {
   title: string;
@@ -33,7 +34,7 @@ interface StatItem {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterModule, CommonModule, ReactiveFormsModule, Category, ShopByPrice, Footer],
+  imports: [RouterModule, CommonModule, ReactiveFormsModule, Category, ShopByPrice, Footer, Offers],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
@@ -45,6 +46,7 @@ export class Home implements OnInit, AfterViewInit, OnDestroy {
   private consumerService = inject(Consumer);
 
   @ViewChild('statsSection') statsSection?: ElementRef<HTMLElement>;
+  @ViewChild('heroSection') heroSection?: ElementRef<HTMLElement>;
 
   currentSlide = 0;
   private sliderInterval: any;
@@ -112,6 +114,14 @@ export class Home implements OnInit, AfterViewInit, OnDestroy {
     email: ['', [Validators.required, Validators.email]],
   });
 
+  // ================= NEW: product-card micro-interaction state (UI only) =================
+  // Client-side presentation state for the redesigned trending cards.
+  // Wire these to your real wishlist/cart endpoints on Consumer when ready.
+  private wishlist = new Set<number>();
+  addingToCartId: number | null = null;
+  addedToCartId: number | null = null;
+  quickViewProduct: Product | null = null;
+
   ngOnInit(): void {
     this.loadTrending();
 
@@ -144,14 +154,29 @@ export class Home implements OnInit, AfterViewInit, OnDestroy {
   }
 
   loadTrending(): void {
-    this.consumerService.allProducts().subscribe({
-      next: (data: Product[]) => {
-        this.trendingProducts = data.slice(0, 8);
-        this.chng.detectChanges();
-      },
-      error: (err) => console.error('Failed to load trending products', err),
-    });
-  }
+
+  this.consumerService.allProducts().subscribe({
+
+    next: (data: Product[]) => {
+
+      console.log(data);
+      this.trendingProducts=data.slice(0,8);
+
+      console.log(this.trendingProducts);
+
+      this.chng.detectChanges();
+
+    },
+
+    error:(err)=>{
+
+      console.error(err);
+
+    }
+
+  });
+
+}
 
   setSlide(i: number): void {
     this.currentSlide = i;
@@ -201,5 +226,82 @@ export class Home implements OnInit, AfterViewInit, OnDestroy {
     };
 
     requestAnimationFrame(step);
+  }
+
+  // ================= NEW: hero parallax (mouse-follow gold glow) =================
+  onHeroMouseMove(e: MouseEvent): void {
+    const el = this.heroSection?.nativeElement;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    el.style.setProperty('--mx', `${x}%`);
+    el.style.setProperty('--my', `${y}%`);
+  }
+
+  // ================= NEW: trending product card interactions (UI only) =================
+  private idOf(product: Product): number {
+    return (product as any).productId;
+  }
+
+  isWishlisted(product: Product): boolean {
+    return this.wishlist.has(this.idOf(product));
+  }
+
+  toggleWishlist(product: Product, event: Event): void {
+    event.stopPropagation();
+    const id = this.idOf(product);
+    if (this.wishlist.has(id)) this.wishlist.delete(id);
+    else this.wishlist.add(id);
+  }
+
+  quickAddToCart(product: Product, event: Event): void {
+    event.stopPropagation();
+    const id = this.idOf(product);
+    if (this.addingToCartId === id) return;
+    this.addingToCartId = id;
+    // TODO: call Consumer.addToCart(id) here once available; presentation-only for now.
+    setTimeout(() => {
+      this.addingToCartId = null;
+      this.addedToCartId = id;
+      this.chng.detectChanges();
+      setTimeout(() => {
+        this.addedToCartId = null;
+        this.chng.detectChanges();
+      }, 1400);
+    }, 550);
+  }
+
+  openQuickView(product: Product, event: Event): void {
+    event.stopPropagation();
+    this.quickViewProduct = product;
+  }
+
+  closeQuickView(): void {
+    this.quickViewProduct = null;
+  }
+
+  discountBadge(product: Product): number | null {
+    return (product as any).discountPercent ?? (product as any).discount ?? null;
+  }
+
+  stockLabel(product: Product): string | null {
+    const stock = (product as any).stock ?? (product as any).stockQuantity;
+    if (stock === undefined || stock === null) return null;
+    if (stock <= 0) return 'Out of stock';
+    if (stock <= 5) return `Only ${stock} left`;
+    return null;
+  }
+
+  retailerName(product: Product): string | null {
+    return (product as any).retailerShopName ?? (product as any).retailerName ?? null;
+  }
+
+  ratingOf(product: Product): number {
+    return (product as any).rating ?? 4.5;
+  }
+
+  trackByProductId = (index: number, item: Product): number => {
+    return item.productId;
   }
 }
