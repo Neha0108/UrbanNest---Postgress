@@ -42,7 +42,8 @@ namespace UrbanNest.Service
                 userName = registerRequest.UserName,
                 userEmail = registerRequest.UserEmail,
                 userPassword = passwordhashed,
-                RoleId = role.RoleId
+                RoleId = role.RoleId,
+                Status = "Active"
             };
 
             await database.Users.AddAsync(user);

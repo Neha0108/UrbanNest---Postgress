@@ -64,11 +64,15 @@
   </section>
 
   <!-- ================= TRENDING PRODUCTS ================= -->
-  <section class="section trending-section" *ngIf="trendingProducts.length">
+   <section class="child-section reveal" *ngIf="isLoggedIn()">
+  <app-suggested-products></app-suggested-products>
+</section>
+
+  <section class="section trending-section" *ngIf="!isLoggedIn() && trendingProducts.length">
     <div class="section-heading reveal reveal-up">
       <p class="eyebrow">Trending Now</p>
       <h2>What's Moving This Week</h2>
-      <span class="heading-rule" aria-hidden="false"></span>
+      <span class="heading-rule" ></span>
     </div>
 
     <div class="product-grid"  >

@@ -8,6 +8,8 @@ import { Footer } from '../../LandingPage/footer/footer';
 import { Consumer } from '../../service/consumer';
 import { Product } from '../../interface/product';
 import { Offers } from "../../components/consumer/offers/offers";
+import { SuggestedProducts } from "../../components/consumer/suggested-products/suggested-products";
+import { UserService } from '../../service/user-service';
 
 interface HeroSlide {
   title: string;
@@ -34,7 +36,7 @@ interface StatItem {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterModule, CommonModule, ReactiveFormsModule, Category, ShopByPrice, Footer, Offers],
+  imports: [RouterModule, CommonModule, ReactiveFormsModule, Category, ShopByPrice, Footer, Offers, SuggestedProducts],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
@@ -44,6 +46,7 @@ export class Home implements OnInit, AfterViewInit, OnDestroy {
   private chng = inject(ChangeDetectorRef);
   private fb = inject(FormBuilder);
   private consumerService = inject(Consumer);
+  private userService = inject(UserService);
 
   @ViewChild('statsSection') statsSection?: ElementRef<HTMLElement>;
   @ViewChild('heroSection') heroSection?: ElementRef<HTMLElement>;
@@ -191,7 +194,7 @@ export class Home implements OnInit, AfterViewInit, OnDestroy {
   }
 
   goToProduct(product: Product): void {
-    this.router.navigate(['/products'], { queryParams: { category: product.categoryName } });
+    this.router.navigate(['/product-details/' + product.productId]);
   }
 
   scrollToCategories(): void {
@@ -304,4 +307,9 @@ export class Home implements OnInit, AfterViewInit, OnDestroy {
   trackByProductId = (index: number, item: Product): number => {
     return item.productId;
   }
+
+  isLoggedIn(): boolean {
+  return this.userService.isLoggedIn();
+}
+
 }

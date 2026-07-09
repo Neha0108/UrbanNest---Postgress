@@ -15,9 +15,10 @@ namespace UrbanNest.Model
         public string userEmail { get; set; } = string.Empty;
         [Required]
         public string userPassword { get; set; } = string.Empty;
+
+        public string Status { get; set; } = "Active";
         public int RoleId { get; set; }
         public Role Role { get; set; }
-
         public ICollection<Product> Products { get; set; }
         public ICollection<WishlistItem> Wishlist { get; set; }
     }
