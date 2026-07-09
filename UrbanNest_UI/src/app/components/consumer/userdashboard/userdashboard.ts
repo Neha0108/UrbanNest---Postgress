@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
@@ -15,7 +15,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './userdashboard.html',
   styleUrl: './userdashboard.css',
 })
-export class Userdashboard implements OnInit {
+export class Userdashboard implements OnInit, OnDestroy {
   products: Product[] = [];
   filteredProducts: Product[] = [];
 
@@ -37,7 +37,7 @@ export class Userdashboard implements OnInit {
   constructor(
     private consumerService: Consumer,
     private route: ActivatedRoute,
-    private router: Router,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -138,8 +138,8 @@ export class Userdashboard implements OnInit {
         error: (err) => {
           console.error('Failed to remove from wishlist', err);
           this.wishlist.push({ productId } as WishlistItem);
-          this.chng.detectChanges();
         },
+        complete: () => this.chng.detectChanges(),
       });
     } else {
       this.wishlist.push({ productId } as WishlistItem);
@@ -148,7 +148,6 @@ export class Userdashboard implements OnInit {
         error: (err) => {
           console.error('Failed to add to wishlist', err);
           this.wishlist = this.wishlist.filter((w) => w.productId !== productId);
-          this.chng.detectChanges();
         },
       });
     }
@@ -158,12 +157,6 @@ export class Userdashboard implements OnInit {
     return this.cart.some((c) => c.productId === productId);
   }
 
-  addToCart(product: Product) {
-    this.consumerService.addToCart(product.productId, 1).subscribe({
-      next: () => this.loadAll(),
-      error: (err) => console.error('Failed to add to cart', err),
-    });
-  }
 
   viewDetails(id: number) {
     this.router.navigate(['/consumerNavbar/product-details', id]);
@@ -173,9 +166,48 @@ export class Userdashboard implements OnInit {
     this.applyFilter();
   }
 
+  resetPrice() {
+    this.minPrice = 0;
+    this.maxPrice = this.maxPriceAvailable;
+    this.applyFilter();
+  }
+
+  toastMessage: string | null = null;
+  private toastTimeoutId: ReturnType<typeof setTimeout> | null = null;
+
+
+  private showToast(message: string): void {
+    this.toastMessage = message;
+    this.chng.detectChanges();
+
+    if (this.toastTimeoutId) {
+      clearTimeout(this.toastTimeoutId);
+    }
+
+    this.toastTimeoutId = setTimeout(() => {
+      this.toastMessage = null;
+      this.chng.detectChanges();
+    }, 2500);
+  }
+
+  addToCart(product: Product) {
+  if (product.stock === 0) return;
+
+  this.consumerService.addToCart(product.productId, 1).subscribe({
+    next: () => {
+      this.cart.push({ productId: product.productId, quantity: 1 });
+      this.chng.detectChanges();
+    },
+    error: (err) => console.error('Failed to add to cart', err),
+  });
+}
+
   buyNow(event: Event, item: Product): void {
     event.stopPropagation();
-    if (item.stock === 0) return;
+    if (item.stock === 0) {
+      this.showToast(`${item.productName} is out of stock`);
+      return;
+    }
 
     this.consumerService.addToCart(item.productId, 1).subscribe({
       next: () => this.router.navigate(['/consumerNavbar/checkout']),
@@ -183,9 +215,9 @@ export class Userdashboard implements OnInit {
     });
   }
 
-  resetPrice() {
-    this.minPrice = 0;
-    this.maxPrice = this.maxPriceAvailable;
-    this.applyFilter();
+  ngOnDestroy(): void {
+    if (this.toastTimeoutId) {
+      clearTimeout(this.toastTimeoutId);
+    }
   }
 }

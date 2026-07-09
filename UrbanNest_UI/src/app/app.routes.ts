@@ -48,7 +48,8 @@ export const routes: Routes = [
     { path: 'about', component: About },
     { path: 'products', component: Products },
     { path: 'category', component: Category },
-    { path: 'shop-by-price', component: ShopByPrice }
+    { path: 'shop-by-price', component: ShopByPrice },
+    { path: 'product-details/:id', component: ProductDetails },
   ]
 },
   {

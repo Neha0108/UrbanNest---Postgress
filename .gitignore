@@ -16,6 +16,7 @@ obj/
 appsettings.json
 secure.json
 UrbanNest/JsonWebToken/secure.json
+appsettings.Development.json
 *.user
 *.suo
 *.vs/

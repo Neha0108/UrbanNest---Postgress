@@ -186,9 +186,13 @@ export class Products implements OnInit {
 
   goToProduct(product: Product): void {
     localStorage.setItem('lastCategory', product.categoryName);
-    this.router.navigate(['/consumerNavbar/product-details', product.productId]);
+    this.router.navigate(['/product-details', product.productId]);
   }
 
+  goToLogin(event: Event): void {
+    event.preventDefault();
+    this.router.navigate(['/login']);
+  }
 
   trackById(index: number, item: Product): number {
     return item.productId;
