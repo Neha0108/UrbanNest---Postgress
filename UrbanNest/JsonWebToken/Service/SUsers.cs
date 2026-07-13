@@ -99,6 +99,11 @@ namespace UrbanNest.Service
                 .Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.userEmail == log.UserEmail);
 
+            if(user.Status == "Blocked")
+            {
+                return "User is Blocked by Admin";
+            }
+
             if (user == null) return null;
 
             bool isValid;
@@ -174,6 +179,11 @@ namespace UrbanNest.Service
             var user = await database.Users
                 .Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.userEmail == payload.Email);
+
+            if (user.Status == "Blocked")
+            {
+                return "User is Blocked by Admin";
+            }
 
             if (user == null)
             {

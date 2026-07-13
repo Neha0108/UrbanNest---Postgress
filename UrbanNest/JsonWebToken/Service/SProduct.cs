@@ -199,7 +199,6 @@ namespace UrbanNest.Service
         public async Task<List<ProductViewDTO>> getAll()
         {
             var products = await database.Products
-                .Include(p => p.Category)
                 .Select(p => new ProductViewDTO
                 {
                     productId = p.productId,

@@ -97,7 +97,7 @@ export class Chatbot implements AfterViewChecked {
   }
 
   goToProduct(product: ChatProductCard): void {
-    this.router.navigate(['/product', product.productId]);
+    this.router.navigate(['/productdetails', product.productId]);
     this.isOpen = false;
     this.close.emit();
   }

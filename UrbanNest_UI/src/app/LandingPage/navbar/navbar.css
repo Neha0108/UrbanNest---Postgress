@@ -8,6 +8,11 @@
   position: relative;
   z-index: 1;
   margin-top: 64px; /* Adjust based on navbar height */
+  background: linear-gradient(
+    180deg,
+    #0b0d12 0%,
+    #11151c 100%
+  );
 }
 
 .signin-btn {

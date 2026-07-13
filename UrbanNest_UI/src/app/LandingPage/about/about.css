@@ -1,93 +1,111 @@
 /* =========================
-   GLOBAL RESET
-========================= */
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  font-family: "Inter", Arial, Helvetica, sans-serif;
-  background-color: #f9fafb;
-  color: #111827;
-  line-height: 1.65;
-}
-
-/* =========================
-   MAIN CONTAINER
+   PAGE CONTAINER
 ========================= */
 .container {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 90px 20px 20px;  
+  min-height: 100vh;
+  padding: 80px 8%;
+  background: linear-gradient(
+    180deg,
+    #0b0d12 0%,
+    #11151c 100%
+  );
+  color: #ffffff;
 }
 
 /* =========================
    HERO SECTION
 ========================= */
+
 .hero {
   text-align: center;
-  margin-bottom: 70px;
+  max-width: 850px;
+  margin: 0 auto 70px;
 }
 
 .hero h1 {
-  font-size: 2.6rem;
-  font-weight: 600;
-  letter-spacing: -0.5px;
-  margin-bottom: 14px;
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: #d4af37;
+  margin-bottom: 20px;
+  line-height: 1.1;
 }
 
 .hero p {
-  font-size: 1rem;
-  color: #6b7280;
-  max-width: 760px;
-  margin: 0 auto;
+  font-size: 1.1rem;
+  color: #c8c8c8;
+  line-height: 1.8;
 }
 
 /* =========================
-   CARDS GRID
+   SIGNUP CARDS
 ========================= */
+
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 32px;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 30px;
 }
 
 /* =========================
-   CARD DESIGN
+   CARD
 ========================= */
+
 .card {
-  background: #ffffff;
-  border-radius: 26px;
-  padding: 40px 36px;
-  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.08);
-  transition: transform 0.35s ease, box-shadow 0.35s ease;
+  position: relative;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  border-radius: 22px;
+  padding: 36px;
+  overflow: hidden;
+
+  backdrop-filter: blur(12px);
+
+  transition: all 0.35s ease;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(212, 175, 55, 0.08),
+    transparent 60%
+  );
+  opacity: 0;
+  transition: 0.35s ease;
 }
 
 .card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 36px 90px rgba(0, 0, 0, 0.14);
+  transform: translateY(-8px);
+  border-color: rgba(212, 175, 55, 0.4);
+
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.35),
+    0 0 25px rgba(212, 175, 55, 0.1);
 }
 
-/* Card Heading */
+.card:hover::before {
+  opacity: 1;
+}
+
 .card h2 {
-  font-size: 1.55rem;
+  font-size: 1.8rem;
+  color: #d4af37;
+  margin-bottom: 18px;
   font-weight: 600;
-  margin-bottom: 14px;
-  color: #111827;
 }
 
-/* Card Description */
 .card p {
-  font-size: 0.95rem;
-  color: #6b7280;
-  margin-bottom: 26px;
-  line-height: 1.6;
+  color: #c9c9c9;
+  line-height: 1.8;
+  margin-bottom: 24px;
 }
 
 /* =========================
    FEATURES LIST
 ========================= */
+
 .features {
   list-style: none;
   padding: 0;
@@ -95,44 +113,117 @@ body {
 }
 
 .features li {
-  font-size: 0.9rem;
-  color: #374151;
-  margin-bottom: 12px;
-  padding-left: 26px;
-  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  color: #f2f2f2;
+  font-size: 0.95rem;
+
+  padding: 11px 0;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.features li::before {
-  content: "✓";
-  position: absolute;
-  left: 0;
-  top: 0;
-  color: #10b981;
-  font-weight: 600;
+.features li:last-child {
+  border-bottom: none;
 }
 
 /* =========================
-   MOBILE RESPONSIVE
+   CONSUMER CARD ACCENT
 ========================= */
-@media (max-width: 768px) {
 
+.card:first-child {
+  border-top: 4px solid #d4af37;
+}
+
+/* =========================
+   RETAILER CARD ACCENT
+========================= */
+
+.card:last-child {
+  border-top: 4px solid #c69c2d;
+}
+
+/* =========================
+   SCROLL ANIMATION
+========================= */
+
+.hero,
+.card {
+  animation: fadeUp 0.8s ease;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(35px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 992px) {
   .container {
-    padding: 70px 16px;
+    padding: 60px 5%;
   }
 
   .hero h1 {
-    font-size: 2.1rem;
+    font-size: 2.8rem;
+  }
+
+  .cards {
+    gap: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    margin-bottom: 50px;
+  }
+
+  .hero h1 {
+    font-size: 2.3rem;
   }
 
   .hero p {
-    font-size: 0.95rem;
+    font-size: 1rem;
+  }
+
+  .cards {
+    grid-template-columns: 1fr;
   }
 
   .card {
-    padding: 32px 28px;
+    padding: 28px;
   }
 
   .card h2 {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 50px 20px;
+  }
+
+  .hero h1 {
+    font-size: 2rem;
+  }
+
+  .card {
+    padding: 24px;
+  }
+
+  .features li {
+    font-size: 0.9rem;
   }
 }

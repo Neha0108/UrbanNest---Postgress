@@ -48,7 +48,6 @@ namespace UrbanNest.Service
                     .ToListAsync();
 
                 var prompt = $@"You are Urban Nest shopping assistant.
-
 User Message:
 {message}
 
@@ -139,7 +138,7 @@ Respond ONLY with valid JSON in exactly this shape, no other text:
 
         private static List<ChatProductCardDTO> ResolveProductCards(
             List<string> names,
-            dynamic products,                 // swap `dynamic` for your real product type
+            dynamic products,            
             List<CartItemDTO> cartItems,
             List<WishlistItemDTO> wishlistItems)
         {

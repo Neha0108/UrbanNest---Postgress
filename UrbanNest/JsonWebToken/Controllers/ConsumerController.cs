@@ -263,6 +263,35 @@ namespace UrbanNest.Controllers
             return Ok(result);
         }
 
+        [HttpPut("{addressId}")]
+        public async Task<IActionResult> EditAddress (int addressId,[FromBody] AddressDto dto)
+        {
+            int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var data = new UserAddress
+            {
+                UserId = userId,
+                FullName = dto.FullName,
+                Phone = dto.Phone,
+                AddressLine = dto.AddressLine,
+                City = dto.City,
+                State = dto.State,
+                Pincode = dto.Pincode,
+                Latitude = dto.Latitude,
+                Longitude = dto.Longitude,
+                IsDefault = dto.IsDefault
+            };
+
+            var result = await iaddress.EditAddress(data, addressId,userId);
+
+            if (result == null)
+            {
+                return NotFound("Address not found.");
+            }
+
+            return Ok(result);
+        }
+
         [HttpPost]
         public IActionResult CreateOrder([FromBody] PaymentDTO dto)
         {

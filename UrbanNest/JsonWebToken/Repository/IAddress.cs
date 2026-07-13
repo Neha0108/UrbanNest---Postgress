@@ -9,5 +9,6 @@ namespace UrbanNest.Repository
         Task<UserAddress?> GetAddressById(int addressId, int userId);
         Task<bool> DeleteAddress(int addressId, int userId);
         Task<UserAddress?> GetDefaultAddress(int userId);
+        Task<UserAddress?> EditAddress(UserAddress updatedAddress, int addressId, int userId);
     }
 }

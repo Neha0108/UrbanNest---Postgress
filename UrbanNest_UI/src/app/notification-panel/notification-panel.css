@@ -18,12 +18,13 @@
   align-items: center;
   justify-content: center;
   transition: background 0.2s;
-  color: inherit;
+  color: yellow;
 }
 
 .notif-bell:hover,
 .notif-bell.active {
-  background: rgba(0, 0, 0, 0.08);
+  background:rgba(0, 0, 0, 0.08);
+  color:darkgoldenrod;
 }
 
 .notif-bell .material-icons {

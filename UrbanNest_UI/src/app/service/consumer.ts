@@ -96,6 +96,13 @@ export class Consumer {
     return this.http.delete(`${this.apiUrl}/deleteAddress/${id}`);
   }
 
+  updateAddress(id: number, address: Address) {
+  return this.http.put(
+    `${this.apiUrl}/EditAddress/${id}`,
+    address
+  );
+}
+
   payment(amount: number) {
     return this.http.post(`${this.apiUrl}/CreateOrder`, { amount: amount });
   }

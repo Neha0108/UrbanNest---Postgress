@@ -78,6 +78,10 @@
         <p class="address-phone">{{ a.phone }}</p>
 
         <div class="address-actions">
+          <button type="button" class="btn btn-secondary btn-sm" (click)="editAddress(a)">Edit</button>
+        </div>
+
+        <div class="address-actions">
           <button
             type="button"
             class="btn btn-ghost btn-sm"

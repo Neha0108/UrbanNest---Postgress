@@ -48,6 +48,102 @@
   letter-spacing: 1px;
 }
 
+.notification-wrapper {
+  position: relative;
+  display: flex;
+  align-items: left;
+  justify-content: center;
+}
+
+/* Bell Button */
+
+.notification-wrapper .notification-btn,
+.notification-wrapper button {
+  position: relative;
+
+  width: 42px;
+  height: 42px;
+
+  border-radius: 50%;
+
+  border: 1px solid rgba(212, 175, 55, 0.2);
+
+  background:yellow;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #d4af37;
+
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+}
+
+.notification-wrapper button:hover {
+  background: rgba(212, 175, 55, 0.15);
+  transform: scale(1.05);
+}
+
+/* Notification Count Badge */
+
+.notification-count,
+.badge,
+.notification-badge {
+  position: absolute;
+
+  top: -4px;
+  right: -4px;
+
+  min-width: 18px;
+  height: 18px;
+
+  padding: 0 5px;
+
+  border-radius: 999px;
+
+  background: #ef4444;
+
+  color: white;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 2px solid #111827;
+}
+
+/* Notification Dropdown */
+
+.notification-panel,
+.notification-dropdown {
+  position: absolute;
+
+  top: calc(100% + 10px);
+  right: 0;
+
+  width: 320px;
+  max-height: 420px;
+
+  overflow-y: auto;
+
+  background: #111827;
+
+  border: 1px solid rgba(212, 175, 55, 0.15);
+
+  border-radius: 16px;
+
+  box-shadow:
+    0 15px 40px rgba(0, 0, 0, 0.45);
+
+  z-index: 9999;
+}
+
+
+
 /* ==========================
    NAV LINKS
 ========================== */

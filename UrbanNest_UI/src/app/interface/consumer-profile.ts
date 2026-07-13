@@ -1,8 +1,10 @@
 export interface ConsumerProfile {
-  FirstName: string;
-  LastName: string;
-  Phone: string;
-  Gender: string;
-  Date_of_Birth: string;  
-  profileimage?: string;
+  consumerId: number;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  gender: string;
+  date_of_Birth: string;
+  profileimage: string;
+  userId: number;
 }

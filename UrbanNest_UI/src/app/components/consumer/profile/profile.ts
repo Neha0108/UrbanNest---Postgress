@@ -93,31 +93,32 @@ export class Profile implements OnInit {
         this.userName.set(res?.userName ?? '');
         this.userEmail.set(res?.userEmail ?? '');
       },
-      error: () => {},
+      error: () => { },
     });
   }
 
   private loadProfile(): void {
     this.loading.set(true);
-    this.errorMessage.set(null);
 
     this.consumerService.getProfile().subscribe({
       next: (res: ConsumerProfile) => {
+
+        console.log('Profile Response:', res);
+
         this.form.patchValue({
-          firstName: res?.FirstName ?? '',
-          lastName: res?.LastName ?? '',
-          phone: res?.Phone ?? '',
-          gender: res?.Gender ?? '',
-          dateOfBirth: res?.Date_of_Birth ? String(res.Date_of_Birth).substring(0, 10) : '',
+          firstName: res?.firstName ?? '',
+          lastName: res?.lastName ?? '',
+          phone: res?.phone ?? '',
+          gender: res?.gender ?? '',
+          dateOfBirth: res?.date_of_Birth
+            ? res.date_of_Birth.substring(0, 10)
+            : '',
         });
+
         this.existingImagePath.set(res?.profileimage ?? null);
+
         this.loading.set(false);
-      },
-      error: (err) => {
-        console.error(err);
-        this.errorMessage.set('We couldn\u2019t load your profile. Please refresh.');
-        this.loading.set(false);
-      },
+      }
     });
   }
 

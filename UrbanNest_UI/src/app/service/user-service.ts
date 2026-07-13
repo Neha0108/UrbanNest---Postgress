@@ -10,7 +10,7 @@ import { environment } from '../../env/environment';
 export class UserService {
   private apiUrl = `${environment.apiUrl}`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   loginUser(useremail: string, userpassword: string) {
     return this.http.post<{ token: string }>(`${this.apiUrl}/Auth/Login`, {
@@ -38,9 +38,14 @@ export class UserService {
     return this.http.get<any>(`${this.apiUrl}/Auth/getusername`);
   }
 
-  changePassword(data: FormData | Record<string, any>) {
-    const body = data instanceof FormData ? data : this.toFormData(data);
-    return this.http.put(`${this.apiUrl}/Auth/ChangePass`, body, { responseType: 'text' });
+  changePassword(data: any) {
+    return this.http.put(
+      `${environment.apiUrl}/Auth/ChangePass`,
+      data,
+      {
+        responseType: 'text'
+      }
+    );
   }
 
   sendOtp(email: string) {
@@ -116,8 +121,6 @@ export class UserService {
   }
 
   googleLogin(idToken: string): Observable<{ token: string }> {
-  return this.http.post<{ token: string }>(`${this.apiUrl}/Auth/GoogleLogin`, { idToken });
-}
-
-  
+    return this.http.post<{ token: string }>(`${this.apiUrl}/Auth/GoogleLogin`, { idToken });
+  }
 }

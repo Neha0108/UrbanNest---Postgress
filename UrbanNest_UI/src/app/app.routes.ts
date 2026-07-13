@@ -43,7 +43,6 @@ export const routes: Routes = [
   canActivate: [redirectGuard],
   children: [
     { path: '', redirectTo: 'home', pathMatch: 'full' },
-
     { path: 'home', component: Home },
     { path: 'login', component: Login, canActivate: [guestGuard] },
     { path: 'register', component: Register, canActivate: [guestGuard] },
@@ -72,7 +71,8 @@ export const routes: Routes = [
       { path: 'suggested-products', component: SuggestedProducts },
       { path: 'address', component: Address },
       { path: 'checkout', component: Checkout },
-      { path: 'offers', component: Offers }
+      { path: 'offers', component: Offers },
+      { path: 'category', component: Category }
     ]
   },
 

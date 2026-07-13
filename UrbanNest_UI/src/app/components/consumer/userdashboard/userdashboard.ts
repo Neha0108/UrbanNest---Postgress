@@ -8,6 +8,7 @@ import { WishlistItem } from '../../../interface/WishlistItem';
 import { Consumer } from '../../../service/consumer';
 import { FormsModule } from '@angular/forms';
 
+
 @Component({
   selector: 'app-userdashboard',
   standalone: true,
@@ -15,7 +16,9 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './userdashboard.html',
   styleUrl: './userdashboard.css',
 })
+
 export class Userdashboard implements OnInit, OnDestroy {
+
   products: Product[] = [];
   filteredProducts: Product[] = [];
 
@@ -39,6 +42,7 @@ export class Userdashboard implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router
   ) {}
+
 
   ngOnInit(): void {
     this.route.queryParams.subscribe((params) => {
@@ -138,16 +142,19 @@ export class Userdashboard implements OnInit, OnDestroy {
         error: (err) => {
           console.error('Failed to remove from wishlist', err);
           this.wishlist.push({ productId } as WishlistItem);
+          this.showToast('Failed to remove from wishlist. Please try again.');
         },
         complete: () => this.chng.detectChanges(),
       });
     } else {
       this.wishlist.push({ productId } as WishlistItem);
+      this.showToast(" added to wishlist");
 
       this.consumerService.addToWishlist(productId).subscribe({
         error: (err) => {
           console.error('Failed to add to wishlist', err);
           this.wishlist = this.wishlist.filter((w) => w.productId !== productId);
+          this.showToast('Failed to add to wishlist. Please try again.');
         },
       });
     }
@@ -197,6 +204,7 @@ export class Userdashboard implements OnInit, OnDestroy {
     next: () => {
       this.cart.push({ productId: product.productId, quantity: 1 });
       this.chng.detectChanges();
+      this.showToast(`${product.productName} added to cart`);
     },
     error: (err) => console.error('Failed to add to cart', err),
   });
