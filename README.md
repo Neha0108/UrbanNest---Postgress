@@ -196,4 +196,4 @@ This is a personal learning project, but suggestions and feedback are welcome �
 
 ## 📬 Contact
 
-Built by Neha — feel free to connect on [LinkedIn](#https://www.linkedin.com/in/neha-lamba-40bb16248/) or reach out via GitHub issues.
+Built by Neha — feel free to connect on Linkdin: https://www.linkedin.com/in/neha-lamba-40bb16248/
