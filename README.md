@@ -21,20 +21,6 @@ A full-stack e-commerce platform with role-based experiences for Consumers, Reta
 
 ---
 
-## 🖼️ Screenshots
-
-| Guest Landing | Consumer Shopping |
-|---|---|
-| ![Guest Landing](./docs/screenshots/guest-landing.png) | ![Shopping Flow](./docs/screenshots/shopping-flow.png) |
-
-| Smart Features (AI + Notifications) | Retailer Dashboard |
-|---|---|
-| ![Smart Features](./docs/screenshots/smart-features.png) | ![Retailer Dashboard](./docs/screenshots/retailer-dashboard.png) |
-
-> Place the collage images in `docs/screenshots/` and update the paths above to match.
-
----
-
 ## 🛠️ Tech Stack
 
 **Backend**
