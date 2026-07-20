@@ -4,6 +4,6 @@ export const environment ={
 
     production: false,
 
-    googleClientId: '523335054102-356thkvgcs7d4nschdhdogoofe52scpj.apps.googleusercontent.com'
+    googleClientId: ''
 
 }
