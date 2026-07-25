@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Razorpay.Api;
 using System.Security.Claims;
 using UrbanNest.DataAccess;
@@ -7,6 +8,7 @@ using UrbanNest.Repository;
 
 namespace UrbanNest.Controllers
 {
+    [Authorize]
     [Route("api/[controller]/[action]")]
     [ApiController]
     public class OrderController : ControllerBase

@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../env/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdminService {
 
-  private baseUrl = 'http://localhost:5146/api/Admin';
+  // FIXED: Now uses environment.apiUrl instead of hardcoded URL
+  private baseUrl = `${environment.apiUrl}/Admin`;
 
   constructor(private http: HttpClient) {}
 

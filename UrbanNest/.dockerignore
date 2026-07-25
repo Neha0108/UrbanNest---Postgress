@@ -1,0 +1,17 @@
+bin/
+obj/
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+.vs/
+.vscode/
+*.user
+secure.json
+**/secure.json
+JsonWebToken/secure.json
+.env
+appsettings.Development.json
+.git/
+.gitignore
+README.md

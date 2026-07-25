@@ -12,6 +12,8 @@ import { Coupon, CouponCreate, CouponUpdate } from '../interface/coupon';
 })
 export class Retailer {
   private apiUrl = `${environment.apiUrl}/Retailer`;
+  private orderApiUrl = `${environment.apiUrl}/Order`;
+  private reviewApiUrl = `${environment.apiUrl}/Review`;
 
   constructor(private http: HttpClient) {}
 
@@ -39,8 +41,9 @@ export class Retailer {
     return this.http.delete<void>(`${this.apiUrl}/Delete/${id}`);
   }
 
+  // FIXED: Now uses environment.apiUrl instead of hardcoded URL
   getRetailerOrders() {
-    return this.http.get<any[]>('http://localhost:5146/api/Order/GetRetailerOrders');
+    return this.http.get<any[]>(`${this.orderApiUrl}/GetRetailerOrders`);
   }
 
   getProfile(): Observable<Retailer> {
@@ -51,9 +54,10 @@ export class Retailer {
     return this.http.put(`${this.apiUrl}/UpdateProfile`, data);
   }
 
+  // FIXED: Now uses environment.apiUrl instead of hardcoded URL
   updateOrderStatus(orderId: number, status: string) {
     return this.http.put(
-      `http://localhost:5146/api/Order/UpdateOrderStatus?orderId=${orderId}&status=${status}`,
+      `${this.orderApiUrl}/UpdateOrderStatus?orderId=${orderId}&status=${status}`,
       {},
     );
   }
@@ -66,19 +70,22 @@ export class Retailer {
     return this.http.get<any[]>(`${this.apiUrl}/GetRetailerCustomers`);
   }
 
+  // FIXED: Now uses environment.apiUrl instead of hardcoded URL
   getMyReviews() {
-    return this.http.get<Review[]>(`http://localhost:5146/api/Review/GetMine`);
+    return this.http.get<Review[]>(`${this.reviewApiUrl}/GetMine`);
   }
 
+  // FIXED: Now uses environment.apiUrl instead of hardcoded URL
   replyToReview(reviewId: number, message: string) {
-    return this.http.post(`http://localhost:5146/api/Review/Reply`, { reviewId, message });
+    return this.http.post(`${this.reviewApiUrl}/Reply`, { reviewId, message });
   }
 
+  // FIXED: Now uses environment.apiUrl instead of hardcoded URL
   setDeliveryDetails(
     orderId: number,
     data: { deliveryPersonName: string; deliveryPersonPhone: string },
   ) {
-    return this.http.put(`http://localhost:5146/api/Order/SetDeliveryDetails/${orderId}`, data);
+    return this.http.put(`${this.orderApiUrl}/SetDeliveryDetails/${orderId}`, data);
   }
   // ── Coupons ──────────────────────────────────────────
   getMyCoupons(): Observable<Coupon[]> {

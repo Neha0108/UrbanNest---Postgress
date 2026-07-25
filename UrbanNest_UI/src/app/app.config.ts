@@ -23,8 +23,10 @@ export const appConfig: ApplicationConfig = {
 
     provideAnimations(),
 
-    provideHttpClient(withFetch()),
-
-    provideHttpClient(withInterceptors([tokenInterceptor])),
+    // FIXED: Merged both provideHttpClient calls into one to avoid configuration override
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([tokenInterceptor])
+    ),
   ]
 };

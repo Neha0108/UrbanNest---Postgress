@@ -14,6 +14,8 @@ import { RatingSummary, Review } from '../interface/review';
 })
 export class Consumer {
   private apiUrl = `${environment.apiUrl}/Consumer`;
+  private orderApiUrl = `${environment.apiUrl}/Order`;
+  private reviewApiUrl = `${environment.apiUrl}/Review`;
 
   constructor(private http: HttpClient) {}
 
@@ -64,12 +66,14 @@ export class Consumer {
     return this.http.delete(`${this.apiUrl}/RemoveFromCart/${productId}`);
   }
 
+  // FIXED: Now uses environment.apiUrl instead of hardcoded URL
   placeOrder(body: any) {
-    return this.http.post('http://localhost:5146/api/Order/PlaceOrder', body);
+    return this.http.post(`${this.orderApiUrl}/PlaceOrder`, body);
   }
 
+  // FIXED: Now uses environment.apiUrl instead of hardcoded URL
   getUserOrders() {
-    return this.http.get<any[]>('http://localhost:5146/api/Order/GetUserOrders');
+    return this.http.get<any[]>(`${this.orderApiUrl}/GetUserOrders`);
   }
 
   getProfile(): Observable<any> {
@@ -80,8 +84,9 @@ export class Consumer {
     return this.http.put<ConsumerProfile>(`${this.apiUrl}/EditProfile`, formData);
   }
 
+  // FIXED: Now uses environment.apiUrl instead of hardcoded URL
   cancelOrder(orderId: number) {
-    return this.http.put(`http://localhost:5146/api/Order/CancelOrder?orderId=${orderId}`, {});
+    return this.http.put(`${this.orderApiUrl}/CancelOrder?orderId=${orderId}`, {});
   }
 
   getAddresses() {
@@ -97,11 +102,11 @@ export class Consumer {
   }
 
   updateAddress(id: number, address: Address) {
-  return this.http.put(
-    `${this.apiUrl}/EditAddress/${id}`,
-    address
-  );
-}
+    return this.http.put(
+      `${this.apiUrl}/EditAddress/${id}`,
+      address
+    );
+  }
 
   payment(amount: number) {
     return this.http.post(`${this.apiUrl}/CreateOrder`, { amount: amount });
@@ -111,20 +116,24 @@ export class Consumer {
     return this.http.post(`${this.apiUrl}/VerifyPayment`, body);
   }
 
+  // FIXED: Now uses environment.apiUrl instead of hardcoded URL
   addReview(productId: number, rating: number, comment: string) {
-    return this.http.post(`http://localhost:5146/api/Review/Add`, { productId, rating, comment });
+    return this.http.post(`${this.reviewApiUrl}/Add`, { productId, rating, comment });
   }
 
+  // FIXED: Now uses environment.apiUrl instead of hardcoded URL
   getProductReviews(productId: number) {
-    return this.http.get<Review[]>(`http://localhost:5146/api/Review/GetByProduct/${productId}`);
+    return this.http.get<Review[]>(`${this.reviewApiUrl}/GetByProduct/${productId}`);
   }
 
+  // FIXED: Now uses environment.apiUrl instead of hardcoded URL
   getRatingSummary(productId: number): Observable<RatingSummary> {
-    return this.http.get<RatingSummary>(`http://localhost:5146/api/Review/GetSummary/${productId}`);
+    return this.http.get<RatingSummary>(`${this.reviewApiUrl}/GetSummary/${productId}`);
   }
 
+  // FIXED: Now uses environment.apiUrl instead of hardcoded URL
   toggleHelpful(reviewId: number) {
-    return this.http.post<{ message: string; helpfulCount: number }>(`http://localhost:5146/api/Review/Helpful/${reviewId}`, {});
+    return this.http.post<{ message: string; helpfulCount: number }>(`${this.reviewApiUrl}/Helpful/${reviewId}`, {});
   }
 
   getactiveCoupons() {

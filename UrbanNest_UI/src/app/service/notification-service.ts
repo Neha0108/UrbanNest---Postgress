@@ -5,10 +5,12 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, interval, EMPTY } from 'rxjs';
 import { switchMap, tap, catchError } from 'rxjs/operators';
 import { Notification, UnreadCount } from '../interface/notification';
+import { environment } from '../../env/environment';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
-  private baseUrl = 'http://localhost:5146/api/Notification';
+  // FIXED: Now uses environment.apiUrl instead of hardcoded URL
+  private baseUrl = `${environment.apiUrl}/Notification`;
 
   private unreadCount$ = new BehaviorSubject<number>(0);
   unreadCount = this.unreadCount$.asObservable();

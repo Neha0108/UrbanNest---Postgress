@@ -13,7 +13,7 @@ dist/
 # .NET
 bin/
 obj/
-appsettings.json
+.env
 secure.json
 UrbanNest/JsonWebToken/secure.json
 appsettings.Development.json

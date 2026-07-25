@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace UrbanNest.Controllers
 {
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     [Route("api/[controller]/[action]")]
     [ApiController]
     public class RoleController : ControllerBase

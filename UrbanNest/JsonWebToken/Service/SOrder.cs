@@ -13,11 +13,13 @@ namespace UrbanNest.Service
     {
         private readonly DataBase database;
         private readonly INotification notification;
+        private readonly ICoupon coupon;
 
-        public SOrder(DataBase db, INotification notif)
+        public SOrder(DataBase db, INotification notif, ICoupon coupon)
         {
             database = db;
             notification = notif;
+            coupon = this.coupon;
         }
 
         public async Task<(bool success, string message, int orderId)> PlaceOrderAsync(int userId, PlaceOrderRequest request)
@@ -93,6 +95,20 @@ namespace UrbanNest.Service
                 database.cartItems.RemoveRange(cartItems);
                 await database.SaveChangesAsync();
                 await transaction.CommitAsync();
+
+                if (!string.IsNullOrWhiteSpace(request.CouponCode))
+                {
+                    var code = request.CouponCode.Trim().ToUpperInvariant();
+                    var c = await database.Coupons.FirstOrDefaultAsync(x => x.CouponCode == code);
+
+                    if (c != null && c.IsActive
+                        && DateTime.UtcNow >= c.StartDate
+                        && DateTime.UtcNow <= c.ExpiryDate
+                        && (c.UsageLimit == null || c.UsedCount < c.UsageLimit))
+                    {
+                        c.UsedCount += 1;
+                    }
+                }
 
                 // Get consumer record for notification
                 var consumer = await database.consumers

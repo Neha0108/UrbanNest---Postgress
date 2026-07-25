@@ -7,6 +7,7 @@ export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
     token = localStorage.getItem('token');
   }
 
+  // FIXED: Check if token exists AND add it to ALL requests
   if (token) {
     req = req.clone({
       setHeaders: {
@@ -14,5 +15,6 @@ export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
       }
     });
   }
+
   return next(req);
 };
