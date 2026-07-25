@@ -84,7 +84,7 @@
 
         <div class="product-media">
           <img
-            [src]="'http://localhost:5146' + (p.imagepath?.[0] || '')"
+            [src]="environment.imageBaseUrl+ (p.imagepath?.[0] || '')"
             [alt]="p.productName"
             loading="lazy">
 
@@ -216,7 +216,7 @@
       </button>
 
       <div class="quickview-media">
-        <img [src]="'http://localhost:5146' + (quickViewProduct.imagepath?.[0] || '')" [alt]="quickViewProduct.productName">
+        <img [src]="environment.imageBaseUrl+ (quickViewProduct.imagepath?.[0] || '')" [alt]="quickViewProduct.productName">
       </div>
 
       <div class="quickview-info">

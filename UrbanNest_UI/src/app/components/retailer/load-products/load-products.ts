@@ -3,6 +3,7 @@ import { Product } from '../../../interface/product';
 import { CommonModule } from '@angular/common';
 import { Retailer } from '../../../service/retailer';
 import { Router } from '@angular/router';
+import { environment } from '../../../../env/environment';
 
 @Component({
   selector: 'app-load-products',
@@ -14,6 +15,7 @@ export class LoadProducts implements OnInit {
 
   products: Product[] = [];
   router = inject(Router);
+  environment = environment;
 
   trackById(index: number, item: Product) {
     return item.productId;

@@ -155,7 +155,7 @@
     <div class="rec-row">
       <div class="rec-card" *ngFor="let p of recommendedProducts" (click)="goToProduct(p)">
         <div class="rec-img">
-          <img [src]="'http://localhost:5146' + (p.imagepath?.[0] || '')" [alt]="p.productName">
+          <img [src]="environment.imageBaseUrl+ (p.imagepath?.[0] || '')" [alt]="p.productName">
         </div>
         <p class="rec-name">{{ p.productName }}</p>
         <p class="rec-price">₹{{ p.productPrice | number }}</p>

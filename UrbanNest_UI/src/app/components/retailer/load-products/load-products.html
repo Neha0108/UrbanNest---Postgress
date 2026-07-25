@@ -24,7 +24,7 @@
                     [class.active]="i === 0"></button>
                 </div>
                 <div *ngFor="let img of item.imagepath; let i = index" class="carousel-item" [class.active]="i === 0">
-                  <img [src]="'http://localhost:5146' + img" class="d-block w-100 product-img" />
+                  <img [src]=" environment.imageBaseUrl + img" class="d-block w-100 product-img" />
                 </div>
               </div>
 

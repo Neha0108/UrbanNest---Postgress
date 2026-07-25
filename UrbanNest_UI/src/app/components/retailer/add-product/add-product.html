@@ -95,7 +95,7 @@
         <!--  Current Images (Edit Mode) -->
         <div *ngIf="isEdit && currentImages.length > 0" class="mb-2">
           <label>Current Images</label><br />
-          <img *ngFor="let img of currentImages" [src]="'http://localhost:5146' + img" width="100"
+          <img *ngFor="let img of currentImages" [src]="environment.imageBaseUrl+ img" width="100"
             style="margin-right:8px; border-radius: 8px" />
         </div>
 

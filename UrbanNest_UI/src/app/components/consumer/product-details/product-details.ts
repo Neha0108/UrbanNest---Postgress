@@ -55,7 +55,7 @@ export class ProductDetails implements OnInit {
   submittingReview = false;
   reviewError = '';
   reviewSuccess = '';
-  environment = environment.imageBaseUrl;
+  environment = environment;
 
   ngOnInit(): void {
     this.isLoggedIn = this.userService.isLoggedIn();

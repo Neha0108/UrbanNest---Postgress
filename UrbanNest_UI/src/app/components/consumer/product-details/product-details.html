@@ -41,7 +41,7 @@
       <!-- ================= GALLERY ================= -->
       <div class="pd-gallery">
         <div class="pd-main-image">
-          <img *ngIf="p.imagepath && p.imagepath.length" [src]="'http://localhost:5146' + p.imagepath[activeImageIndex]"
+          <img *ngIf="p.imagepath && p.imagepath.length" [src]="environment.imageBaseUrl+ p.imagepath[activeImageIndex]"
             [alt]="p.productName" loading="lazy">
           <span class="stock-badge out" *ngIf="p.stock === 0">Out of Stock</span>
         </div>
@@ -254,7 +254,7 @@
       <div class="related-row">
         <div class="related-card" *ngFor="let rp of relatedProducts; trackBy: trackById" (click)="goToProduct(rp)">
           <div class="related-img">
-            <img [src]="'http://localhost:5146' + (rp.imagepath?.[0] || '')" [alt]="rp.productName">
+            <img [src]="environment.imageBaseUrl+ (rp.imagepath?.[0] || '')" [alt]="rp.productName">
           </div>
           <p class="related-name">{{ rp.productName }}</p>
           <p class="related-price">₹{{ rp.productPrice | number }}</p>
