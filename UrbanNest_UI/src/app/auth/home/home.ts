@@ -10,6 +10,7 @@ import { Product } from '../../interface/product';
 import { Offers } from "../../components/consumer/offers/offers";
 import { SuggestedProducts } from "../../components/consumer/suggested-products/suggested-products";
 import { UserService } from '../../service/user-service';
+import { environment } from '../../../env/environment';
 
 interface HeroSlide {
   title: string;
@@ -59,6 +60,7 @@ export class Home implements OnInit, AfterViewInit, OnDestroy {
   trendingProducts: Product[] = [];
   subscribed = false;
 
+  environment = environment;
   slides: HeroSlide[] = [
     {
       title: 'Elevate Everyday Living',

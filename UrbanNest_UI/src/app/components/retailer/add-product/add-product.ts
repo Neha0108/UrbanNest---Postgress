@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Category } from '../../../interface/category';
 import { Retailer } from '../../../service/retailer';
+import { environment } from '../../../../env/environment';
 
 @Component({
   selector: 'app-add-product',
@@ -30,6 +31,7 @@ export class AddProduct implements OnInit {
 
   successMessage = '';
   errorMessage = '';
+  environment = environment;
 
   constructor(
     private fb: FormBuilder,
