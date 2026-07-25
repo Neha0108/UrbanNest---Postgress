@@ -31,6 +31,7 @@ export class Chatbot implements AfterViewChecked {
   draft = '';
   loading = false;
   private shouldScroll = false;
+  environment = environment.imageBaseUrl;
 
   constructor(
     private chatbotService: Chatbotservice,

@@ -49,7 +49,7 @@
         <div class="pd-thumbs" *ngIf="p.imagepath && p.imagepath.length > 1">
           <button class="pd-thumb" *ngFor="let img of p.imagepath; let i = index"
             [class.active]="i === activeImageIndex" (click)="setActiveImage(i)">
-            <img [src]="'http://localhost:5146' + img" [alt]="p.productName + ' thumbnail'" loading="lazy">
+            <img [src]=" environment + img" [alt]="p.productName + ' thumbnail'" loading="lazy">
           </button>
         </div>
       </div>

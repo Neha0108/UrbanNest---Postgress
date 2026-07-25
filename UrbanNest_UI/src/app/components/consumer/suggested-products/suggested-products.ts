@@ -3,6 +3,7 @@ import { Product } from '../../../interface/product';
 import { Consumer } from '../../../service/consumer';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { environment } from '../../../../env/environment';
 
 @Component({
   selector: 'app-suggested-products',
@@ -18,6 +19,7 @@ export class SuggestedProducts {
   recentlyViewed: Product[] = [];
 
   lastCategory: string | null = null;
+  environment = environment.imageBaseUrl;
 
   constructor(
     private consumerService: Consumer,

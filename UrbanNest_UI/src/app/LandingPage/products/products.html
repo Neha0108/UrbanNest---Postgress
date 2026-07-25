@@ -128,7 +128,7 @@
         <div class="product-card" *ngFor="let p of filteredProducts; trackBy: trackById" (click)="goToProduct(p)">
 
           <div class="product-image-wrap">
-            <img [src]="'http://localhost:5146' + (p.imagepath?.[0] || '')" [alt]="p.productName" loading="lazy">
+            <img [src]=" environment + (p.imagepath?.[0] || '')" [alt]="p.productName" loading="lazy">
 
             <span class="stock-badge" *ngIf="p.stock > 0 && p.stock < 10">Only {{ p.stock }} left</span>
             <span class="stock-badge out" *ngIf="p.stock === 0">Out of Stock</span>

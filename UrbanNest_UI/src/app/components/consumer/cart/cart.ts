@@ -6,6 +6,7 @@ import { Consumer } from '../../../service/consumer';
 import { CartItem } from '../../../interface/cart-item';
 import { Product } from '../../../interface/product';
 import { Coupon } from '../../../interface/coupon';
+import { environment } from '../../../../env/environment';
 
 @Component({
   selector: 'app-cart',
@@ -38,6 +39,7 @@ export class Cart implements OnInit {
   couponError = '';
   applyingCoupon = false;
   private pendingCouponFromUrl = '';
+  environment = environment.imageBaseUrl;
 
   ngOnInit(): void {
     this.loadCart();

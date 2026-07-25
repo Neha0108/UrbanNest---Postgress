@@ -91,7 +91,7 @@
           <article *ngFor="let product of visibleProducts" class="product-card slide">
 
             <div class="product-image" *ngIf="product.imagepath?.length">
-              <img [src]="'http://localhost:5146' + product.imagepath?.[0]" alt="product" />
+              <img [src]=" environment + product.imagepath?.[0]" alt="product" />
             </div>
 
             <div class="product-card-content">

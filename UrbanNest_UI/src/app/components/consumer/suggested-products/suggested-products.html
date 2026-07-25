@@ -31,7 +31,7 @@
                             <div *ngFor="let img of product.imagepath; let i = index" class="carousel-item"
                                 [class.active]="i === 0">
 
-                                <img [src]="'http://localhost:5146' + img" class="d-block w-100 product-img" />
+                                <img [src]=" environment + img" class="d-block w-100 product-img" />
 
                             </div>
                         </div>

@@ -114,7 +114,7 @@
             <span class="stock-badge" *ngIf="item.stock > 0 && item.stock < 10">Only {{ item.stock }} left</span>
             <span class="stock-badge out" *ngIf="item.stock === 0">Out of Stock</span>
 
-            <img *ngIf="item.imagepath && item.imagepath.length" [src]="'http://localhost:5146' + item.imagepath[0]"
+            <img *ngIf="item.imagepath && item.imagepath.length" [src]=" environment + item.imagepath[0]"
               class="product-img" [alt]="item.productName" loading="lazy">
 
             <div class="quick-view-overlay">

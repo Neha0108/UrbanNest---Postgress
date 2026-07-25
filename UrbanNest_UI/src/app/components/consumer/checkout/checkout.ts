@@ -6,6 +6,7 @@ import { Consumer } from '../../../service/consumer';
 import { Address } from '../../../interface/address';
 import { CartItem } from '../../../interface/cart-item';
 import { Coupon } from '../../../interface/coupon';
+import { environment } from '../../../../env/environment';
 
 declare var Razorpay: any;
 
@@ -20,6 +21,7 @@ type PaymentMethod = 'razorpay' | 'cod';
   styleUrl: './checkout.css',
 })
 export class Checkout implements OnInit {
+
   private consumerService = inject(Consumer);
   private router = inject(Router);
   private route = inject(ActivatedRoute); // ← added
@@ -59,6 +61,8 @@ export class Checkout implements OnInit {
     { key: 'payment', label: 'Payment' },
     { key: 'review', label: 'Review' },
   ];
+  
+  environment = environment.imageBaseUrl;
 
   ngOnInit(): void {
     this.loadAddresses();

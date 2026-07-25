@@ -6,6 +6,7 @@ import { UserService } from '../../../service/user-service';
 import { Product } from '../../../interface/product';
 import { RatingSummary, Review } from '../../../interface/review';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../../../../env/environment';
 
 @Component({
   selector: 'app-product-details',
@@ -54,6 +55,7 @@ export class ProductDetails implements OnInit {
   submittingReview = false;
   reviewError = '';
   reviewSuccess = '';
+  environment = environment.imageBaseUrl;
 
   ngOnInit(): void {
     this.isLoggedIn = this.userService.isLoggedIn();

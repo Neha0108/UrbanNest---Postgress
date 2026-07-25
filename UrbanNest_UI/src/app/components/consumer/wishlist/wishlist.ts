@@ -3,6 +3,7 @@ import { Consumer } from '../../../service/consumer';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { WishlistItem } from '../../../interface/WishlistItem';
+import { environment } from '../../../../env/environment';
 
 @Component({
   selector: 'app-wishlist',
@@ -20,6 +21,7 @@ export class Wishlist implements OnInit {
 
   private chg = inject(ChangeDetectorRef);
   private router = inject(Router);
+  environment = environment.imageBaseUrl;
 
   constructor(private consumerService: Consumer) { }
 

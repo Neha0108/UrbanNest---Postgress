@@ -142,7 +142,7 @@
         <div class="review-block">
           <h4>Items ({{ cartItems.length }})</h4>
           <div class="review-item" *ngFor="let item of cartItems; trackBy: trackByProductId">
-            <img [src]="'http://localhost:5146' + (item.ImagePath?.[0] || '')" [alt]="item.ProductName">
+            <img [src]=" environment + (item.ImagePath?.[0] || '')" [alt]="item.ProductName">
             <div>
               <p class="review-item-name">{{ item.ProductName }}</p>
               <span>Qty: {{ item.Quantity }}</span>

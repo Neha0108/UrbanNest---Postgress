@@ -38,7 +38,7 @@
       <div class="cart-item" *ngFor="let item of cartItems; trackBy: trackByProductId" [class.updating]="updatingId === item.ProductId || removingId === item.ProductId">
 
         <div class="cart-item-image">
-          <img [src]="'http://localhost:5146' + (item.ImagePath?.[0] || '')" [alt]="item.ProductName">
+          <img [src]="environment + (item.ImagePath?.[0] || '')" [alt]="item.ProductName">
         </div>
 
         <div class="cart-item-info">

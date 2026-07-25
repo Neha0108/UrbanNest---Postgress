@@ -7,6 +7,7 @@ import { Category } from '../../interface/category';
 import { Router, RouterLink, RouterModule, RouterOutlet } from '@angular/router';
 import { Footer } from "../footer/footer";
 import { FormsModule } from "@angular/forms";
+import { environment } from '../../../env/environment';
 
 @Component({
   selector: 'app-navbar',
@@ -29,7 +30,7 @@ export class Navbar implements OnDestroy {
   currentSlide = 0;
   private hideTimeout?: number;
   private sliderWheelHandler?: (e: WheelEvent) => void;
-  private isSliderInitialized = false;
+  environment = environment.imageBaseUrl;
 
   setHome() {
     this.activePanel = 'home';

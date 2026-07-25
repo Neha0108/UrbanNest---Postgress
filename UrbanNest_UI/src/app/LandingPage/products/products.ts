@@ -5,6 +5,7 @@ import { Consumer } from '../../service/consumer';
 import { UserService } from '../../service/user-service';
 import { Product } from '../../interface/product';
 import { Category } from '../../interface/category';
+import { environment } from '../../../env/environment';
 
 type SortOption = 'newest' | 'price-low' | 'price-high' | 'name';
 
@@ -49,6 +50,8 @@ export class Products implements OnInit {
     { label: 'Under ₹499', value: 499 },
     { label: 'Under ₹999', value: 999 },
   ];
+  
+  environment = environment.imageBaseUrl;
 
   ngOnInit(): void {
     this.isLoggedIn = this.userService.isLoggedIn();

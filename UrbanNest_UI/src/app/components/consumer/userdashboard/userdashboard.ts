@@ -7,6 +7,7 @@ import { Product } from '../../../interface/product';
 import { WishlistItem } from '../../../interface/WishlistItem';
 import { Consumer } from '../../../service/consumer';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../../../../env/environment';
 
 
 @Component({
@@ -36,6 +37,7 @@ export class Userdashboard implements OnInit, OnDestroy {
   loading = true;
 
   private chng = inject(ChangeDetectorRef);
+  environment = environment.imageBaseUrl;
 
   constructor(
     private consumerService: Consumer,

@@ -43,7 +43,7 @@
 
       <div class="wishlist-img-wrap" (click)="viewDetails(item.productId)">
         <img
-          [src]="'http://localhost:5146' + (item.imagePath?.[0] || item.imagePath)"
+          [src]=" environment + (item.imagePath?.[0] || item.imagePath)"
           [alt]="item.productName"
           loading="lazy">
       </div>
