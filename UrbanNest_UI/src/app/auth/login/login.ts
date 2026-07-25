@@ -1,8 +1,8 @@
-import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AfterViewInit, Component, inject } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { UserService } from '../../service/user-service';
+import { UserService, AuthResponse } from '../../service/user-service';
 import { Google } from '../../service/google';
 import { environment } from '../../../env/environment';
 
@@ -13,7 +13,7 @@ import { environment } from '../../../env/environment';
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
-export class Login implements  AfterViewInit {
+export class Login implements AfterViewInit {
   private userService = inject(UserService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
@@ -26,16 +26,16 @@ export class Login implements  AfterViewInit {
     UserPassword: ['', Validators.required],
   });
 
- ngAfterViewInit(): void {
-  this.googleService.initialize(
-    environment.googleClientId,
-    (idToken: string) => {
-      this.handleGoogleLogin(idToken);
-    }
-  );
+  ngAfterViewInit(): void {
+    this.googleService.initialize(
+      environment.googleClientId,
+      (idToken: string) => {
+        this.handleGoogleLogin(idToken);
+      }
+    );
 
-  this.googleService.renderButton('googleButton');
-}
+    this.googleService.renderButton('googleButton');
+  }
 
   private getUserRoleFromToken(token: string): string | null {
     try {
@@ -55,11 +55,10 @@ export class Login implements  AfterViewInit {
     }
   }
 
-  private redirectByRole(token: string): void {
-    localStorage.setItem('token', token);
-    localStorage.setItem('role', this.getUserRoleFromToken(token) || '');
+  private redirectByRole(response: AuthResponse): void {
+    this.userService.storeTokens(response);
 
-    const role = this.getUserRoleFromToken(token);
+    const role = this.getUserRoleFromToken(response.accessToken);
 
     if (role === 'Retailer') {
       this.router.navigateByUrl('/retailerNavbar/retailerdashboard', { replaceUrl: true });
@@ -76,7 +75,7 @@ export class Login implements  AfterViewInit {
   private handleGoogleLogin(idToken: string): void {
     this.userService.googleLogin(idToken).subscribe({
       next: (response) => {
-        this.redirectByRole(response.token);
+        this.redirectByRole(response);
       },
       error: () => {
         this.errorMessage = 'Google sign-in failed. Please try again.';
@@ -94,7 +93,7 @@ export class Login implements  AfterViewInit {
 
     this.userService.loginUser(UserEmail, UserPassword).subscribe({
       next: (response) => {
-        this.redirectByRole(response.token);
+        this.redirectByRole(response);
       },
       error: () => {
         this.errorMessage = 'Invalid email or password';

@@ -4,6 +4,11 @@ import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../env/environment';
 
+export interface AuthResponse {
+  accessToken: string;
+  refreshToken: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -12,22 +17,60 @@ export class UserService {
 
   constructor(private http: HttpClient) { }
 
-  loginUser(useremail: string, userpassword: string) {
-    return this.http.post<{ token: string }>(`${this.apiUrl}/Auth/Login`, {
+  loginUser(useremail: string, userpassword: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/Auth/Login`, {
       UserEmail: useremail,
       UserPassword: userpassword,
     });
+  }
+
+  googleLogin(idToken: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/Auth/GoogleLogin`, { idToken });
   }
 
   registerUser(user: User): Observable<User> {
     return this.http.post<User>(`${this.apiUrl}/Auth/Register`, user);
   }
 
+  // Called by the interceptor when the access token has expired
+  refreshToken(refreshToken: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/Auth/RefreshToken`, { refreshToken });
+  }
+
+  storeTokens(response: AuthResponse): void {
+    localStorage.setItem('accessToken', response.accessToken);
+    localStorage.setItem('refreshToken', response.refreshToken);
+    localStorage.setItem('role', this.decodeRoleFromToken(response.accessToken) || '');
+  }
+
+  logout(): void {
+    const refreshToken = this.getRefreshToken();
+
+    // Best-effort server-side revoke; don't block local logout on it
+    if (refreshToken) {
+      this.http.post(`${this.apiUrl}/Auth/Logout`, { refreshToken }).subscribe({
+        error: () => {}, // ignore — user is logging out either way
+      });
+    }
+
+    localStorage.clear();
+  }
+
   isLoggedIn(): boolean {
     if (typeof window === 'undefined') {
       return false;
     }
-    return !!localStorage.getItem('token');
+    return !!localStorage.getItem('accessToken');
+  }
+
+  getAccessToken(): string | null {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('accessToken');
+  }
+
+  getRefreshToken(): string | null {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('refreshToken');
   }
 
   updateUser(data: any) {
@@ -74,12 +117,7 @@ export class UserService {
     return this.http.get(`${this.apiUrl}/Products/ByMaxPrice/${price}`);
   }
 
-  getUserRole(): string | null {
-    if (typeof window === 'undefined') return null;
-
-    const token = localStorage.getItem('token');
-    if (!token) return null;
-
+  private decodeRoleFromToken(token: string): string | null {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
 
@@ -95,10 +133,19 @@ export class UserService {
     }
   }
 
+  getUserRole(): string | null {
+    if (typeof window === 'undefined') return null;
+
+    const token = localStorage.getItem('accessToken');
+    if (!token) return null;
+
+    return this.decodeRoleFromToken(token);
+  }
+
   getCurrentUserId(): number | null {
     if (typeof window === 'undefined') return null;
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('accessToken');
     if (!token) return null;
 
     try {
@@ -118,9 +165,5 @@ export class UserService {
     } catch {
       return null;
     }
-  }
-
-  googleLogin(idToken: string): Observable<{ token: string }> {
-    return this.http.post<{ token: string }>(`${this.apiUrl}/Auth/GoogleLogin`, { idToken });
   }
 }

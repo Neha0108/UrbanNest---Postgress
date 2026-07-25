@@ -51,16 +51,34 @@ namespace UrbanNest.Controllers
         [HttpPost]
         public async Task<IActionResult> Login([FromBody] Login login)
         {
-            var token = await service.login(login);
+            var result = await service.login(login);
 
-            if (token is null)
+            if (result is null)
             {
                 return Unauthorized("INVALID EMAIL OR PASSWORD");
             }
-            else
+
+            return Ok(result); // { accessToken, refreshToken }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
+        {
+            var result = await service.RefreshToken(request.RefreshToken);
+
+            if (result is null)
             {
-                return Ok(new { token });
+                return Unauthorized(new { message = "Invalid or expired refresh token" });
             }
+
+            return Ok(result); // { accessToken, refreshToken }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Logout([FromBody] RefreshTokenRequest request)
+        {
+            await service.RevokeRefreshToken(request.RefreshToken);
+            return Ok(new { message = "Logged out successfully" });
         }
 
         [HttpGet]
@@ -92,9 +110,7 @@ namespace UrbanNest.Controllers
         {
             var otp = new Random().Next(100000, 999999).ToString();
 
-            // Save OTP in DB (call repo/service)
             await semail.SaveOTP(email.Email, otp);
-
             await semail.SendOTP(email.Email, otp);
 
             return Ok(new { message = "OTP sent successfully" });
@@ -109,7 +125,7 @@ namespace UrbanNest.Controllers
             {
                 return BadRequest(new { message = "Invalid or expired OTP" });
             }
-            Console.WriteLine($"EMAIL: {otp.Email}, OTP: {otp.OTP}");
+
             return Ok(new { message = "OTP verified successfully" });
         }
 
@@ -126,7 +142,6 @@ namespace UrbanNest.Controllers
                 return BadRequest("Please wait before requesting new OTP");
             }
 
-            // ✅ AFTER check → delete old
             var oldOtps = database.emailOTPs.Where(x => x.Email == email.Email);
             database.emailOTPs.RemoveRange(oldOtps);
 
@@ -153,12 +168,12 @@ namespace UrbanNest.Controllers
         {
             try
             {
-                var token = await service.GoogleLogin(google.IdToken);
+                var result = await service.GoogleLogin(google.IdToken);
 
-                if (token == null)
+                if (result == null)
                     return Unauthorized();
 
-                return Ok(new { token });
+                return Ok(result); // { accessToken, refreshToken }
             }
             catch
             {

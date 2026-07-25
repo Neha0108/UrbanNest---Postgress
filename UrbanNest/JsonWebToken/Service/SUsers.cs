@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using UrbanNest.DataAccess;
 using UrbanNest.DTO;
@@ -15,6 +16,10 @@ namespace UrbanNest.Service
     {
         private readonly DataBase database;
         private readonly IConfiguration configuration;
+
+        // How long a refresh token stays valid before the user must log in again
+        private const int RefreshTokenDays = 7;
+
         public SUsers(DataBase database, IConfiguration configuration)
         {
             this.database = database;
@@ -93,18 +98,18 @@ namespace UrbanNest.Service
             return registerRequest;
         }
 
-        public async Task<string?> login(Login log)
+        public async Task<AuthResponse?> login(Login log)
         {
             var user = await database.Users
                 .Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.userEmail == log.UserEmail);
 
-            if(user.Status == "Blocked")
-            {
-                return "User is Blocked by Admin";
-            }
-
             if (user == null) return null;
+
+            if (user.Status == "Blocked")
+            {
+                return null;
+            }
 
             bool isValid;
             try
@@ -113,19 +118,29 @@ namespace UrbanNest.Service
             }
             catch (BCrypt.Net.SaltParseException)
             {
-                // Account has no usable password hash (e.g. Google-only account)
                 return null;
             }
 
             if (!isValid) return null;
 
-            return IssueToken(user);
+            return await IssueTokens(user);
         }
 
-        private string IssueToken(Users user)
+        private async Task<AuthResponse> IssueTokens(Users user)
+        {
+            var accessToken = IssueAccessToken(user);
+            var refreshToken = await GenerateAndStoreRefreshToken(user.UserId);
+
+            return new AuthResponse
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
+            };
+        }
+
+        private string IssueAccessToken(Users user)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
-
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new List<Claim>
@@ -137,15 +152,107 @@ namespace UrbanNest.Service
                 new Claim(ClaimTypes.Role, user.Role.Name)
             };
 
+            // Kept short on purpose — refresh token handles staying logged in
             var token = new JwtSecurityToken(
                 issuer: configuration["Jwt:Issuer"],
                 audience: configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddHours(1),
+                expires: DateTime.UtcNow.AddMinutes(15),
                 signingCredentials: credentials
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        private static string GenerateRawToken()
+        {
+            var bytes = RandomNumberGenerator.GetBytes(64);
+            return Convert.ToBase64String(bytes);
+        }
+
+        private async Task<string> GenerateAndStoreRefreshToken(int userId)
+        {
+            var raw = GenerateRawToken();
+
+            var entry = new RefreshToken
+            {
+                Token = raw,
+                UserId = userId,
+                ExpiresAt = DateTime.UtcNow.AddDays(RefreshTokenDays),
+                CreatedAt = DateTime.UtcNow,
+                IsRevoked = false
+            };
+
+            await database.RefreshTokens.AddAsync(entry);
+            await database.SaveChangesAsync();
+
+            return raw;
+        }
+
+        public async Task<AuthResponse?> RefreshToken(string refreshToken)
+        {
+            var existing = await database.RefreshTokens
+                .Include(r => r.User)
+                    .ThenInclude(u => u.Role)
+                .FirstOrDefaultAsync(r => r.Token == refreshToken);
+
+            if (existing == null)
+                return null;
+
+            // Reuse of an already-rotated or revoked token: treat as compromise,
+            // kill every active refresh token for this user as a precaution.
+            if (existing.IsRevoked || existing.ExpiresAt < DateTime.UtcNow)
+            {
+                var allActive = database.RefreshTokens
+                    .Where(r => r.UserId == existing.UserId && !r.IsRevoked);
+
+                foreach (var t in allActive)
+                    t.IsRevoked = true;
+
+                await database.SaveChangesAsync();
+                return null;
+            }
+
+            if (existing.User.Status == "Blocked")
+                return null;
+
+            // Rotate: revoke the old one, issue a new one
+            var newRawToken = GenerateRawToken();
+
+            existing.IsRevoked = true;
+            existing.ReplacedByToken = newRawToken;
+
+            var newEntry = new RefreshToken
+            {
+                Token = newRawToken,
+                UserId = existing.UserId,
+                ExpiresAt = DateTime.UtcNow.AddDays(RefreshTokenDays),
+                CreatedAt = DateTime.UtcNow,
+                IsRevoked = false
+            };
+
+            await database.RefreshTokens.AddAsync(newEntry);
+            await database.SaveChangesAsync();
+
+            var newAccessToken = IssueAccessToken(existing.User);
+
+            return new AuthResponse
+            {
+                AccessToken = newAccessToken,
+                RefreshToken = newRawToken
+            };
+        }
+
+        public async Task RevokeRefreshToken(string refreshToken)
+        {
+            var existing = await database.RefreshTokens
+                .FirstOrDefaultAsync(r => r.Token == refreshToken);
+
+            if (existing != null)
+            {
+                existing.IsRevoked = true;
+                await database.SaveChangesAsync();
+            }
         }
 
         public async Task<string> updateUser(int userId, Register dto)
@@ -167,7 +274,7 @@ namespace UrbanNest.Service
             return "Profile updated successfully";
         }
 
-        public async Task<string?> GoogleLogin(string idToken)
+        public async Task<AuthResponse?> GoogleLogin(string idToken)
         {
             var settings = new GoogleJsonWebSignature.ValidationSettings
             {
@@ -180,9 +287,9 @@ namespace UrbanNest.Service
                 .Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.userEmail == payload.Email);
 
-            if (user.Status == "Blocked")
+            if (user != null && user.Status == "Blocked")
             {
-                return "User is Blocked by Admin";
+                return null;
             }
 
             if (user == null)
@@ -194,8 +301,6 @@ namespace UrbanNest.Service
                 {
                     userName = payload.Name,
                     userEmail = payload.Email,
-                    // Random unusable hash — Google-only accounts can never log in via
-                    // password, and this avoids BCrypt.Verify throwing on an empty string.
                     userPassword = BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString()),
                     RoleId = consumerRole.RoleId
                 };
@@ -217,7 +322,7 @@ namespace UrbanNest.Service
                     .FirstOrDefaultAsync(x => x.UserId == user.UserId);
             }
 
-            return IssueToken(user);
+            return await IssueTokens(user);
         }
 
         public async Task<string> changePassword(int id, ChangePassword changePassword)
@@ -226,19 +331,16 @@ namespace UrbanNest.Service
 
             if (user is null) return "User not found";
 
-            // ✅ Verify old password
             if (!BCrypt.Net.BCrypt.Verify(changePassword.oldPassword, user.userPassword))
             {
                 return "Old password is incorrect";
             }
 
-            // ✅ Match new + confirm
             if (changePassword.newPassword != changePassword.confirmPassword)
             {
                 return "New password does not match confirm password";
             }
 
-            // ✅ SAVE NEW PASSWORD (IMPORTANT FIX)
             user.userPassword = BCrypt.Net.BCrypt.HashPassword(changePassword.newPassword);
 
             await database.SaveChangesAsync();
