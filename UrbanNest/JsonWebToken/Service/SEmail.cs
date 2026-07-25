@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MimeKit;
-using MailKit.Net.Smtp;
+﻿using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using UrbanNest.DataAccess;
 using UrbanNest.Model;
 using UrbanNest.Repository;
@@ -11,47 +12,71 @@ namespace UrbanNest.Service
     {
         private readonly IConfiguration _config;
         private readonly DataBase database;
+        private readonly HttpClient _httpClient;
 
-        public SEmail(IConfiguration config, DataBase database)
+        private const string BrevoEndpoint = "https://api.brevo.com/v3/smtp/email";
+
+        public SEmail(IConfiguration config, DataBase database, HttpClient httpClient)
         {
             _config = config;
             this.database = database;
+            _httpClient = httpClient;
+
+            // Brevo requires the API key on every request via this header
+            _httpClient.DefaultRequestHeaders.Remove("api-key");
+            _httpClient.DefaultRequestHeaders.Add("api-key", _config["Brevo:ApiKey"]);
+            _httpClient.DefaultRequestHeaders.Accept.Clear();
+            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
+        private async Task SendViaBrevo(string toEmail, string subject, string htmlContent, (string fileName, byte[] content)? attachment = null)
+        {
+            var payload = new Dictionary<string, object>
+            {
+                ["sender"] = new
+                {
+                    name = _config["SmtpSettings:SenderName"],
+                    email = _config["SmtpSettings:SenderEmail"]
+                },
+                ["to"] = new[]
+                {
+                    new { email = toEmail }
+                },
+                ["subject"] = subject,
+                ["htmlContent"] = htmlContent
+            };
+
+            if (attachment != null)
+            {
+                payload["attachment"] = new[]
+                {
+                    new
+                    {
+                        name = attachment.Value.fileName,
+                        content = Convert.ToBase64String(attachment.Value.content)
+                    }
+                };
+            }
+
+            var json = JsonSerializer.Serialize(payload);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync(BrevoEndpoint, content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                // Swallow invoice-email failures like the old code did,
+                // but always throw for OTP so the caller knows verification can't proceed
+                throw new HttpRequestException($"Brevo email send failed ({(int)response.StatusCode}): {error}");
+            }
+        }
 
         public async Task SendOTP(string toEmail, string otp)
         {
-            var email = new MimeMessage();
-
-            email.From.Add(new MailboxAddress(
-                _config["SmtpSettings:SenderName"],
-                _config["SmtpSettings:SenderEmail"]
-            ));
-
-            email.To.Add(MailboxAddress.Parse(toEmail));
-            email.Subject = "UrbanNest Email Verification OTP";
-
-            var builder = new BodyBuilder
-            {
-                HtmlBody = $"<h2>UrbanNest OTP</h2><p>Your OTP is <b>{otp}</b></p>"
-            };
-
-            email.Body = builder.ToMessageBody();
-
-            using var smtp = new SmtpClient();
-
-            int port = int.Parse(_config["SmtpSettings:Port"] ?? "587");
-
-            await smtp.ConnectAsync(_config["SmtpSettings:Server"], port, false);
-            await smtp.AuthenticateAsync(
-                _config["SmtpSettings:Username"],
-                _config["SmtpSettings:Password"]
-            );
-
-            await smtp.SendAsync(email);
-            await smtp.DisconnectAsync(true);
+            var html = $"<h2>UrbanNest OTP</h2><p>Your OTP is <b>{otp}</b></p>";
+            await SendViaBrevo(toEmail, "UrbanNest Email Verification OTP", html);
         }
-
 
         public async Task SaveOTP(string email, string otp)
         {
@@ -98,45 +123,15 @@ namespace UrbanNest.Service
 
         public async Task SendInvoiceEmail(string toEmail, byte[] pdfBytes)
         {
-            var email = new MimeMessage();
-
-            email.From.Add(new MailboxAddress(
-                _config["SmtpSettings:SenderName"],
-                _config["SmtpSettings:SenderEmail"]
-            ));
-
-            email.To.Add(MailboxAddress.Parse(toEmail));
-            email.Subject = "Your Order Invoice";
-
-            var builder = new BodyBuilder
-            {
-                HtmlBody = "<h3>Thanks for your order!</h3><p>Your invoice is attached.</p>"
-            };
-
-            builder.Attachments.Add("Invoice.pdf", pdfBytes);
-
-            email.Body = builder.ToMessageBody();
-
-            using var smtp = new SmtpClient();
-
-            int port = int.Parse(_config["SmtpSettings:Port"] ?? "587");
-
-            await smtp.ConnectAsync(_config["SmtpSettings:Server"], port, false);
-            await smtp.AuthenticateAsync(
-                _config["SmtpSettings:Username"],
-                _config["SmtpSettings:Password"]
-            );
-
             try
             {
-                await smtp.SendAsync(email);
+                var html = "<h3>Thanks for your order!</h3><p>Your invoice is attached.</p>";
+                await SendViaBrevo(toEmail, "Your Order Invoice", html, ("Invoice.pdf", pdfBytes));
             }
             catch
             {
-                // optional: log error
+                // optional: log error (kept same behavior as original code)
             }
-
-            await smtp.DisconnectAsync(true);
         }
     }
 }

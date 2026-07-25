@@ -36,7 +36,7 @@ builder.Services.AddScoped<IProduct, SProduct>();
 builder.Services.AddScoped<IWishlist, SWishlist>();
 builder.Services.AddScoped<ICart, SCart>();
 builder.Services.AddScoped<IProfile, SProfile>();
-builder.Services.AddScoped<IEmail, SEmail>();
+builder.Services.AddHttpClient<IEmail, SEmail>();
 builder.Services.AddScoped<IOrder, SOrder>();
 builder.Services.AddScoped<IAdmin, SAdmin>();
 builder.Services.AddScoped<IAddress, SAddress>();
