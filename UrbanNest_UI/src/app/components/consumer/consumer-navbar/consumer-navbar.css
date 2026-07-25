@@ -18,10 +18,13 @@
 }
 
 .navbar-collapse {
-  display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
+}
+
+.navbar-collapse.show {
+  display: flex;
 }
 
 .navbar-nav {
@@ -285,17 +288,32 @@ app-chatbot {
     margin-right: auto;
   }
 
-  .navbar-collapse {
+  .navbar-collapse.show {
     flex-direction: column;
     align-items: stretch;
   }
 
   .navbar-nav {
+    width: 100%;
     justify-content: center;
+    gap: 6px;
+  }
+
+  .navbar-nav .nav-item {
+    width: 100%;
+  }
+
+  .nav-link {
+    display: block;
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 14px;
   }
 
   .navbar-right {
     justify-content: center;
+    width: 100%;
+    gap: 10px;
   }
 
   .profile-header {
@@ -304,10 +322,6 @@ app-chatbot {
 
   .username {
     display: none;
-  }
-
-  .nav-link {
-    padding: 9px 13px;
   }
 }
 
