@@ -2,12 +2,16 @@
    AUTH PAGE
 ========================== */
 
+* {
+  box-sizing: border-box;
+}
+
 .auth-hero {
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px 20px;
+  padding: clamp(16px, 3vw, 40px) clamp(16px, 3vw, 24px);
 
   background:
     radial-gradient(circle at top, rgba(212, 175, 55, 0.12), transparent 40%),
@@ -22,10 +26,10 @@
 
 .login-card,
 .register-card {
-  width: 100%;
+  width: min(100%, 450px);
   max-width: 450px;
 
-  padding: 2.5rem;
+  padding: clamp(1.5rem, 3.4vw, 2.5rem);
 
   border-radius: 24px;
 
@@ -74,14 +78,14 @@
 
 .section-title {
   color: #ffffff;
-  font-size: 2rem;
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
   font-weight: 700;
   margin-bottom: 10px;
 }
 
 .body-copy {
   color: #bdbdbd;
-  font-size: 0.95rem;
+  font-size: clamp(0.9rem, 1.8vw, 0.95rem);
   line-height: 1.7;
 }
 
@@ -92,7 +96,7 @@
 .form-label {
   display: block;
   color: #f2f2f2;
-  font-size: 0.9rem;
+  font-size: clamp(0.85rem, 1.6vw, 0.9rem);
   font-weight: 500;
   margin-bottom: 8px;
 }
@@ -103,6 +107,7 @@
 
 .form-control {
   width: 100%;
+  min-height: 44px;
 
   padding: 12px 14px;
 
@@ -139,6 +144,7 @@
 .login-btn,
 .btn-primary {
   width: 100%;
+  min-height: 44px;
 
   padding: 13px 18px;
 
@@ -234,20 +240,57 @@ a:hover {
 }
 
 /* ==========================
-   MOBILE
+   RESPONSIVE
 ========================== */
 
-@media (max-width: 576px) {
+@media (max-width: 1024px) {
+  .login-card,
+  .register-card {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
   .auth-hero {
-    padding: 20px;
+    align-items: flex-start;
+    padding-top: clamp(20px, 4vw, 32px);
   }
 
   .login-card,
   .register-card {
-    padding: 2rem 1.5rem;
+    border-radius: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-hero {
+    padding: 12px;
   }
 
-  .section-title {
-    font-size: 1.7rem;
+  .login-card,
+  .register-card {
+    padding: 1.25rem 1rem;
+    border-radius: 16px;
+  }
+
+  .section-header {
+    margin-bottom: 20px;
+  }
+
+  .eyebrow {
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+  }
+
+  .body-copy {
+    font-size: 0.88rem;
+  }
+
+  .divider {
+    margin: 20px 0;
+  }
+
+  .small-note {
+    font-size: 0.8rem;
   }
 }

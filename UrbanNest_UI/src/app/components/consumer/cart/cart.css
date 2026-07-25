@@ -150,13 +150,31 @@
   .cart-summary { position: static; }
 }
 @media (max-width: 640px) {
-  .cart-page { padding: 90px 20px 40px; }
+  .cart-page { padding: 90px 16px 40px; }
   .cart-item { grid-template-columns: 70px 1fr; grid-template-areas: "img info" "img qty" "img total" "img remove"; row-gap: 10px; }
   .cart-item-image { grid-area: img; width: 70px; height: 70px; }
   .cart-item-info { grid-area: info; }
   .cart-item-qty { grid-area: qty; }
   .cart-item-total { grid-area: total; }
   .cart-item-remove { grid-area: remove; justify-self: start; }
+  .coupon-box { flex-direction: column; }
+  .coupon-box button { width: 100%; }
+  .btn-checkout { padding: 14px 16px; }
+  .rec-row { gap: 12px; }
+  .rec-card { min-width: 170px; }
+}
+
+@media (max-width: 480px) {
+  .cart-page { padding: 86px 12px 32px; }
+  .cart-summary { padding: 20px; }
+  .cart-header h1 { font-size: 1.5rem; }
+  .cart-item { padding: 12px; gap: 12px; }
+  .cart-item-info h4 { font-size: 0.9rem; }
+  .cart-item-price { font-size: 0.8rem; }
+  .qty-control button { width: 28px; height: 28px; }
+  .qty-control span { width: 30px; }
+  .cart-item-total { font-size: 0.9rem; }
+  .summary-row { font-size: 0.84rem; }
 }
 /* ================= COUPON — INPUT STATE ================= */
 .coupon-box {

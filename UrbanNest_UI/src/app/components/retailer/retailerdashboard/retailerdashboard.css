@@ -918,12 +918,18 @@ input, select {
   }
 
   .welcome-text h1 {
-    font-size: 24px;
+    font-size: clamp(1.25rem, 3vw, 1.5rem);
+  }
+
+  .welcome-text p {
+    font-size: 0.95rem;
   }
 
   .btn-primary, .btn-secondary {
     font-size: 12px;
     padding: 10px 16px;
+    width: 100%;
+    justify-content: center;
   }
 
   .card-value {
@@ -938,5 +944,45 @@ input, select {
   .product-revenue, .order-right, .stock-info {
     width: 100%;
     margin-top: 12px;
+  }
+
+  .analytics-card,
+  .content-card {
+    padding: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  :host {
+    padding: 12px;
+  }
+
+  .welcome-card,
+  .analytics-card,
+  .content-card,
+  .kpi-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .chart-header,
+  .card-header-premium {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .chart-controls {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    width: 100%;
+  }
+
+  .order-status {
+    min-width: auto;
+    width: 100%;
   }
 }

@@ -94,9 +94,10 @@
 
         <!--  Current Images (Edit Mode) -->
         <div *ngIf="isEdit && currentImages.length > 0" class="mb-2">
-          <label>Current Images</label><br />
-          <img *ngFor="let img of currentImages" [src]="environment.imageBaseUrl+ img" width="100"
-            style="margin-right:8px; border-radius: 8px" />
+          <label>Current Images</label>
+          <div class="current-image-list">
+            <img *ngFor="let img of currentImages" [src]="environment.imageBaseUrl+ img" class="current-image" />
+          </div>
         </div>
 
         <!--  Image Upload -->
@@ -111,17 +112,16 @@
 
         <!--  Preview Selected Images -->
         <div class="preview-container mt-2" *ngIf="previewUrls.length > 0">
-          <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-            <div *ngFor="let img of previewUrls; let i = index" style="position: relative; display: inline-block;">
-              <img [src]="img" width="80" style="margin-right:8px; border-radius:8px; border: 1px solid #ccc;" />
-              <button type="button" (click)="removeSelectedImage(i)"
-                style="position: absolute; top: 0; right: 0; background: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; color: #d00; font-weight: bold;">×</button>
+          <div class="preview-list">
+            <div *ngFor="let img of previewUrls; let i = index" class="preview-item">
+              <img [src]="img" class="preview-image" />
+              <button type="button" class="remove-preview-btn" (click)="removeSelectedImage(i)">×</button>
             </div>
           </div>
         </div>
 
         <!-- Actions -->
-        <div class="d-flex gap-2 mt-3">
+        <div class="d-flex gap-2 mt-3 action-buttons">
           <button type="submit" class="submit-btn" [disabled]="productForm.invalid">
             {{ isEdit ? 'Update Product' : 'Add Product' }}
           </button>

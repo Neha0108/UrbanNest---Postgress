@@ -7,6 +7,10 @@
       VARIABLES
 ================================ */
 
+* {
+  box-sizing: border-box;
+}
+
 :root {
   --gold: #d4af37;
   --gold-dark: #b8860b;
@@ -26,8 +30,8 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 30px 20px;
-  min-height: 100vh;
+  padding: clamp(16px, 3vw, 32px) clamp(16px, 3vw, 24px);
+  min-height: 100dvh;
   background: #090909;
   font-family: 'Inter', sans-serif;
 }
@@ -37,12 +41,12 @@
 ================================ */
 
 .form-card {
-  width: 100%;
+  width: min(100%, 640px);
   max-width: 640px;
   background: rgba(24, 24, 24, 0.85);
   border: 1px solid rgba(212, 175, 55, 0.18);
   border-radius: 24px;
-  padding: 40px;
+  padding: clamp(24px, 4vw, 40px);
   backdrop-filter: blur(20px);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   position: relative;
@@ -81,7 +85,7 @@
 ================================ */
 
 .form-title {
-  font-size: 22px;
+  font-size: clamp(1.125rem, 2.4vw, 1.375rem);
   font-weight: 700;
   margin-bottom: 28px;
   background: linear-gradient(135deg, #ffffff, var(--gold));
@@ -138,7 +142,7 @@
 .form-group label,
 label {
   display: block;
-  font-size: 12px;
+  font-size: clamp(0.72rem, 1.3vw, 0.75rem);
   font-weight: 600;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -156,12 +160,13 @@ label {
 
 .form-control {
   width: 100%;
+  min-height: 44px;
   background: #121212;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 14px;
   padding: 14px 16px;
   color: #ffffff;
-  font-size: 15px;
+  font-size: clamp(0.95rem, 1.8vw, 1rem);
   font-family: 'Inter', sans-serif;
   transition: border-color 0.3s, background 0.3s, box-shadow 0.3s, transform 0.3s;
   outline: none;
@@ -245,10 +250,34 @@ small.text-danger {
   margin-bottom: 8px;
 }
 
-.mb-2 img {
+.current-image-list,
+.preview-list {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.current-image,
+.preview-image {
   border-radius: 10px;
   border: 1px solid rgba(212, 175, 55, 0.2);
-  margin-right: 8px;
+  max-width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.current-image {
+  width: clamp(88px, 24vw, 120px);
+}
+
+.preview-image {
+  width: clamp(72px, 18vw, 80px);
+}
+
+.preview-item {
+  position: relative;
+  display: inline-block;
 }
 
 /* ==============================
@@ -258,7 +287,8 @@ small.text-danger {
 .drop-zone {
   border: 1.5px dashed rgba(212, 175, 55, 0.3);
   border-radius: 14px;
-  padding: 28px 20px;
+  padding: clamp(20px, 4vw, 28px) clamp(16px, 3vw, 20px);
+  min-height: 44px;
   text-align: center;
   cursor: pointer;
   transition: border-color 0.3s, background 0.3s;
@@ -295,22 +325,11 @@ small.text-danger {
   margin-top: 12px;
 }
 
-.preview-container > div {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.preview-container > div > div {
-  position: relative;
+.preview-container .preview-item {
   display: inline-block;
 }
 
-.preview-container img {
-  width: 80px;
-  border-radius: 10px;
-  border: 1px solid rgba(212, 175, 55, 0.2);
+.preview-container .preview-image {
   display: block;
 }
 
@@ -318,8 +337,8 @@ small.text-danger {
   position: absolute;
   top: -6px;
   right: -6px;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background: #1a1a1a;
   border: 1px solid rgba(220, 53, 69, 0.4);
@@ -364,7 +383,8 @@ small.text-danger {
 
 .submit-btn {
   flex: 1;
-  padding: 15px 28px;
+  min-height: 44px;
+  padding: 14px 20px;
   border: none;
   border-radius: 14px;
   background: linear-gradient(135deg, #d4af37, #b8860b);
@@ -416,7 +436,8 @@ small.text-danger {
 
 .btn.btn-secondary,
 .btn-secondary {
-  padding: 15px 22px;
+  min-height: 44px;
+  padding: 14px 20px;
   background: #181818;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 14px;
@@ -480,21 +501,62 @@ small.text-danger {
       RESPONSIVE
 ================================ */
 
-@media (max-width: 600px) {
+@media (max-width: 1024px) {
   .form-card {
-    padding: 24px 18px;
-    border-radius: 18px;
+    max-width: 100%;
   }
+}
 
-  .form-title {
-    font-size: 18px;
+@media (max-width: 768px) {
+  .form-card {
+    border-radius: 20px;
   }
 
   .d-flex.gap-2 {
     flex-direction: column;
   }
 
-  .submit-btn {
+  .submit-btn,
+  .btn-secondary {
     width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-container {
+    padding: 12px;
+    align-items: stretch;
+  }
+
+  .form-card {
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+
+  .form-title {
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+  }
+
+  .alert {
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+
+  .drop-zone {
+    padding: 20px 14px;
+  }
+
+  .drop-zone p {
+    font-size: 13px;
+  }
+
+  .preview-image {
+    width: 68px;
+  }
+
+  .preview-container button[type="button"] {
+    width: 24px;
+    height: 24px;
   }
 }
