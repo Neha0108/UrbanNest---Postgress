@@ -28,6 +28,7 @@ namespace UrbanNest.DataAccess
         public DbSet<ReviewHelpful> ReviewHelpful { get; set; }
         public DbSet<ReviewReply> ReviewReplies { get; set; }
         public DbSet<Coupon> Coupons { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
